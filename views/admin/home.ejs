@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Admin Dashboard</title> 
+    <title>Dardcor</title> 
+    <link rel="icon" href="/logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Style kustom (tidak berubah) */
         body { 
             background-color: #1a1a2e; 
             min-height: 100vh; 
@@ -26,30 +26,35 @@
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        .navbar {
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        .navbar-scrolled {
+            background-color: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
     </style>
 </head>
 <body class="relative">
-
     <div class="relative min-h-screen">
-
-        <aside id="sidebar" class="sidebar absolute h-full z-40 w-0 p-0 text-white transition-all duration-300 ease-in-out overflow-hidden flex-shrink-0 flex flex-col">
-            
-            <div class="flex items-center gap-4 pb-4 border-b border-white/20 mb-4 flex-shrink-0">
+        <aside id="sidebar" class="sidebar fixed h-full z-50 w-0 p-0 text-white transition-all duration-300 ease-in-out overflow-hidden flex-shrink-0 flex flex-col">
+            <div class="flex items-center gap-4 pb-4 border-b border-white/20 mb-4 flex-shrink-0 pt-6 px-6">
                 <button id="sidebarCloseButton" class="p-1 rounded-full text-white/70 hover:bg-white/10 hover:text-white transition-colors">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
                 <h2 class="text-2xl font-bold">Dashboard</h2>
             </div>
             
-            <nav class="flex-grow"> 
+            <nav class="flex-grow px-6"> 
                 <ul>
-                    <li class="mb-5">
+                    <li class="mb-4">
                         <a href="/admin/home" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors bg-blue-600 text-white">
                             <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6-4a1 1 0 001-1v-1a1 1 0 10-2 0v1a1 1 0 001 1z"></path></svg>
                             <span>Home</span>
                         </a>
                     </li>
-                    <li class="mb-5">
+                    <li class="mb-4">
                         <a href="/admin/mywallet" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors hover:bg-blue-600">
                             <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z"></path>
@@ -57,7 +62,15 @@
                             <span>My Wallet</span>
                         </a>
                     </li>
-                    <li class="mb-5">
+                    <li class="mb-4">
+                        <a href="/admin/status" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors hover:bg-blue-600">
+                            <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M10.34 15.84c-.688-.06-1.386-.09-2.09-.09H7.5a4.5 4.5 0 00-4.5 4.5v.75c0 1.108.892 2 2 2h11c1.108 0 2-.892 2-2v-.75a4.5 4.5 0 00-4.5-4.5h-.75c-.704 0-1.402.03-2.09.09M15.34 15.84A2.25 2.25 0 0013.5 14.25h-3a2.25 2.25 0 00-1.84 1.59M9.75 11.25c0 .621.504 1.125 1.125 1.125h2.25c.621 0 1.125-.504 1.125-1.125v-2.25c0-.621-.504-1.125-1.125-1.125h-2.25A1.125 1.125 0 009.75 9v2.25z"></path>
+                            </svg>
+                            <span>Status Webhook</span>
+                        </a>
+                    </li>
+                    <li class="mb-4">
                         <a href="/admin/upload-ai" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors hover:bg-blue-600">
                             <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M12 5V3m0 18v-2M7.05 7.05l-1.414-1.414M18.364 18.364l-1.414-1.414M7.05 18.364l-1.414 1.414M18.364 7.05l-1.414 1.414M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -65,13 +78,13 @@
                             <span>Upload AI</span>
                         </a>
                     </li>
-                    <li class="mb-5">
+                    <li class="mb-4">
                         <a href="/admin/upload-jadwal" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors hover:bg-blue-600">
-                             <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                             <span>Upload Jadwal</span>
                         </a>
                     </li>
-                    <li class="mb-5">
+                    <li class="mb-4">
                         <a href="/admin/upload-tugas" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors hover:bg-blue-600">
                             <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
                             <span>Upload Tugas</span>
@@ -80,7 +93,7 @@
                 </ul>
             </nav>
 
-            <div class="mt-auto flex-shrink-0"> 
+            <div class="mt-auto flex-shrink-0 px-6 pb-6"> 
                 <a href="/logout" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors bg-red-600/20 text-red-300 hover:bg-red-600 hover:text-white">
                     <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"></path>
@@ -90,50 +103,50 @@
             </div>
         </aside>
 
-        <main class="relative flex items-center justify-center p-4 min-h-screen">
-
-            <div class="absolute top-0 left-0 w-full p-4 md:p-6 flex justify-center z-20">
-                <nav class="w-full max-w-6xl bg-white/90 backdrop-blur-sm rounded-full shadow-lg border border-gray-200/50 flex items-center justify-between px-4 py-3">
-                    
-                    <div class="flex items-center gap-1 md:gap-3">
-                        <button id="sidebarToggle" class="text-gray-700 p-2 transition-colors hover:bg-gray-100 rounded-full">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-                        </button>
-                        
-                        <a href="/" class="flex items-center gap-2">
-                            <span class="text-xl font-bold text-gray-800 hidden sm:block">Dardcor</span>
-                        </a>
-                    </div>
-
-                    <div class="hidden lg:flex items-center gap-6">
-                        <a href="/" class="text-sm font-medium text-gray-700 hover:text-black transition-colors">Home</a>
-                        <a href="#" class="text-sm font-medium text-gray-700 hover:text-black transition-colors">About</a>
-                        <a href="#" class="text-sm font-medium text-gray-700 hover:text-black transition-colors">Works</a>
-                    </div>
-
-                    <a href="/admin" class="w-10 h-10 rounded-full flex items-center justify-center bg-gray-100 hover:bg-gray-200 transition-colors" aria-label="Admin Login">
-                        <svg class="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A1.875 1.875 0 0118.375 22.5H5.625a1.875 1.875 0 01-1.125-2.382z"></path>
-                        </svg>
+        <div id="navbar" class="navbar fixed top-0 left-0 w-full p-4 md:p-6 flex justify-center z-30">
+            <nav class="w-full max-w-6xl bg-white/90 backdrop-blur-sm rounded-full shadow-lg border border-gray-200/50 flex items-center justify-between px-4 py-3">
+                <div class="flex items-center gap-1 md:gap-3">
+                    <button id="sidebarToggle" class="text-gray-700 p-2 transition-colors hover:bg-gray-100 rounded-full">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    </button>
+                    <a href="/" class="flex items-center gap-2">
+                        <span class="text-xl font-bold text-gray-800">Dardcor</span>
                     </a>
+                </div>
+                <div class="hidden md:flex items-center gap-6">
+                    <a href="/" class="text-sm font-medium text-gray-700 hover:text-black transition-colors">Public Site</a>
+                </div>
+                <div class="md:hidden">
+                    <button id="mobileMenuToggle" class="text-gray-700 p-2 transition-colors hover:bg-gray-100 rounded-full">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    </button>
+                </div>
+                <a href="/admin" class="w-10 h-10 rounded-full flex items-center justify-center bg-gray-100 hover:bg-gray-200 transition-colors" aria-label="Admin Login">
+                    <img src="/logo.png" alt="Logo Admin" class="w-full h-full object-contain p-1 rounded-full">
+                </a>
+            </nav>
+        </div>
 
-                </nav>
+        <div id="mobileMenu" class="fixed top-20 right-4 bg-white/95 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200/50 z-40 hidden md:hidden">
+            <div class="flex flex-col p-4 space-y-3">
+                <a href="/" class="text-sm font-medium text-gray-700 hover:text-black transition-colors">Public Site</a>
             </div>
+        </div>
             
-            <div class="welcome-container text-center text-white p-12 rounded-2xl max-w-lg mx-4">
-                <svg class="w-16 h-16 mx-auto mb-6 text-blue-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <main class="relative flex items-center justify-center p-4 min-h-screen pt-24 md:pt-28">
+            <div class="welcome-container text-center text-white p-6 sm:p-8 md:p-12 rounded-2xl max-w-lg mx-4">
+                <svg class="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 mx-auto mb-4 sm:mb-6 text-blue-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21M9 17.25v-10.5a2.25 2.25 0 00-2.25-2.25H4.5A2.25 2.25 0 002.25 6.75v10.5a2.25 2.25 0 002.25 2.25h2.25m4.5-15H17.25a2.25 2.25 0 012.25 2.25v10.5a2.25 2.25 0 01-2.25 2.25H9.75M14.25 9m0 3h.008v.008h-.008V12zm0 0h.008v.008h-.008V12zm0 0h.008v.008h-.008V12zm0 0h.008v.008h-.008V12z"></path>
                 </svg>
-                <h1 class="text-4xl font-extrabold mb-4">Admin Dashboard</h1>
-                <p class="text-xl text-gray-300 mb-8">
+                <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold mb-3 sm:mb-4">Admin Dashboard</h1>
+                <p class="text-base sm:text-lg md:text-xl text-gray-300 mb-6 sm:mb-8">
                     Selamat datang, admin. Gunakan sidebar untuk navigasi.
                 </p>
             </div>
-
         </main>
     </div> 
     
-    <div id="sidebarBackdrop" class="fixed inset-0 bg-black/50 z-30 hidden"></div>
+    <div id="sidebarBackdrop" class="fixed inset-0 bg-black/50 z-40 hidden"></div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -141,20 +154,47 @@
             const sidebar = document.getElementById('sidebar');
             const backdrop = document.getElementById('sidebarBackdrop');
             const closeButton = document.getElementById('sidebarCloseButton');
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const mobileMenu = document.getElementById('mobileMenu');
+            const navbar = document.getElementById('navbar');
 
-            function toggleMenu() {
-                sidebar.classList.toggle('w-60'); 
-                sidebar.classList.toggle('w-0');   
-                sidebar.classList.toggle('p-6'); 
-                sidebar.classList.toggle('p-0'); 
+            function toggleSidebar() {
+                sidebar.classList.toggle('w-60');
+                sidebar.classList.toggle('w-0');
+                sidebar.classList.toggle('p-0');
                 backdrop.classList.toggle('hidden');
             }
 
-            if (toggleButton && sidebar && backdrop && closeButton) {
-                toggleButton.addEventListener('click', toggleMenu);
-                backdrop.addEventListener('click', toggleMenu);
-                closeButton.addEventListener('click', toggleMenu);
+            function toggleMobileMenu() {
+                mobileMenu.classList.toggle('hidden');
             }
+
+            function handleScroll() {
+                if (window.scrollY > 10) {
+                    navbar.classList.add('navbar-scrolled');
+                } else {
+                    navbar.classList.remove('navbar-scrolled');
+                }
+            }
+
+            if (toggleButton && sidebar && backdrop && closeButton) {
+                toggleButton.addEventListener('click', toggleSidebar);
+                backdrop.addEventListener('click', toggleSidebar);
+                closeButton.addEventListener('click', toggleSidebar);
+            }
+
+            if (mobileMenuToggle && mobileMenu) {
+                mobileMenuToggle.addEventListener('click', toggleMobileMenu);
+            }
+
+            document.addEventListener('click', (event) => {
+                if (mobileMenu && !mobileMenu.contains(event.target) && mobileMenuToggle && !mobileMenuToggle.contains(event.target)) {
+                    mobileMenu.classList.add('hidden');
+                }
+            });
+
+            window.addEventListener('scroll', handleScroll);
+            handleScroll();
         });
     </script>
 </body>

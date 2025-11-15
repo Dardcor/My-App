@@ -4,9 +4,28 @@ const WEBHOOK_URL_SEHAT = 'https://discord.com/api/webhooks/1439194800208347239/
 const WEBHOOK_URL_PAYMENT = 'https://discord.com/api/webhooks/1439194890700329041/gNahM2MDCB6nnMafqr0uBPR7Sks8w3eOIHRxZz-5OKNsyinN7fs5b8KYwZJ2lzHcXp1N';
 const WEBHOOK_URL_CHANNEL_3 = 'https://discord.com/api/webhooks/1439195115804557332/fYm-8MCwd2zcxeu3njdbd4tgL8l9b0mGB-FJVdOq6t8cYQs9F3vcDuHPLvlNUmmM-8po';
 
+const logs = [];
+const MAX_LOGS = 100;
+
+function log(message) {
+    console.log(message);
+    const logEntry = {
+        timestamp: new Date(),
+        message: message
+    };
+    logs.push(logEntry);
+    if (logs.length > MAX_LOGS) {
+        logs.shift();
+    }
+}
+
+function getLogs() {
+    return logs;
+}
+
 async function sendWebhook(url, payload) {
     if (!url || !url.startsWith('http')) {
-        console.warn('URL Webhook tidak diatur atau tidak valid.');
+        log('URL Webhook tidak diatur atau tidak valid.');
         return; 
     }
     try {
@@ -16,7 +35,7 @@ async function sendWebhook(url, payload) {
             body: JSON.stringify(payload)
         });
     } catch (error) {
-        console.error('Gagal mengirim webhook:', error.message);
+        log(`Gagal mengirim webhook: ${error.message}`);
     }
 }
 
@@ -30,7 +49,7 @@ const healthyReminders = [
 
 function startHealthyReminder() {
     cron.schedule('0 * * * *', () => {
-        console.log('Mengirim pengingat sehat ke Channel 1...');
+        log('Mengirim pengingat sehat ke Channel 1...');
         const message = healthyReminders[Math.floor(Math.random() * healthyReminders.length)];
         const payload = {
             username: 'Asisten Sehat',
@@ -38,8 +57,11 @@ function startHealthyReminder() {
             content: `**⏰ Pengingat Hidup Sehat!**\n${message}`
         };
         sendWebhook(WEBHOOK_URL_SEHAT, payload);
+    }, {
+        timezone: "Asia/Jakarta"
     });
-    console.log('Layanan Pengingat Sehat (Cron Job) telah dimulai.');
+    
+    log('Layanan Pengingat Sehat (Cron Job) telah dimulai.');
 }
 
 async function sendPaymentLog(action, transactionData, oldData = null) {
@@ -76,12 +98,13 @@ async function sendPaymentLog(action, transactionData, oldData = null) {
     }
 
     const payload = {
-        username: 'Log MyWallet',
+        username: 'MyWallet',
         avatar_url: 'https://i.imgur.com/v1k3rWj.png',
         embeds: [embed]
     };
     
     await sendWebhook(WEBHOOK_URL_PAYMENT, payload);
+    log(`Log pembayaran [${action}] dikirim ke Channel 2.`);
 }
 
 const prayerTimes = {
@@ -95,7 +118,7 @@ const prayerTimes = {
 function startPrayerReminder() {
     Object.entries(prayerTimes).forEach(([time, name]) => {
         cron.schedule(time, () => {
-            console.log(`Mengirim pengingat sholat ${name}...`);
+            log(`Mengirim pengingat sholat ${name}...`);
             const payload = {
                 username: 'Pengingat Sholat',
                 avatar_url: 'https://i.imgur.com/kQjYfSj.png',
@@ -106,11 +129,12 @@ function startPrayerReminder() {
             timezone: "Asia/Jakarta"
         });
     });
-    console.log('Layanan Pengingat Sholat (Cron Job) telah dimulai.');
+    log('Layanan Pengingat Sholat (Cron Job) telah dimulai.');
 }
 
 module.exports = {
     startHealthyReminder,
     sendPaymentLog,
-    startPrayerReminder
+    startPrayerReminder,
+    getLogs
 };

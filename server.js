@@ -123,6 +123,11 @@ app.get('/list-tugas', (req, res) => {
     res.render('listtugas');
 });
 
+app.get('/admin/status', checkAuth, (req, res) => {
+    const logs = discordWebhook.getLogs();
+    res.render('admin/status', { logs: logs.slice().reverse() }); 
+});
+
 app.get('/admin/home', checkAuth, (req, res) => {
     res.render('admin/home'); 
 });

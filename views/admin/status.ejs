@@ -3,20 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Upload Tugas</title> 
+    <title>Dardcor</title> 
+    <link rel="icon" href="/logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { 
-            background-color: #1a1a2e;
-            min-height: 100vh; 
-            font-family: sans-serif; 
-            overflow-x: hidden; 
-            color: #cbd5e1;
-        }
-        .sidebar {
-            background-color: #16213e;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.4);
-        }
+        body { background-color: #1a1a2e; min-height: 100vh; font-family: sans-serif; overflow-x: hidden; color: #cbd5e1; }
+        .sidebar { background-color: #16213e; box-shadow: 0 5px 20px rgba(0,0,0,0.4); }
         .content-card {
             background-color: #16213e; 
             box-shadow: 0 10px 25px rgba(0,0,0,0.3);
@@ -26,13 +18,26 @@
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        .log-console {
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            font-family: 'Courier New', Courier, monospace;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        .log-line {
+            border-bottom: 1px solid #334155;
+        }
+        .log-line:last-child {
+            border-bottom: none;
+        }
     </style>
 </head>
 <body class="relative">
 
     <div class="relative min-h-screen">
 
-        <aside id="sidebar" class="sidebar absolute h-full z-40 w-0 p-0 text-white transition-all duration-300 ease-in-out overflow-hidden flex-shrink-0 flex flex-col">
+        <aside id="sidebar" class="sidebar absolute h-full z-50 w-0 p-0 text-white transition-all duration-300 ease-in-out overflow-hidden flex-shrink-0 flex flex-col">
             
             <div class="flex items-center gap-4 pb-4 border-b border-white/20 mb-4 flex-shrink-0">
                 <button id="sidebarCloseButton" class="p-1 rounded-full text-white/70 hover:bg-white/10 hover:text-white transition-colors">
@@ -54,16 +59,16 @@
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z"></path>
                             </svg>
-                             <span>My Wallet</span>
+                            <span>My Wallet</span>
                         </a>
                     </li>
                     <li class="mb-5">
-                        <a href="/admin/status" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors hover:bg-blue-600">
+                        <a href="/admin/status" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors bg-blue-600 text-white">
                             <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                 <path stroke-linecap="round" stroke-linejoin="round" d="M10.34 15.84c-.688-.06-1.386-.09-2.09-.09H7.5a4.5 4.5 0 00-4.5 4.5v.75c0 1.108.892 2 2 2h11c1.108 0 2-.892 2-2v-.75a4.5 4.5 0 00-4.5-4.5h-.75c-.704 0-1.402.03-2.09.09M15.34 15.84A2.25 2.25 0 0013.5 14.25h-3a2.25 2.25 0 00-1.84 1.59M9.75 11.25c0 .621.504 1.125 1.125 1.125h2.25c.621 0 1.125-.504 1.125-1.125v-2.25c0-.621-.504-1.125-1.125-1.125h-2.25A1.125 1.125 0 009.75 9v2.25z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M10.34 15.84c-.688-.06-1.386-.09-2.09-.09H7.5a4.5 4.5 0 00-4.5 4.5v.75c0 1.108.892 2 2 2h11c1.108 0 2-.892 2-2v-.75a4.5 4.5 0 00-4.5-4.5h-.75c-.704 0-1.402.03-2.09.09M15.34 15.84A2.25 2.25 0 0013.5 14.25h-3a2.25 2.25 0 00-1.84 1.59M9.75 11.25c0 .621.504 1.125 1.125 1.125h2.25c.621 0 1.125-.504 1.125-1.125v-2.25c0-.621-.504-1.125-1.125-1.125h-2.25A1.125 1.125 0 009.75 9v2.25z"></path>
                             </svg>
                             <span>Status Webhook</span>
-                         </a>
+                        </a>
                     </li>
                     <li class="mb-5">
                         <a href="/admin/upload-ai" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors hover:bg-blue-600">
@@ -78,7 +83,7 @@
                         </a>
                     </li>
                     <li class="mb-5">
-                         <a href="/admin/upload-tugas" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors bg-blue-600 text-white">
+                         <a href="/admin/upload-tugas" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors hover:bg-blue-600">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
                             <span>Upload Tugas</span>
                         </a>
@@ -111,20 +116,29 @@
                 </nav>
             </div>
             
-            <div class="content-card text-center text-white p-12 rounded-2xl max-w-lg mx-4">
-                <svg class="w-16 h-16 mx-auto mb-6 text-blue-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21M9 17.25v-10.5a2.25 2.25 0 00-2.25-2.25H4.5A2.25 2.25 0 002.25 6.75v10.5a2.25 2.25 0 002.25 2.25h2.25m4.5-15H17.25a2.25 2.25 0 012.25 2.25v10.5a2.25 2.25 0 01-2.25 2.25H9.75M14.25 9m0 3h.008v.008h-.008V12zm0 0h.008v.008h-.008V12zm0 0h.008v.008h-.008V12zm0 0h.008v.008h-.008V12z"></path>
-                </svg>
-                <h1 class="text-4xl font-extrabold mb-4">Halaman Upload Tugas</h1>
-                <p class="text-xl text-gray-300 mb-8">
-                    Fitur ini sedang dalam pengembangan.
-                </p>
+            <div class="content-card text-white p-8 rounded-2xl max-w-4xl w-full mx-4">
+                <h1 class="text-3xl font-extrabold mb-6 text-center">Log Aktivitas Server</h1>
+                
+                <div class="log-console rounded-lg p-4 text-sm">
+                    <% if (typeof logs !== 'undefined' && logs.length > 0) { %>
+                        <% logs.forEach(log => { %>
+                            <div class="log-line p-2">
+                                <span class="text-green-400 mr-3">
+                                    <%= new Date(log.timestamp).toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }) %>
+                                </span>
+                                <span class="text-gray-300"><%= log.message %></span>
+                            </div>
+                        <% }) %>
+                    <% } else { %>
+                        <p class="text-gray-500">Belum ada aktivitas log...</p>
+                    <% } %>
+                </div>
             </div>
 
         </main>
     </div> 
     
-    <div id="sidebarBackdrop" class="fixed inset-0 bg-black/50 z-30 hidden"></div>
+    <div id="sidebarBackdrop" class="fixed inset-0 bg-black/50 z-40 hidden"></div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -137,7 +151,7 @@
                 sidebar.classList.toggle('w-60'); 
                 sidebar.classList.toggle('w-0');   
                 sidebar.classList.toggle('p-6'); 
-                sidebar.classList.toggle('p-0'); 
+                 sidebar.classList.toggle('p-0'); 
                 backdrop.classList.toggle('hidden');
             }
 
