@@ -80,49 +80,37 @@
                     </li>
                 </ul>
             </nav>
-
             <div class="mt-auto flex-shrink-0"> 
                 <a href="/logout" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors bg-red-600/20 text-red-300 hover:bg-red-600 hover:text-white">
-                    <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"></path>
-                    </svg>
+                    <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"></path></svg>
                     <span>Logout</span>
                 </a>
             </div>
         </aside>
 
         <main class="relative flex items-center justify-center p-4 min-h-screen">
-
             <div class="absolute top-0 left-0 w-full p-4 md:p-6 flex justify-center z-20">
                 <nav class="w-full max-w-6xl bg-white/90 backdrop-blur-sm rounded-full shadow-lg border border-gray-200/50 flex items-center justify-between px-4 py-3">
-                    
                     <div class="flex items-center gap-1 md:gap-3">
                         <button id="sidebarToggle" class="text-gray-700 p-2 transition-colors hover:bg-gray-100 rounded-full">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                         </button>
-                        
                         <a href="/" class="flex items-center gap-2">
                             <span class="text-xl font-bold text-gray-800 hidden sm:block">Dardcor</span>
                         </a>
                     </div>
-
                     <div class="hidden lg:flex items-center gap-6">
                         <a href="/" class="text-sm font-medium text-gray-700 hover:text-black transition-colors">Home</a>
                         <a href="#" class="text-sm font-medium text-gray-700 hover:text-black transition-colors">About</a>
                         <a href="#" class="text-sm font-medium text-gray-700 hover:text-black transition-colors">Works</a>
                     </div>
-
                     <a href="/admin" class="w-10 h-10 rounded-full flex items-center justify-center bg-gray-100 hover:bg-gray-200 transition-colors" aria-label="Admin Login">
-                        <svg class="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A1.875 1.875 0 0118.375 22.5H5.625a1.875 1.875 0 01-1.125-2.382z"></path>
-                        </svg>
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A1.875 1.875 0 0118.375 22.5H5.625a1.875 1.875 0 01-1.125-2.382z"></path></svg>
                     </a>
-
                 </nav>
             </div>
             
             <div class="container mx-auto p-4 pb-20 pt-24 md:pt-28 w-full max-w-6xl">
-        
                 <div class="bank-card rounded-xl overflow-hidden mb-6">
                     <div class="p-6">
                         <div class="flex justify-between items-center mb-4">
@@ -189,7 +177,10 @@
                             </div>
                         <% } else { %>
                             <% transactions.forEach(row => { %>
-                                <div class="p-4 hover:bg-slate-900 transition">
+                                <div class="p-4 hover:bg-slate-900 transition" 
+                                     id="tx-<%= row.id %>" 
+                                     data-row='<%- JSON.stringify(row).replace(new RegExp("'", "g"), "&#39;") %>'>
+                                    
                                     <div class="flex justify-between items-center">
                                         <div class="flex items-center">
                                             <div class="mr-3">
@@ -222,7 +213,7 @@
                                                 <%= (row.type === 'deposit' || row.type === 'reward' ? '+' : '-') + ' Rp ' + (parseFloat(row.amount) || 0).toLocaleString('id-ID', { minimumFractionDigits: 2 }) %>
                                             </p>
                                             <div class="flex space-x-2 mt-1 justify-end">
-                                                <button onclick='openEditModal(<%- JSON.stringify(row) %>)' class="text-blue-400 hover:text-blue-300 text-sm">
+                                                <button onclick='openEditModal(<%= row.id %>)' class="text-blue-400 hover:text-blue-300 text-sm">
                                                     <i class="fas fa-edit"></i>
                                                 </button>
                                                 <form method="POST" action="/bank/delete" onsubmit="return confirm('Hapus transaksi ini?')" class="inline">
@@ -282,6 +273,7 @@
 
 
     <script>
+        // Script Sidebar
         document.addEventListener('DOMContentLoaded', () => {
             const toggleButton = document.getElementById('sidebarToggle');
             const sidebar = document.getElementById('sidebar');
@@ -305,6 +297,7 @@
     </script>
 
     <script>
+        // Script Modal
         const transactionModal = document.getElementById('transactionModal');
         const transactionForm = document.getElementById('transactionForm');
         const modalTitle = document.getElementById('modalTitle');
@@ -313,6 +306,12 @@
         const editIdInput = document.getElementById('editId');
         
         function openModal(type, data = null) {
+            // Pastikan modal dan form ada sebelum melanjutkan
+            if (!transactionModal || !transactionForm) {
+                console.error('Modal atau form tidak ditemukan');
+                return;
+            }
+            
             transactionForm.reset();
             editIdInput.value = '';
             
@@ -354,21 +353,51 @@
             transactionModal.classList.remove('hidden');
         }
         
-        function openEditModal(data) {
-            openModal('edit', data); 
+        // Fungsi untuk membuka modal edit
+        function openEditModal(transactionId) {
+            try {
+                // Temukan elemen baris berdasarkan ID
+                const rowElement = document.getElementById('tx-' + transactionId);
+                
+                if (!rowElement) {
+                    console.error('Elemen transaksi tidak ditemukan dengan ID:', transactionId);
+                    return;
+                }
+                
+                // Ambil data JSON dari atribut 'data-row'
+                const dataRow = rowElement.getAttribute('data-row');
+                
+                if (!dataRow) {
+                    console.error('Data transaksi tidak ditemukan untuk ID:', transactionId);
+                    return;
+                }
+                
+                // Parse data JSON
+                const data = JSON.parse(dataRow);
+                
+                // Panggil fungsi openModal dengan data yang sudah di-parse
+                openModal('edit', data);
+            } catch (error) {
+                console.error('Error saat membuka modal edit:', error);
+                alert('Terjadi kesalahan saat membuka data transaksi');
+            }
         }
         
         function closeModal() {
-            transactionModal.classList.add('hidden');
+            if (transactionModal) {
+                transactionModal.classList.add('hidden');
+            }
         }
         
-        transactionType.addEventListener('change', function() {
-            if (this.value === 'transfer' || this.value === 'payment') {
-                recipientField.classList.remove('hidden');
-            } else {
-                recipientField.classList.add('hidden');
-            }
-        });
+        if (transactionType) {
+            transactionType.addEventListener('change', function() {
+                if (this.value === 'transfer' || this.value === 'payment') {
+                    recipientField.classList.remove('hidden');
+                } else {
+                    recipientField.classList.add('hidden');
+                }
+            });
+        }
     </script>
 </body>
 </html>

@@ -3,35 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Admin Dashboard</title> 
+    <title>Upload List AI</title> 
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Style kustom (tidak berubah) */
-        body { 
-            background-color: #1a1a2e; 
-            min-height: 100vh; 
-            font-family: sans-serif; 
-            overflow-x: hidden; 
-        }
-        .sidebar {
-            background-color: #16213e;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.4);
-        }
-        .welcome-container {
-            background-color: #16213e; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-            animation: fadeIn 0.6s ease-out;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        body { background-color: #1a1a2e; min-height: 100vh; font-family: sans-serif; overflow-x: hidden; color: #cbd5e1;}
+        .sidebar { background-color: #16213e; box-shadow: 0 5px 20px rgba(0,0,0,0.4); }
+        .form-container, .list-container { background-color: #16213e; box-shadow: 0 10px 25px rgba(0,0,0,0.3); animation: fadeIn 0.6s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        input[type="text"], input[type="url"], input[type="file"] { background: rgba(15, 23, 42, 0.7); border: 1px solid #334155; color: white; }
+        input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); outline: none; }
+        /* Style untuk file input */
+        input[type="file"]::file-selector-button { background-color: #3b82f6; color: white; border: none; padding: 0.5rem 1rem; border-radius: 0.375rem; cursor: pointer; transition: background-color 0.2s; }
+        input[type="file"]::file-selector-button:hover { background-color: #2563eb; }
     </style>
 </head>
 <body class="relative">
-
     <div class="relative min-h-screen">
-
         <aside id="sidebar" class="sidebar absolute h-full z-40 w-0 p-0 text-white transition-all duration-300 ease-in-out overflow-hidden flex-shrink-0 flex flex-col">
             
             <div class="flex items-center gap-4 pb-4 border-b border-white/20 mb-4 flex-shrink-0">
@@ -44,36 +31,32 @@
             <nav class="flex-grow"> 
                 <ul>
                     <li class="mb-5">
-                        <a href="/admin/home" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors bg-blue-600 text-white">
-                            <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6-4a1 1 0 001-1v-1a1 1 0 10-2 0v1a1 1 0 001 1z"></path></svg>
+                        <a href="/admin/home" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors hover:bg-blue-600">
+                           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6-4a1 1 0 001-1v-1a1 1 0 10-2 0v1a1 1 0 001 1z"></path></svg>
                             <span>Home</span>
                         </a>
                     </li>
                     <li class="mb-5">
                         <a href="/admin/mywallet" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors hover:bg-blue-600">
-                            <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z"></path>
-                            </svg>
+                           <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z"></path></svg>
                             <span>My Wallet</span>
                         </a>
                     </li>
                     <li class="mb-5">
-                        <a href="/admin/upload-ai" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors hover:bg-blue-600">
-                            <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M12 5V3m0 18v-2M7.05 7.05l-1.414-1.414M18.364 18.364l-1.414-1.414M7.05 18.364l-1.414 1.414M18.364 7.05l-1.414 1.414M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                            </svg>
+                        <a href="/admin/upload-ai" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors bg-blue-600 text-white">
+                           <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M12 5V3m0 18v-2M7.05 7.05l-1.414-1.414M18.364 18.364l-1.414-1.414M7.05 18.364l-1.414 1.414M18.364 7.05l-1.414 1.414M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                             <span>Upload AI</span>
                         </a>
                     </li>
                     <li class="mb-5">
                         <a href="/admin/upload-jadwal" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors hover:bg-blue-600">
-                             <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                             <span>Upload Jadwal</span>
                         </a>
                     </li>
                     <li class="mb-5">
                         <a href="/admin/upload-tugas" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors hover:bg-blue-600">
-                            <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
                             <span>Upload Tugas</span>
                         </a>
                     </li>
@@ -82,52 +65,90 @@
 
             <div class="mt-auto flex-shrink-0"> 
                 <a href="/logout" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors bg-red-600/20 text-red-300 hover:bg-red-600 hover:text-white">
-                    <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"></path>
-                    </svg>
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"></path></svg>
                     <span>Logout</span>
                 </a>
             </div>
         </aside>
 
-        <main class="relative flex items-center justify-center p-4 min-h-screen">
+        <main class="relative flex flex-col items-center justify-start p-4 min-h-screen pt-24 md:pt-28">
 
             <div class="absolute top-0 left-0 w-full p-4 md:p-6 flex justify-center z-20">
                 <nav class="w-full max-w-6xl bg-white/90 backdrop-blur-sm rounded-full shadow-lg border border-gray-200/50 flex items-center justify-between px-4 py-3">
-                    
                     <div class="flex items-center gap-1 md:gap-3">
                         <button id="sidebarToggle" class="text-gray-700 p-2 transition-colors hover:bg-gray-100 rounded-full">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                         </button>
-                        
                         <a href="/" class="flex items-center gap-2">
                             <span class="text-xl font-bold text-gray-800 hidden sm:block">Dardcor</span>
                         </a>
                     </div>
-
                     <div class="hidden lg:flex items-center gap-6">
                         <a href="/" class="text-sm font-medium text-gray-700 hover:text-black transition-colors">Home</a>
                         <a href="#" class="text-sm font-medium text-gray-700 hover:text-black transition-colors">About</a>
                         <a href="#" class="text-sm font-medium text-gray-700 hover:text-black transition-colors">Works</a>
                     </div>
-
                     <a href="/admin" class="w-10 h-10 rounded-full flex items-center justify-center bg-gray-100 hover:bg-gray-200 transition-colors" aria-label="Admin Login">
-                        <svg class="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A1.875 1.875 0 0118.375 22.5H5.625a1.875 1.875 0 01-1.125-2.382z"></path>
-                        </svg>
+                        <svg class="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A1.875 1.875 0 0118.375 22.5H5.625a1.875 1.875 0 01-1.125-2.382z"></path></svg>
                     </a>
-
                 </nav>
             </div>
             
-            <div class="welcome-container text-center text-white p-12 rounded-2xl max-w-lg mx-4">
-                <svg class="w-16 h-16 mx-auto mb-6 text-blue-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21M9 17.25v-10.5a2.25 2.25 0 00-2.25-2.25H4.5A2.25 2.25 0 002.25 6.75v10.5a2.25 2.25 0 002.25 2.25h2.25m4.5-15H17.25a2.25 2.25 0 012.25 2.25v10.5a2.25 2.25 0 01-2.25 2.25H9.75M14.25 9m0 3h.008v.008h-.008V12zm0 0h.008v.008h-.008V12zm0 0h.008v.008h-.008V12zm0 0h.008v.008h-.008V12z"></path>
-                </svg>
-                <h1 class="text-4xl font-extrabold mb-4">Admin Dashboard</h1>
-                <p class="text-xl text-gray-300 mb-8">
-                    Selamat datang, admin. Gunakan sidebar untuk navigasi.
-                </p>
+            <div class="form-container text-white p-10 md:p-12 rounded-2xl max-w-lg w-full mx-4">
+                <h1 class="text-3xl font-extrabold mb-6 text-center">Upload AI Baru</h1>
+                
+                <form action="/admin/upload-ai" method="POST" enctype="multipart/form-data">
+                    <div class="mb-5">
+                        <label for="name" class="block text-sm font-medium text-gray-300 mb-2">Nama AI</label>
+                        <input type="text" id="name" name="name" class="w-full p-3 rounded-lg" placeholder="Contoh: GPT" required>
+                    </div>
+
+                    <div class="mb-5">
+                        <label for="image_file" class="block text-sm font-medium text-gray-300 mb-2">Upload Gambar (Prioritas)</label>
+                        <input type="file" id="image_file" name="image_file" class="w-full p-2 rounded-lg text-sm text-gray-400">
+                    </div>
+
+                    <div class="mb-5">
+                        <label for="image_url_manual" class="block text-sm font-medium text-gray-300 mb-2">ATAU Link URL Gambar</label>
+                        <input type="url" id="image_url_manual" name="image_url_manual" class="w-full p-3 rounded-lg" placeholder="https://.../logo.png">
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label for="website_link" class="block text-sm font-medium text-gray-300 mb-2">Link Website</label>
+                        <input type="url" id="website_link" name="website_link" class="w-full p-3 rounded-lg" placeholder="https://..." required>
+                    </div>
+
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold p-3 rounded-lg transition-colors duration-200">
+                        Upload
+                    </button>
+                </form>
+            </div>
+
+            <div class="list-container text-white p-10 md:p-12 rounded-2xl max-w-lg w-full mx-4 mt-8">
+                <h2 class="text-2xl font-extrabold mb-6 text-center">Kelola List AI</h2>
+                <div class="space-y-4 max-h-96 overflow-y-auto pr-2">
+                    <% if (typeof tools !== 'undefined' && tools.length > 0) { %>
+                        <% tools.forEach(tool => { %>
+                            <div class="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg border border-slate-700">
+                                <div class="flex items-center gap-4">
+                                    <img src="<%= tool.image_url %>" alt="<%= tool.name %>" class="w-10 h-10 rounded-full object-cover bg-white">
+                                    <span class="font-medium"><%= tool.name %></span>
+                                </div>
+                                <form action="/admin/delete-ai" method="POST" onsubmit="return confirm('Anda yakin ingin menghapus <%= tool.name %>?')">
+                                    <input type="hidden" name="id" value="<%= tool.id %>">
+                                    <input type="hidden" name="image_url" value="<%= tool.image_url %>">
+                                    <button type="submit" class="text-red-500 hover:text-red-400 transition-colors">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"></path>
+                                        </svg>
+                                    </button>
+                                </form>
+                            </div>
+                        <% }) %>
+                    <% } else { %>
+                        <p class="text-center text-gray-500">Belum ada AI yang ditambahkan.</p>
+                    <% } %>
+                </div>
             </div>
 
         </main>
@@ -136,6 +157,7 @@
     <div id="sidebarBackdrop" class="fixed inset-0 bg-black/50 z-30 hidden"></div>
 
     <script>
+        // Script untuk sidebar (tidak berubah)
         document.addEventListener('DOMContentLoaded', () => {
             const toggleButton = document.getElementById('sidebarToggle');
             const sidebar = document.getElementById('sidebar');

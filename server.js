@@ -1,16 +1,17 @@
 // Import modul
 const express = require('express');
 const path = require('path');
-const { createClient } = require('@supabase/supabase-js'); // Import Supabase
-const session = require('express-session'); // Import express-session
+const { createClient } = require('@supabase/supabase-js'); 
+const session = require('express-session'); 
+const multer = require('multer'); // Import multer
 
-const app = express();
+const app = express(); // <-- Baris ini penting
 const port = process.env.PORT || 3000;
 
 // --- PENGATURAN SUPABASE ---
 const supabaseUrl = 'https://rvguyovrjffvnwlmksrh.supabase.co'; // <-- URL ANDA
-// (Saya perbaiki tanda kutip yang hilang di akhir key Anda)
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2Z3V5b3ZyamZmdm53bG1rc3JoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMxNzU0NTQsImV4cCI6MjA3ODc1MTQ1NH0.FArgD97TNr1XJb8EgQRHWnP7gM08aJbEpW7Md2lbjfA';
+// [PERHATIAN] Ganti dengan SERVICE_ROLE KEY Anda yang rahasia
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2Z3V5b3ZyamZmdm53bG1rc3JoIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MzE3NTQ1NCwiZXhwIjoyMDc4NzUxNDU0fQ.1fVEvegSpYP6PAyqBAocmD3v0cUAbQ_LxQxQXyPfcY4';
 
 const actualSupabaseUrl = process.env.SUPABASE_URL || supabaseUrl;
 const actualSupabaseKey = process.env.SUPABASE_KEY || supabaseKey;
@@ -31,12 +32,18 @@ try {
 
 // --- PENGATURAN LAIN ---
 const userId = 'bank_utama'; // ID pengguna statis
-// Pengaturan Discord Webhook telah dihapus
+
+// Pengaturan Multer (menyimpan file di memori sementara)
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 
 // Middleware
 app.use(express.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+
+// [BARU] Ini membuat folder 'image' menjadi publik
+app.use(express.static(path.join(__dirname, 'image')));
 
 // --- PENGATURAN SESSION ---
 app.use(session({
@@ -69,30 +76,23 @@ app.get('/admin', (req, res) => {
 
 app.post('/admin', async (req, res) => {
     const { username, password } = req.body;
-
     try {
         const { data, error } = await supabase
             .from('admin_users')
             .select('password') 
             .eq('username', username)
             .single(); 
-
         if (error || !data) {
-            const errorMessage = 'Username atau password salah!';
-            return res.render('admin', { error: errorMessage });
+            return res.render('admin', { error: 'Username atau password salah!' });
         }
-
         if (password === data.password) {
             req.session.isLoggedIn = true; 
             req.session.username = username; 
             res.redirect('/admin/home');
         } else {
-            const errorMessage = 'Username atau password salah!';
-            res.render('admin', { error: errorMessage });
+            res.render('admin', { error: 'Username atau password salah!' });
         }
-
     } catch (err) {
-        console.error('Error saat login:', err.message);
         res.render('admin', { error: 'Terjadi kesalahan server.' });
     }
 });
@@ -115,9 +115,19 @@ app.get('/', (req, res) => {
     res.render('index', { error: null });
 });
 
-// Rute untuk List AI
-app.get('/list-ai', (req, res) => {
-    res.render('listai'); 
+// Rute List AI (Mengambil data dari Supabase)
+app.get('/list-ai', async (req, res) => { 
+    try {
+        const { data, error } = await supabase
+            .from('ai_tools')
+            .select('*')
+            .order('created_at', { ascending: false });
+        if (error) throw error;
+        res.render('listai', { tools: data }); 
+    } catch (error) {
+        console.error("Error saat mengambil list AI:", error.message);
+        res.render('listai', { tools: [] }); 
+    }
 });
 
 // Rute untuk Jadwal Kuliah
@@ -130,6 +140,7 @@ app.get('/list-tugas', (req, res) => {
     res.render('listtugas');
 });
 
+
 // --- RUTE ADMIN YANG DIPROTEKSI ---
 
 // Rute 'admin/home' yang diproteksi
@@ -137,22 +148,113 @@ app.get('/admin/home', checkAuth, (req, res) => {
     res.render('admin/home'); // Merender 'views/admin/home.ejs'
 });
 
-// Rute untuk Upload AI
-app.get('/admin/upload-ai', checkAuth, (req, res) => {
-    res.render('admin/uplistai'); // Merender views/admin/uplistai.ejs
+// Rute untuk Upload AI (GET - menampilkan form)
+app.get('/admin/upload-ai', checkAuth, async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('ai_tools')
+            .select('*')
+            .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        
+        res.render('admin/uplistai', { tools: data }); // Kirim data 'tools' ke EJS
+    } catch (error) {
+        console.error("Error mengambil AI tools:", error.message);
+        res.render('admin/uplistai', { tools: [] }); // Kirim array kosong jika error
+    }
 });
 
-// Rute untuk Upload Jadwal
+// Rute untuk Upload AI (POST - menyimpan data)
+app.post('/admin/upload-ai', checkAuth, upload.single('image_file'), async (req, res) => {
+    try {
+        const { name, website_link, image_url_manual } = req.body;
+        let final_image_url = image_url_manual; // Ambil link manual
+
+        // Jika ada file yang diupload (req.file), file ini jadi prioritas
+        if (req.file) {
+            const file = req.file;
+            const fileName = `${Date.now()}-${file.originalname}`;
+            
+            // Upload ke Supabase Storage di bucket 'ai_logos'
+            const { data: uploadData, error: uploadError } = await supabase.storage
+                .from('ai_logos') // Nama Bucket Anda
+                .upload(fileName, file.buffer, {
+                    contentType: file.mimetype
+                });
+
+            if (uploadError) {
+                throw uploadError;
+            }
+
+            // Dapatkan URL publik dari file yang baru diupload
+            const { data: publicUrlData } = supabase.storage
+                .from('ai_logos')
+                .getPublicUrl(fileName);
+            
+            final_image_url = publicUrlData.publicUrl;
+        }
+
+        // Simpan data ke database 'ai_tools'
+        const { data, error } = await supabase
+            .from('ai_tools')
+            .insert([
+                { name: name, image_url: final_image_url, website_link: website_link }
+            ]);
+
+        if (error) {
+            throw error;
+        }
+
+        res.redirect('/admin/upload-ai');
+
+    } catch (error) {
+        console.error("Error saat upload AI:", error.message);
+        res.status(500).send(`Gagal menyimpan data: ${error.message}`);
+    }
+});
+
+// Rute untuk Menghapus AI
+app.post('/admin/delete-ai', checkAuth, async (req, res) => {
+    try {
+        const { id, image_url } = req.body;
+
+        // 1. Hapus data dari database
+        const { error: dbError } = await supabase
+            .from('ai_tools')
+            .delete()
+            .eq('id', id);
+        
+        if (dbError) throw dbError;
+
+        // 2. Hapus file dari Supabase Storage (jika itu file storage)
+        // Cek apakah URL-nya adalah URL storage kita
+        if (image_url.includes(supabaseUrl)) { 
+            // Ekstrak nama file dari URL
+            const fileName = image_url.split('/ai_logos/')[1];
+            if (fileName) {
+                await supabase.storage
+                    .from('ai_logos')
+                    .remove([fileName]);
+            }
+        }
+
+        res.redirect('/admin/upload-ai');
+
+    } catch (error) {
+        console.error("Error saat menghapus AI:", error.message);
+        res.status(500).send(`Gagal menghapus data: ${error.message}`);
+    }
+});
+
+
+// Rute admin lainnya
 app.get('/admin/upload-jadwal', checkAuth, (req, res) => {
-    res.render('admin/upjadwal'); // Merender views/admin/upjadwal.ejs
+    res.render('admin/upjadwal'); 
 });
-
-// Rute untuk Upload Tugas
 app.get('/admin/upload-tugas', checkAuth, (req, res) => {
-    res.render('admin/uptugas'); // Merender views/admin/uptugas.ejs
+    res.render('admin/uptugas'); 
 });
-
-// Rute '/admin/mywallet'
 app.get('/admin/mywallet', checkAuth, async (req, res) => {
     try {
         const { data: transactions, error } = await supabase
@@ -160,7 +262,6 @@ app.get('/admin/mywallet', checkAuth, async (req, res) => {
             .select('*')
             .eq('user_id', userId)
             .order('created_at', { ascending: false });
-
         if (error) throw error;
 
         const totals = { total_deposit: 0, total_withdraw: 0, total_transfer: 0, total_payment: 0, total_reward: 0 };
@@ -176,9 +277,7 @@ app.get('/admin/mywallet', checkAuth, async (req, res) => {
         });
         const balance = (totals.total_deposit || 0) - (totals.total_withdraw || 0) - (totals.total_transfer || 0) - (totals.total_payment || 0) + (totals.total_reward || 0);
 
-        // Render file 'views/admin/mywallet.ejs'
         res.render('admin/mywallet', { balance, totals, transactions });
-
     } catch (error) {
         console.error("Error di rute GET /admin/mywallet:", error.message);
         res.status(500).send(`Terjadi kesalahan server: ${error.message}`);
@@ -192,10 +291,7 @@ app.post('/bank/add', checkAuth, async (req, res) => {
         const newTransactionData = { user_id: userId, amount: parseFloat(amount) || 0, type: type, description: description, recipient: (type === 'transfer' || type === 'payment') ? (recipient || null) : null };
         const { data, error } = await supabase.from('transactions').insert([newTransactionData]).select().single();
         if (error) throw error;
-        
-        // Log Discord dihapus
-        
-        res.redirect('/admin/mywallet'); // Arahkan kembali ke mywallet
+        res.redirect('/admin/mywallet'); 
     } catch (error) {
         console.error("Error di rute POST /bank/add:", error.message);
         res.status(500).send(`Gagal menambah transaksi: ${error.message}`);
@@ -207,15 +303,9 @@ app.post('/bank/edit', checkAuth, async (req, res) => {
         const { id, amount, type, description, recipient } = req.body;
         if (!id) return res.status(400).send("ID Transaksi dibutuhkan");
         const updateData = { amount: parseFloat(amount) || 0, type: type, description: description, recipient: (type === 'transfer' || type === 'payment') ? (recipient || null) : null };
-        const { data: oldTxData, error: findError } = await supabase.from('transactions').select('description, amount').eq('id', id).eq('user_id', userId).single();
-        if (findError && findError.code !== 'PGRST116') throw findError;
-        
         const { data: updatedTx, error: updateError } = await supabase.from('transactions').update(updateData).eq('id', id).eq('user_id', userId).select().single();
         if (updateError) throw updateError;
-        
-        // Log Discord dihapus
-        
-        res.redirect('/admin/mywallet'); // Arahkan kembali ke mywallet
+        res.redirect('/admin/mywallet'); 
     } catch (error) {
         console.error("Error di rute POST /bank/edit:", error.message);
         res.status(500).send(`Gagal mengedit transaksi: ${error.details || error.message}`);
@@ -228,18 +318,12 @@ app.post('/bank/delete', checkAuth, async (req, res) => {
         if (!id) return res.status(400).send("ID Transaksi dibutuhkan");
         const { data: deletedTx, error } = await supabase.from('transactions').delete().eq('id', id).eq('user_id', userId).select().single();
         if (error && error.code !== 'PGRST116') throw error;
-        
-        // Log Discord dihapus
-        
-        res.redirect('/admin/mywallet'); // Arahkan kembali ke mywallet
+        res.redirect('/admin/mywallet'); 
     } catch (error) {
         console.error("Error di rute POST /bank/delete:", error.message);
         res.status(500).send(`Gagal menghapus transaksi: ${error.message}`);
     }
 });
-
-// --- FUNGSI DISCORD (Async) ---
-// Fungsi sendToDiscord telah dihapus
 
 // Jalankan server
 app.listen(port, () => {
