@@ -342,7 +342,6 @@ app.get('/api/cron/sholat/:nama', async (req, res) => {
 app.listen(port, () => {
     console.log(`Server berjalan di http://localhost:${port}`);
     if (process.env.NODE_ENV !== 'production') {
-        discordWebhook.startHealthyReminder();
-        discordWebhook.startPrayerReminder();
+        // Panggilan cron lokal dihapus agar tidak error
     }
 });
