@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Daftar AI</title>
+    <title>Dardcor</title>
+    <link rel="icon" href="/logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         html { scroll-behavior: smooth; }
@@ -36,6 +37,14 @@
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+        .navbar {
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        .navbar-scrolled {
+            background-color: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
@@ -84,7 +93,7 @@
             </div>
         </aside>
 
-        <div class="fixed top-0 left-0 w-full p-4 md:p-6 flex justify-center z-30">
+        <div id="navbar" class="navbar fixed top-0 left-0 w-full p-4 md:p-6 flex justify-center z-30">
             <nav class="w-full max-w-6xl bg-white/90 backdrop-blur-sm rounded-full shadow-lg border border-gray-200/50 flex items-center justify-between px-4 py-3">
                 <div class="flex items-center gap-1 md:gap-3">
                     <button id="sidebarToggle" class="text-gray-700 p-2 transition-colors hover:bg-gray-100 rounded-full">
@@ -94,31 +103,16 @@
                         <span class="text-xl font-bold text-gray-800">Dardcor</span>
                     </a>
                 </div>
-                <div class="hidden lg:flex items-center gap-6">
-                    <a href="/#home" class="text-sm font-medium text-gray-700 hover:text-black transition-colors">Home</a>
-                    <a href="/#about" class="text-sm font-medium text-gray-700 hover:text-black transition-colors">About</a>
-                    <a href="/#works" class="text-sm font-medium text-gray-700 hover:text-black transition-colors">Works</a>
-                    <a href="/#contact" class="text-sm font-medium text-gray-700 hover:text-black transition-colors">Contact</a>
+                
+                <div class="flex items-center gap-4">
+                    <a href="/admin" class="w-10 h-10 rounded-full flex items-center justify-center bg-gray-100 hover:bg-gray-200 transition-colors" aria-label="Admin Login">
+                        <img src="/logo.png" alt="Logo Admin" class="w-full h-full object-contain p-1 rounded-full">
+                    </a>
                 </div>
-                <div class="lg:hidden">
-                    <button id="mobileMenuToggle" class="text-gray-700 p-2 transition-colors hover:bg-gray-100 rounded-full">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-                    </button>
-                </div>
-                <a href="/admin" class="w-10 h-10 rounded-full flex items-center justify-center bg-gray-100 hover:bg-gray-200 transition-colors" aria-label="Admin Login">
-                    <img src="/logo.png" alt="Logo Admin" class="w-full h-full object-contain p-1 rounded-full">
-                </a>
             </nav>
         </div>
 
-        <div id="mobileMenu" class="fixed top-20 right-4 bg-white/95 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200/50 z-40 hidden lg:hidden">
-            <div class="flex flex-col p-4 space-y-3">
-                <a href="/#home" class="text-sm font-medium text-gray-700 hover:text-black transition-colors">Home</a>
-                <a href="/#about" class="text-sm font-medium text-gray-700 hover:text-black transition-colors">About</a>
-                <a href="/#works" class="text-sm font-medium text-gray-700 hover:text-black transition-colors">Works</a>
-                <a href="/#contact" class="text-sm font-medium text-gray-700 hover:text-black transition-colors">Contact</a>
-            </div>
-        </div>
+
         
         <div class="absolute top-0 left-0 w-full h-48 sm:h-64 md:h-80 lg:h-96 z-10">
             <img src="/header.jpg" alt="Header" class="w-full h-full object-cover">
@@ -162,6 +156,7 @@
             const closeButton = document.getElementById('sidebarCloseButton');
             const mobileMenuToggle = document.getElementById('mobileMenuToggle');
             const mobileMenu = document.getElementById('mobileMenu');
+            const navbar = document.getElementById('navbar');
 
             function toggleSidebar() {
                 sidebar.classList.toggle('w-60');
@@ -172,6 +167,14 @@
 
             function toggleMobileMenu() {
                 mobileMenu.classList.toggle('hidden');
+            }
+
+            function handleScroll() {
+                if (window.scrollY > 10) {
+                    navbar.classList.add('navbar-scrolled');
+                } else {
+                    navbar.classList.remove('navbar-scrolled');
+                }
             }
 
             if (toggleButton && sidebar && backdrop && closeButton) {
@@ -189,6 +192,9 @@
                     mobileMenu.classList.add('hidden');
                 }
             });
+
+            window.addEventListener('scroll', handleScroll);
+            handleScroll();
         });
     </script>
 </body>

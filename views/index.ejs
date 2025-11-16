@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Portofolio Dardcor</title>
+    <title>Dardcor</title>
     <link rel="icon" href="/logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.15.1/devicon.min.css">
@@ -64,7 +64,17 @@
         .tech-card:hover i {
             color: #3b82f6;
         }
+
+        /* Perbaikan untuk gambar header */
+        .hero-section {
+            background-image: url('/header.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
         
+        /* Optimasi untuk mobile */
         @media (max-width: 768px) {
             .tech-card i {
                 font-size: 2.5rem;
@@ -72,6 +82,9 @@
             .hero-image-container {
                 width: 280px;
                 height: 280px;
+            }
+            .hero-section {
+                background-attachment: scroll; /* Nonaktifkan parallax di mobile */
             }
         }
         
@@ -83,6 +96,22 @@
                 width: 240px;
                 height: 240px;
             }
+            /* Perbaikan padding untuk mobile */
+            .section-padding {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+        }
+
+        /* Perbaikan untuk dropdown mobile */
+        .mobile-dropdown {
+            min-width: 140px;
+        }
+
+        /* Perbaikan untuk gambar logo */
+        .logo-img {
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
         }
     </style>
 </head>
@@ -147,29 +176,36 @@
                     <a href="#works" class="text-sm font-medium text-gray-700 hover:text-black transition-colors">Works</a>
                     <a href="#contact" class="text-sm font-medium text-gray-700 hover:text-black transition-colors">Contact</a>
                 </div>
-                <div class="lg:hidden">
-                    <button id="mobileMenuToggle" class="text-gray-700 p-2 transition-colors hover:bg-gray-100 rounded-full">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-                    </button>
+                <div class="flex items-center gap-2">
+                    <div class="lg:hidden flex items-center gap-2">
+                        <div class="relative">
+                            <button id="mobileDropdownToggle" class="flex items-center text-gray-700 p-2 transition-colors hover:bg-gray-100 rounded-full">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </button>
+                            <div id="mobileDropdownMenu" class="absolute top-12 right-0 bg-white/95 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200/50 z-40 hidden mobile-dropdown">
+                                <div class="flex flex-col p-2 space-y-1">
+                                    <a href="#home" class="text-sm font-medium text-gray-700 hover:text-black transition-colors px-3 py-2 rounded-lg hover:bg-gray-100">Home</a>
+                                    <a href="#about" class="text-sm font-medium text-gray-700 hover:text-black transition-colors px-3 py-2 rounded-lg hover:bg-gray-100">About</a>
+                                    <a href="#works" class="text-sm font-medium text-gray-700 hover:text-black transition-colors px-3 py-2 rounded-lg hover:bg-gray-100">Works</a>
+                                    <a href="#contact" class="text-sm font-medium text-gray-700 hover:text-black transition-colors px-3 py-2 rounded-lg hover:bg-gray-100">Contact</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Logo Admin (tampil di semua device) -->
+                    <a href="/admin" class="w-10 h-10 rounded-full flex items-center justify-center bg-gray-100 hover:bg-gray-200 transition-colors" aria-label="Admin Login">
+                        <img src="/logo.png" alt="Logo Admin" class="w-full h-full object-contain p-1 rounded-full logo-img">
+                    </a>
                 </div>
-                <a href="/admin" class="w-10 h-10 rounded-full flex items-center justify-center bg-gray-100 hover:bg-gray-200 transition-colors" aria-label="Admin Login">
-                    <img src="/logo.png" alt="Logo Admin" class="w-full h-full object-contain p-1 rounded-full">
-                </a>
             </nav>
-        </div>
-        
-        <div id="mobileMenu" class="fixed top-20 right-4 bg-white/95 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200/50 z-40 hidden lg:hidden">
-            <div class="flex flex-col p-4 space-y-3">
-                <a href="#home" class="text-sm font-medium text-gray-700 hover:text-black transition-colors">Home</a>
-                <a href="#about" class="text-sm font-medium text-gray-700 hover:text-black transition-colors">About</a>
-                <a href="#works" class="text-sm font-medium text-gray-700 hover:text-black transition-colors">Works</a>
-                <a href="#contact" class="text-sm font-medium text-gray-700 hover:text-black transition-colors">Contact</a>
-            </div>
         </div>
         
         <main class="relative min-h-screen">
             
-            <section id="home" class="relative flex items-center justify-center w-full min-h-screen bg-cover bg-center" style="background-image: url('/header.jpg');">
+            <section id="home" class="hero-section relative flex items-center justify-center w-full min-h-screen">
                 <div class="absolute inset-0 bg-black/60 z-10"></div>
                 <div class="relative z-20 w-full max-w-6xl mx-auto px-4 sm:px-6 py-20 pt-32 md:pt-40">
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
@@ -198,7 +234,7 @@
                         </div>
                         <div class="relative flex justify-center items-center order-first lg:order-last">
                             <div class="hero-image-container w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 rounded-full flex justify-center items-center">
-                                <img src="/logo.png" alt="Dardcor" class="w-3/4 h-3/4 object-contain">
+                                <img src="/logo.png" alt="Dardcor" class="w-3/4 h-3/4 object-contain logo-img">
                             </div>
                             <div class="absolute w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 bg-blue-500/20 rounded-full blur-3xl z-[-1]"></div>
                         </div>
@@ -206,7 +242,7 @@
                 </div>
             </section>
             
-            <section id="about" class="py-16 sm:py-20">
+            <section id="about" class="py-16 sm:py-20 section-padding">
                 <div class="w-full max-w-4xl mx-auto px-4">
                     <div class="section-card relative z-20 text-white p-6 sm:p-8 md:p-10 lg:p-12 rounded-2xl">
                         <h2 class="text-2xl sm:text-3xl font-extrabold mb-6 text-center">Tentang Saya</h2>
@@ -217,7 +253,7 @@
                 </div>
             </section>
 
-            <section id="works" class="py-16 sm:py-20 bg-black/10">
+            <section id="works" class="py-16 sm:py-20 bg-black/10 section-padding">
                 <div class="w-full max-w-6xl mx-auto px-4">
                     <h2 class="text-2xl sm:text-3xl font-extrabold mb-8 sm:mb-10 text-center text-white">Proyek Saya</h2>
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
@@ -250,7 +286,7 @@
                 </div>
             </section>
 
-            <section id="skills" class="py-16 sm:py-20">
+            <section id="skills" class="py-16 sm:py-20 section-padding">
                 <div class="w-full max-w-4xl mx-auto px-4">
                     <div class="section-card relative z-20 text-white p-6 sm:p-8 md:p-10 lg:p-12 rounded-2xl">
                         <h2 class="text-2xl sm:text-3xl font-extrabold mb-8 sm:mb-10 text-center">Teknologi</h2>
@@ -284,7 +320,7 @@
                 </div>
             </section>
 
-            <section id="contact" class="py-16 sm:py-20 bg-black/10">
+            <section id="contact" class="py-16 sm:py-20 bg-black/10 section-padding">
                 <div class="w-full max-w-4xl mx-auto px-4 text-center text-white">
                     <h2 class="text-2xl sm:text-3xl font-extrabold mb-6">Hubungi Saya</h2>
                     <p class="text-base sm:text-lg text-gray-300 mb-6 sm:mb-8 max-w-xl mx-auto">
@@ -310,8 +346,9 @@
             const sidebar = document.getElementById('sidebar');
             const backdrop = document.getElementById('sidebarBackdrop');
             const closeButton = document.getElementById('sidebarCloseButton');
-            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
-            const mobileMenu = document.getElementById('mobileMenu');
+            
+            const mobileDropdownToggle = document.getElementById('mobileDropdownToggle');
+            const mobileDropdownMenu = document.getElementById('mobileDropdownMenu');
 
             function toggleSidebar() {
                 sidebar.classList.toggle('w-60');
@@ -320,8 +357,8 @@
                 backdrop.classList.toggle('hidden');
             }
 
-            function toggleMobileMenu() {
-                mobileMenu.classList.toggle('hidden');
+            function toggleMobileDropdown() {
+                mobileDropdownMenu.classList.toggle('hidden');
             }
 
             if (toggleButton && sidebar && backdrop && closeButton) {
@@ -330,14 +367,25 @@
                 closeButton.addEventListener('click', toggleSidebar);
             }
 
-            if (mobileMenuToggle && mobileMenu) {
-                mobileMenuToggle.addEventListener('click', toggleMobileMenu);
+            if (mobileDropdownToggle && mobileDropdownMenu) {
+                mobileDropdownToggle.addEventListener('click', toggleMobileDropdown);
             }
 
+            // Close dropdown when clicking outside
             document.addEventListener('click', (event) => {
-                if (mobileMenu && !mobileMenu.contains(event.target) && mobileMenuToggle && !mobileMenuToggle.contains(event.target)) {
-                    mobileMenu.classList.add('hidden');
+                if (mobileDropdownMenu && !mobileDropdownMenu.contains(event.target) && 
+                    mobileDropdownToggle && !mobileDropdownToggle.contains(event.target)) {
+                    mobileDropdownMenu.classList.add('hidden');
                 }
+            });
+
+            // Preload gambar untuk menghindari blur
+            window.addEventListener('load', function() {
+                const headerImg = new Image();
+                headerImg.src = '/header.jpg';
+                
+                const logoImg = new Image();
+                logoImg.src = '/logo.png';
             });
         });
     </script>

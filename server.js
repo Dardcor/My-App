@@ -312,8 +312,37 @@ app.post('/bank/delete', checkAuth, async (req, res) => {
     }
 });
 
+app.get('/api/cron/sehat', async (req, res) => {
+    if (req.headers['authorization'] !== `Bearer ${process.env.CRON_SECRET}`) {
+        return res.status(401).send('Unauthorized');
+    }
+    try {
+        await discordWebhook.sendHealthyReminder();
+        res.status(200).send('OK - Healthy reminder sent');
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error sending healthy reminder');
+    }
+});
+
+app.get('/api/cron/sholat/:nama', async (req, res) => {
+    if (req.headers['authorization'] !== `Bearer ${process.env.CRON_SECRET}`) {
+        return res.status(401).send('Unauthorized');
+    }
+    try {
+        const namaSholat = req.params.nama;
+        await discordWebhook.sendPrayerReminder(namaSholat);
+        res.status(200).send(`OK - Prayer reminder sent for ${namaSholat}`);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error sending prayer reminder');
+    }
+});
+
 app.listen(port, () => {
     console.log(`Server berjalan di http://localhost:${port}`);
-    discordWebhook.startHealthyReminder();
-    discordWebhook.startPrayerReminder();
+    if (process.env.NODE_ENV !== 'production') {
+        discordWebhook.startHealthyReminder();
+        discordWebhook.startPrayerReminder();
+    }
 });
