@@ -309,7 +309,7 @@ app.post('/bank/add', checkAuth, async (req, res) => {
         const { data, error } = await supabase.from('transactions').insert([newTransactionData]).select().single();
         if (error) throw error;
         
-        await discordHandler.sendTransactionLog('add', data);
+        // await discordHandler.sendTransactionLog('add', data);
         
         res.redirect('/admin/mywallet'); 
     } catch (error) {
@@ -330,7 +330,7 @@ app.post('/bank/edit', checkAuth, async (req, res) => {
         if (updateError) throw updateError;
         
         if (oldTxData && updatedTx) {
-             await discordHandler.sendTransactionLog('edit', updatedTx, oldTxData);
+             // await discordHandler.sendTransactionLog('edit', updatedTx, oldTxData);
         }
         
         res.redirect('/admin/mywallet'); 
@@ -347,7 +347,7 @@ app.post('/bank/delete', checkAuth, async (req, res) => {
         if (error && error.code !== 'PGRST116') throw error;
         
         if (deletedTx) {
-            await discordHandler.sendTransactionLog('delete', deletedTx);
+            // await discordHandler.sendTransactionLog('delete', deletedTx);
         }
         
         res.redirect('/admin/mywallet'); 
@@ -361,8 +361,8 @@ app.get('/api/cron/sehat', async (req, res) => {
         return res.status(401).send('Unauthorized');
     }
     try {
-        await discordHandler.sendHealthReminder();
-        res.status(200).send('OK - Healthy reminder sent');
+        // await discordHandler.sendHealthReminder();
+        res.status(200).send('OK - Healthy reminder sent (Disabled)');
     } catch (error) {
         res.status(500).send('Error sending healthy reminder');
     }
@@ -374,23 +374,12 @@ app.get('/api/cron/sholat/:nama', async (req, res) => {
     }
     try {
         const namaSholat = req.params.nama;
-        await discordHandler.sendPrayerReminder(namaSholat);
-        res.status(200).send(`OK - Prayer reminder sent for ${namaSholat}`);
+        // await discordHandler.sendPrayerReminder(namaSholat);
+        res.status(200).send(`OK - Prayer reminder sent for ${namaSholat} (Disabled)`);
     } catch (error) {
         res.status(500).send('Error sending prayer reminder');
     }
 });
-
-// --- PERBAIKAN: INTERVAL OTOMATIS UNTUK LOCALHOST ---
-// Ini akan memicu webhook setiap 1 menit (60.000 ms)
-setInterval(async () => {
-    try {
-        console.log('⏳ Memicu Reminder Sehat otomatis...');
-        await discordHandler.sendHealthReminder();
-    } catch (err) {
-        console.error('Gagal mengirim reminder sehat:', err);
-    }
-}, 60 * 1000);
 
 app.listen(port, () => {
     console.log(`Server berjalan di http://localhost:${port}`);
