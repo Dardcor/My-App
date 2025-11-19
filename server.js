@@ -3,7 +3,6 @@ const path = require('path');
 const { createClient } = require('@supabase/supabase-js'); 
 const session = require('express-session'); 
 const multer = require('multer'); 
-const discordHandler = require('./discordHandler'); 
 
 const app = express(); 
 const port = process.env.PORT || 3000;
@@ -128,8 +127,7 @@ app.get('/list-tugas', async (req, res) => {
 });
 
 app.get('/admin/status', checkAuth, (req, res) => {
-    const logs = discordHandler.getLogs();
-    res.render('admin/status', { logs: logs.slice().reverse() }); 
+    res.render('admin/status', { logs: [] }); 
 });
 
 app.get('/admin/home', checkAuth, (req, res) => {
@@ -309,8 +307,6 @@ app.post('/bank/add', checkAuth, async (req, res) => {
         const { data, error } = await supabase.from('transactions').insert([newTransactionData]).select().single();
         if (error) throw error;
         
-        // await discordHandler.sendTransactionLog('add', data);
-        
         res.redirect('/admin/mywallet'); 
     } catch (error) {
         res.status(500).send(`Gagal menambah transaksi: ${error.message}`);
@@ -323,15 +319,8 @@ app.post('/bank/edit', checkAuth, async (req, res) => {
         if (!id) return res.status(400).send("ID Transaksi dibutuhkan");
         const updateData = { amount: parseFloat(amount) || 0, type: type, description: description, recipient: (type === 'transfer' || type === 'payment') ? (recipient || null) : null };
         
-        const { data: oldTxData, error: findError } = await supabase.from('transactions').select('description, amount').eq('id', id).eq('user_id', userId).single();
-        if (findError && findError.code !== 'PGRST116') throw findError;
-        
-        const { data: updatedTx, error: updateError } = await supabase.from('transactions').update(updateData).eq('id', id).eq('user_id', userId).select().single();
+        const { error: updateError } = await supabase.from('transactions').update(updateData).eq('id', id).eq('user_id', userId);
         if (updateError) throw updateError;
-        
-        if (oldTxData && updatedTx) {
-             // await discordHandler.sendTransactionLog('edit', updatedTx, oldTxData);
-        }
         
         res.redirect('/admin/mywallet'); 
     } catch (error) {
@@ -343,12 +332,8 @@ app.post('/bank/delete', checkAuth, async (req, res) => {
     try {
         const { id } = req.body;
         if (!id) return res.status(400).send("ID Transaksi dibutuhkan");
-        const { data: deletedTx, error } = await supabase.from('transactions').delete().eq('id', id).eq('user_id', userId).select().single();
+        const { error } = await supabase.from('transactions').delete().eq('id', id).eq('user_id', userId);
         if (error && error.code !== 'PGRST116') throw error;
-        
-        if (deletedTx) {
-            // await discordHandler.sendTransactionLog('delete', deletedTx);
-        }
         
         res.redirect('/admin/mywallet'); 
     } catch (error) {
@@ -360,25 +345,14 @@ app.get('/api/cron/sehat', async (req, res) => {
     if (req.headers['authorization'] !== `Bearer ${process.env.CRON_SECRET}`) {
         return res.status(401).send('Unauthorized');
     }
-    try {
-        // await discordHandler.sendHealthReminder();
-        res.status(200).send('OK - Healthy reminder sent (Disabled)');
-    } catch (error) {
-        res.status(500).send('Error sending healthy reminder');
-    }
+    res.status(200).send('OK - Feature Disabled');
 });
 
 app.get('/api/cron/sholat/:nama', async (req, res) => {
     if (req.headers['authorization'] !== `Bearer ${process.env.CRON_SECRET}`) {
         return res.status(401).send('Unauthorized');
     }
-    try {
-        const namaSholat = req.params.nama;
-        // await discordHandler.sendPrayerReminder(namaSholat);
-        res.status(200).send(`OK - Prayer reminder sent for ${namaSholat} (Disabled)`);
-    } catch (error) {
-        res.status(500).send('Error sending prayer reminder');
-    }
+    res.status(200).send('OK - Feature Disabled');
 });
 
 app.listen(port, () => {
