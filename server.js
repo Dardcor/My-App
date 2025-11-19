@@ -3,13 +3,13 @@ const path = require('path');
 const { createClient } = require('@supabase/supabase-js'); 
 const session = require('express-session'); 
 const multer = require('multer'); 
-const discordWebhook = require('./views/admin/discord.js'); 
+const discordHandler = require('./discordHandler'); 
 
 const app = express(); 
 const port = process.env.PORT || 3000;
 
 const supabaseUrl = 'https://rvguyovrjffvnwlmksrh.supabase.co'; 
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2Z3V5b3ZyamZmdm53bG1rc3JoIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MzE3NTQ1NCwiZXhwIjoyMDc4NzUxNDU0fQ.1fVEvegSpYP6PAyqBAocmD3v0cUAbQ_LxQxQXyPfcY4';
+const supabaseKey = process.env.SUPABASE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2Z3V5b3ZyamZmdm53bG1rc3JoIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MzE3NTQ1NCwiZXhwIjoyMDc4NzUxNDU0fQ.1fVEvegSpYP6PAyqBAocmD3v0cUAbQ_LxQxQXyPfcY4';
 
 const actualSupabaseUrl = process.env.SUPABASE_URL || supabaseUrl;
 const actualSupabaseKey = process.env.SUPABASE_KEY || supabaseKey;
@@ -17,14 +17,8 @@ const actualSupabaseKey = process.env.SUPABASE_KEY || supabaseKey;
 let supabase;
 try {
     supabase = createClient(actualSupabaseUrl, actualSupabaseKey);
-    if (!actualSupabaseUrl || !actualSupabaseUrl.startsWith('http')) {
-        throw new Error('Supabase URL tidak valid atau belum diatur.');
-    }
-     if (!actualSupabaseKey || actualSupabaseKey.length < 50) {
-        throw new Error('Supabase Key tidak valid atau belum diatur.');
-    }
 } catch (error) {
-    console.error("Kesalahan Inisialisasi Supabase:", error.message);
+    console.error(error.message);
     process.exit(1);
 }
 
@@ -34,9 +28,9 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-
 app.use(express.static(path.join(__dirname, 'image')));
 
 app.use(session({
@@ -110,7 +104,6 @@ app.get('/list-ai', async (req, res) => {
         if (error) throw error;
         res.render('listai', { tools: data }); 
     } catch (error) {
-        console.error("Error saat mengambil list AI:", error.message);
         res.render('listai', { tools: [] }); 
     }
 });
@@ -119,12 +112,23 @@ app.get('/jadwal-kuliah', (req, res) => {
     res.render('jadwalkuliah');
 });
 
-app.get('/list-tugas', (req, res) => {
-    res.render('listtugas');
+app.get('/list-tugas', async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('tasks') 
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        res.render('listtugas', { tasks: data || [] }); 
+    } catch (error) {
+        res.render('listtugas', { tasks: [] });
+    }
 });
 
 app.get('/admin/status', checkAuth, (req, res) => {
-    const logs = discordWebhook.getLogs();
+    const logs = discordHandler.getLogs();
     res.render('admin/status', { logs: logs.slice().reverse() }); 
 });
 
@@ -143,7 +147,6 @@ app.get('/admin/upload-ai', checkAuth, async (req, res) => {
         
         res.render('admin/uplistai', { tools: data }); 
     } catch (error) {
-        console.error("Error mengambil AI tools:", error.message);
         res.render('admin/uplistai', { tools: [] }); 
     }
 });
@@ -157,15 +160,13 @@ app.post('/admin/upload-ai', checkAuth, upload.single('image_file'), async (req,
             const file = req.file;
             const fileName = `${Date.now()}-${file.originalname}`;
             
-            const { data: uploadData, error: uploadError } = await supabase.storage
+            const { error: uploadError } = await supabase.storage
                 .from('ai_logos') 
                 .upload(fileName, file.buffer, {
                     contentType: file.mimetype
                 });
 
-            if (uploadError) {
-                throw uploadError;
-            }
+            if (uploadError) throw uploadError;
 
             const { data: publicUrlData } = supabase.storage
                 .from('ai_logos')
@@ -174,20 +175,17 @@ app.post('/admin/upload-ai', checkAuth, upload.single('image_file'), async (req,
             final_image_url = publicUrlData.publicUrl;
         }
 
-        const { data, error } = await supabase
+        const { error } = await supabase
             .from('ai_tools')
             .insert([
                 { name: name, image_url: final_image_url, website_link: website_link }
             ]);
 
-        if (error) {
-            throw error;
-        }
+        if (error) throw error;
 
         res.redirect('/admin/upload-ai');
 
     } catch (error) {
-        console.error("Error saat upload AI:", error.message);
         res.status(500).send(`Gagal menyimpan data: ${error.message}`);
     }
 });
@@ -215,7 +213,6 @@ app.post('/admin/delete-ai', checkAuth, async (req, res) => {
         res.redirect('/admin/upload-ai');
 
     } catch (error) {
-        console.error("Error saat menghapus AI:", error.message);
         res.status(500).send(`Gagal menghapus data: ${error.message}`);
     }
 });
@@ -223,9 +220,60 @@ app.post('/admin/delete-ai', checkAuth, async (req, res) => {
 app.get('/admin/upload-jadwal', checkAuth, (req, res) => {
     res.render('admin/upjadwal'); 
 });
-app.get('/admin/upload-tugas', checkAuth, (req, res) => {
-    res.render('admin/uptugas'); 
+
+app.get('/admin/upload-tugas', checkAuth, async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('tasks')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        res.render('admin/uptugas', { tasks: data || [] });
+    } catch (error) {
+        res.render('admin/uptugas', { tasks: [] });
+    }
 });
+
+app.post('/admin/upload-tugas', checkAuth, async (req, res) => {
+    try {
+        const { mata_kuliah, minggu, deadline, hari, deskripsi } = req.body;
+
+        const { error } = await supabase
+            .from('tasks')
+            .insert([{
+                mata_kuliah: mata_kuliah,
+                minggu: parseInt(minggu), 
+                deadline: deadline || null,
+                hari: hari,
+                deskripsi: deskripsi
+            }]);
+
+        if (error) throw error;
+
+        res.redirect('/admin/upload-tugas');
+    } catch (error) {
+        res.status(500).send(`Gagal upload tugas: ${error.message}`);
+    }
+});
+
+app.post('/admin/delete-tugas', checkAuth, async (req, res) => {
+    try {
+        const { id } = req.body;
+        const { error } = await supabase
+            .from('tasks')
+            .delete()
+            .eq('id', id);
+
+        if (error) throw error;
+
+        res.redirect('/admin/upload-tugas');
+    } catch (error) {
+        res.status(500).send("Gagal menghapus tugas.");
+    }
+});
+
 app.get('/admin/mywallet', checkAuth, async (req, res) => {
     try {
         const { data: transactions, error } = await supabase
@@ -250,7 +298,6 @@ app.get('/admin/mywallet', checkAuth, async (req, res) => {
 
         res.render('admin/mywallet', { balance, totals, transactions });
     } catch (error) {
-        console.error("Error di rute GET /admin/mywallet:", error.message);
         res.status(500).send(`Terjadi kesalahan server: ${error.message}`);
     }
 });
@@ -262,11 +309,10 @@ app.post('/bank/add', checkAuth, async (req, res) => {
         const { data, error } = await supabase.from('transactions').insert([newTransactionData]).select().single();
         if (error) throw error;
         
-        await discordWebhook.sendPaymentLog('add', data);
+        await discordHandler.sendTransactionLog('add', data);
         
         res.redirect('/admin/mywallet'); 
     } catch (error) {
-        console.error("Error di rute POST /bank/add:", error.message);
         res.status(500).send(`Gagal menambah transaksi: ${error.message}`);
     }
 });
@@ -284,13 +330,12 @@ app.post('/bank/edit', checkAuth, async (req, res) => {
         if (updateError) throw updateError;
         
         if (oldTxData && updatedTx) {
-             await discordWebhook.sendPaymentLog('edit', updatedTx, oldTxData);
+             await discordHandler.sendTransactionLog('edit', updatedTx, oldTxData);
         }
         
         res.redirect('/admin/mywallet'); 
     } catch (error) {
-        console.error("Error di rute POST /bank/edit:", error.message);
-        res.status(500).send(`Gagal mengedit transaksi: ${error.details || error.message}`);
+        res.status(500).send(`Gagal mengedit transaksi: ${error.message}`);
     }
 });
 
@@ -302,12 +347,11 @@ app.post('/bank/delete', checkAuth, async (req, res) => {
         if (error && error.code !== 'PGRST116') throw error;
         
         if (deletedTx) {
-            await discordWebhook.sendPaymentLog('delete', deletedTx);
+            await discordHandler.sendTransactionLog('delete', deletedTx);
         }
         
         res.redirect('/admin/mywallet'); 
     } catch (error) {
-        console.error("Error di rute POST /bank/delete:", error.message);
         res.status(500).send(`Gagal menghapus transaksi: ${error.message}`);
     }
 });
@@ -317,10 +361,9 @@ app.get('/api/cron/sehat', async (req, res) => {
         return res.status(401).send('Unauthorized');
     }
     try {
-        await discordWebhook.sendHealthyReminder();
+        await discordHandler.sendHealthReminder();
         res.status(200).send('OK - Healthy reminder sent');
     } catch (error) {
-        console.error(error);
         res.status(500).send('Error sending healthy reminder');
     }
 });
@@ -331,17 +374,24 @@ app.get('/api/cron/sholat/:nama', async (req, res) => {
     }
     try {
         const namaSholat = req.params.nama;
-        await discordWebhook.sendPrayerReminder(namaSholat);
+        await discordHandler.sendPrayerReminder(namaSholat);
         res.status(200).send(`OK - Prayer reminder sent for ${namaSholat}`);
     } catch (error) {
-        console.error(error);
         res.status(500).send('Error sending prayer reminder');
     }
 });
 
+// --- PERBAIKAN: INTERVAL OTOMATIS UNTUK LOCALHOST ---
+// Ini akan memicu webhook setiap 1 menit (60.000 ms)
+setInterval(async () => {
+    try {
+        console.log('⏳ Memicu Reminder Sehat otomatis...');
+        await discordHandler.sendHealthReminder();
+    } catch (err) {
+        console.error('Gagal mengirim reminder sehat:', err);
+    }
+}, 60 * 1000);
+
 app.listen(port, () => {
     console.log(`Server berjalan di http://localhost:${port}`);
-    if (process.env.NODE_ENV !== 'production') {
-        // Panggilan cron lokal dihapus agar tidak error
-    }
 });

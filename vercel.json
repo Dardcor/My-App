@@ -15,7 +15,7 @@
     "crons": [
         {
             "path": "/api/cron/sehat",
-            "schedule": "0 * * * *"
+            "schedule": "*/1 * * * *"
         },
         {
             "path": "/api/cron/sholat/Subuh",

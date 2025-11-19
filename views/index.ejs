@@ -65,7 +65,6 @@
             color: #3b82f6;
         }
 
-        /* Perbaikan untuk gambar header */
         .hero-section {
             background-image: url('/header.jpg');
             background-size: cover;
@@ -74,7 +73,14 @@
             background-attachment: fixed;
         }
         
-        /* Optimasi untuk mobile */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
         @media (max-width: 768px) {
             .tech-card i {
                 font-size: 2.5rem;
@@ -84,7 +90,7 @@
                 height: 280px;
             }
             .hero-section {
-                background-attachment: scroll; /* Nonaktifkan parallax di mobile */
+                background-attachment: scroll;
             }
         }
         
@@ -96,19 +102,16 @@
                 width: 240px;
                 height: 240px;
             }
-            /* Perbaikan padding untuk mobile */
             .section-padding {
                 padding-left: 1rem;
                 padding-right: 1rem;
             }
         }
 
-        /* Perbaikan untuk dropdown mobile */
         .mobile-dropdown {
             min-width: 140px;
         }
 
-        /* Perbaikan untuk gambar logo */
         .logo-img {
             image-rendering: -webkit-optimize-contrast;
             image-rendering: crisp-edges;
@@ -195,7 +198,6 @@
                         </div>
                     </div>
                     
-                    <!-- Logo Admin (tampil di semua device) -->
                     <a href="/admin" class="w-10 h-10 rounded-full flex items-center justify-center bg-gray-100 hover:bg-gray-200 transition-colors" aria-label="Admin Login">
                         <img src="/logo.png" alt="Logo Admin" class="w-full h-full object-contain p-1 rounded-full logo-img">
                     </a>
@@ -223,7 +225,7 @@
                                     <svg class="w-6 h-6 sm:w-7 sm:h-7" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
                                 </a>
                                 <a href="#" target="_blank" rel="noopener noreferrer" title="Instagram" class="text-gray-400 hover:text-white transition-colors">
-                                   <svg class="w-6 h-6 sm:w-7 sm:h-7" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.243 7.757a6 6 0 11-8.486 8.486 6 6 0 018.486-8.486zM12 16a4 4 0 100-8 4 4 0 000 8zm6-6a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" /></svg>
+                                    <svg class="w-6 h-6 sm:w-7 sm:h-7" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.243 7.757a6 6 0 11-8.486 8.486 6 6 0 018.486-8.486zM12 16a4 4 0 100-8 4 4 0 000 8zm6-6a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" /></svg>
                                 </a>
                             </div>
                             <div class="flex justify-center lg:justify-start">
@@ -234,7 +236,7 @@
                         </div>
                         <div class="relative flex justify-center items-center order-first lg:order-last">
                             <div class="hero-image-container w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 rounded-full flex justify-center items-center">
-                                <img src="/logo.png" alt="Dardcor" class="w-3/4 h-3/4 object-contain logo-img">
+                                <img src="/logo.png" alt="Dardcor" class="w-full h-full object-cover rounded-full logo-img p-4">
                             </div>
                             <div class="absolute w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 bg-blue-500/20 rounded-full blur-3xl z-[-1]"></div>
                         </div>
@@ -253,35 +255,117 @@
                 </div>
             </section>
 
-            <section id="works" class="py-16 sm:py-20 bg-black/10 section-padding">
-                <div class="w-full max-w-6xl mx-auto px-4">
-                    <h2 class="text-2xl sm:text-3xl font-extrabold mb-8 sm:mb-10 text-center text-white">Proyek Saya</h2>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-                        <div class="project-card rounded-2xl overflow-hidden">
-                            <img src="https://placehold.co/600x400/1e293b/9ca3af?text=Project+Thumbnail" alt="Project 1" class="w-full h-40 sm:h-48 object-cover">
-                            <div class="p-4 sm:p-6">
-                                <h3 class="text-xl sm:text-2xl font-bold mb-2 sm:mb-3 text-white">Aplikasi Hotel (JavaFX)</h3>
-                                <p class="text-gray-400 mb-3 sm:mb-4 text-sm sm:text-base">Aplikasi desktop untuk manajemen reservasi hotel, check-in, dan pembayaran, dibangun menggunakan JavaFX.</p>
-                                <span class="text-xs font-semibold bg-blue-600 text-white px-2 sm:px-3 py-1 rounded-full">JavaFX</span>
+            <section id="works" class="py-16 sm:py-20 bg-black/10 section-padding relative group">
+                <div class="w-full max-w-[90rem] mx-auto px-4">
+                    <div class="flex justify-between items-end mb-8 px-2">
+                        <div>
+                            <h2 class="text-2xl sm:text-3xl font-extrabold text-white">Proyek Saya</h2>
+                            <p class="text-gray-400 text-sm mt-2">Geser untuk melihat lebih banyak</p>
+                        </div>
+                        
+                        <div class="hidden md:flex gap-2">
+                            <button onclick="scrollProjects('left')" class="bg-gray-800 hover:bg-gray-700 text-white p-3 rounded-full transition-colors shadow-lg border border-gray-700">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                            </button>
+                            <button onclick="scrollProjects('right')" class="bg-gray-800 hover:bg-gray-700 text-white p-3 rounded-full transition-colors shadow-lg border border-gray-700">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="projectsContainer" class="flex overflow-x-auto space-x-6 pb-8 px-2 snap-x snap-mandatory no-scrollbar scroll-smooth">
+                        
+                        <div class="min-w-[300px] md:min-w-[350px] flex-shrink-0 snap-center project-card rounded-2xl overflow-hidden">
+                            <img src="https://placehold.co/600x400/1e293b/9ca3af?text=Hotel+App" alt="Hotel App" class="w-full h-48 object-cover">
+                            <div class="p-6">
+                                <h3 class="text-xl font-bold mb-2 text-white">Aplikasi Hotel</h3>
+                                <p class="text-gray-400 mb-4 text-sm">Sistem reservasi dan check-in hotel desktop.</p>
+                                <span class="text-xs font-semibold bg-blue-600 text-white px-3 py-1 rounded-full">JavaFX</span>
                             </div>
                         </div>
-                        <div class="project-card rounded-2xl overflow-hidden">
-                            <img src="https://placehold.co/600x400/1e293b/9ca3af?text=Project+Thumbnail" alt="Project 2" class="w-full h-40 sm:h-48 object-cover">
-                            <div class="p-4 sm:p-6">
-                                <h3 class="text-xl sm:text-2xl font-bold mb-2 sm:mb-3 text-white">Sistem Karyawan (Laravel)</h3>
-                                <p class="text-gray-400 mb-3 sm:mb-4 text-sm sm:text-base">Sistem CRUD (Create, Read, Update, Delete) untuk mengelola data karyawan dan departemen.</p>
-                                <span class="text-xs font-semibold bg-red-500 text-white px-2 sm:px-3 py-1 rounded-full">Laravel</span>
+
+                        <div class="min-w-[300px] md:min-w-[350px] flex-shrink-0 snap-center project-card rounded-2xl overflow-hidden">
+                            <img src="https://placehold.co/600x400/1e293b/9ca3af?text=HR+System" alt="HR System" class="w-full h-48 object-cover">
+                            <div class="p-6">
+                                <h3 class="text-xl font-bold mb-2 text-white">Sistem Karyawan</h3>
+                                <p class="text-gray-400 mb-4 text-sm">Manajemen data karyawan dan penggajian.</p>
+                                <span class="text-xs font-semibold bg-red-500 text-white px-3 py-1 rounded-full">Laravel</span>
                             </div>
                         </div>
-                        <div class="project-card rounded-2xl overflow-hidden">
-                            <img src="https://placehold.co/600x400/1e293b/9ca3af?text=Project+Thumbnail" alt="Project 3" class="w-full h-40 sm:h-48 object-cover">
-                            <div class="p-4 sm:p-6">
-                                <h3 class="text-xl sm:text-2xl font-bold mb-2 sm:mb-3 text-white">Dashboard Admin (React)</h3>
-                                <p class="text-gray-400 mb-3 sm:mb-4 text-sm sm:text-base">Frontend dashboard untuk visualisasi data dan manajemen pengguna menggunakan Next.js/React.</p>
-                                <span class="text-xs font-semibold bg-cyan-500 text-white px-2 sm:px-3 py-1 rounded-full">React</span>
-                                <span class="text-xs font-semibold bg-gray-700 text-white px-2 sm:px-3 py-1 rounded-full ml-2">Node.js</span>
+
+                        <div class="min-w-[300px] md:min-w-[350px] flex-shrink-0 snap-center project-card rounded-2xl overflow-hidden">
+                            <img src="https://placehold.co/600x400/1e293b/9ca3af?text=Dashboard" alt="Dashboard" class="w-full h-48 object-cover">
+                            <div class="p-6">
+                                <h3 class="text-xl font-bold mb-2 text-white">Admin Dashboard</h3>
+                                <p class="text-gray-400 mb-4 text-sm">Visualisasi data real-time untuk admin.</p>
+                                <span class="text-xs font-semibold bg-cyan-500 text-white px-3 py-1 rounded-full">React</span>
+                                <span class="text-xs font-semibold bg-green-600 text-white px-3 py-1 rounded-full ml-1">Node</span>
                             </div>
                         </div>
+
+                        <div class="min-w-[300px] md:min-w-[350px] flex-shrink-0 snap-center project-card rounded-2xl overflow-hidden">
+                            <img src="https://placehold.co/600x400/1e293b/9ca3af?text=E-Commerce" alt="E-Commerce" class="w-full h-48 object-cover">
+                            <div class="p-6">
+                                <h3 class="text-xl font-bold mb-2 text-white">Toko Online</h3>
+                                <p class="text-gray-400 mb-4 text-sm">Platform belanja online dengan payment gateway.</p>
+                                <span class="text-xs font-semibold bg-purple-600 text-white px-3 py-1 rounded-full">PHP Native</span>
+                            </div>
+                        </div>
+
+                        <div class="min-w-[300px] md:min-w-[350px] flex-shrink-0 snap-center project-card rounded-2xl overflow-hidden">
+                            <img src="https://placehold.co/600x400/1e293b/9ca3af?text=Landing+Page" alt="Landing Page" class="w-full h-48 object-cover">
+                            <div class="p-6">
+                                <h3 class="text-xl font-bold mb-2 text-white">Company Profile</h3>
+                                <p class="text-gray-400 mb-4 text-sm">Landing page responsif untuk perusahaan startup.</p>
+                                <span class="text-xs font-semibold bg-teal-500 text-white px-3 py-1 rounded-full">Tailwind</span>
+                            </div>
+                        </div>
+
+                        <div class="min-w-[300px] md:min-w-[350px] flex-shrink-0 snap-center project-card rounded-2xl overflow-hidden">
+                            <img src="https://placehold.co/600x400/1e293b/9ca3af?text=SPK+System" alt="SPK System" class="w-full h-48 object-cover">
+                            <div class="p-6">
+                                <h3 class="text-xl font-bold mb-2 text-white">Sistem SPK</h3>
+                                <p class="text-gray-400 mb-4 text-sm">Sistem Pendukung Keputusan metode SAW.</p>
+                                <span class="text-xs font-semibold bg-yellow-600 text-white px-3 py-1 rounded-full">Python</span>
+                            </div>
+                        </div>
+
+                        <div class="min-w-[300px] md:min-w-[350px] flex-shrink-0 snap-center project-card rounded-2xl overflow-hidden">
+                            <img src="https://placehold.co/600x400/1e293b/9ca3af?text=Inventory" alt="Inventory" class="w-full h-48 object-cover">
+                            <div class="p-6">
+                                <h3 class="text-xl font-bold mb-2 text-white">Gudang Inventory</h3>
+                                <p class="text-gray-400 mb-4 text-sm">Pencatatan stok barang masuk dan keluar.</p>
+                                <span class="text-xs font-semibold bg-orange-600 text-white px-3 py-1 rounded-full">CodeIgniter</span>
+                            </div>
+                        </div>
+
+                        <div class="min-w-[300px] md:min-w-[350px] flex-shrink-0 snap-center project-card rounded-2xl overflow-hidden">
+                            <img src="https://placehold.co/600x400/1e293b/9ca3af?text=Laundry+App" alt="Laundry App" class="w-full h-48 object-cover">
+                            <div class="p-6">
+                                <h3 class="text-xl font-bold mb-2 text-white">Aplikasi Laundry</h3>
+                                <p class="text-gray-400 mb-4 text-sm">Manajemen pesanan laundry berbasis web.</p>
+                                <span class="text-xs font-semibold bg-indigo-600 text-white px-3 py-1 rounded-full">Next.js</span>
+                            </div>
+                        </div>
+
+                        <div class="min-w-[300px] md:min-w-[350px] flex-shrink-0 snap-center project-card rounded-2xl overflow-hidden">
+                            <img src="https://placehold.co/600x400/1e293b/9ca3af?text=Chat+Bot" alt="Chat Bot" class="w-full h-48 object-cover">
+                            <div class="p-6">
+                                <h3 class="text-xl font-bold mb-2 text-white">AI Chatbot</h3>
+                                <p class="text-gray-400 mb-4 text-sm">Bot layanan pelanggan otomatis.</p>
+                                <span class="text-xs font-semibold bg-emerald-600 text-white px-3 py-1 rounded-full">Python AI</span>
+                            </div>
+                        </div>
+
+                        <div class="min-w-[300px] md:min-w-[350px] flex-shrink-0 snap-center project-card rounded-2xl overflow-hidden">
+                            <img src="https://placehold.co/600x400/1e293b/9ca3af?text=Portfolio+V1" alt="Portfolio V1" class="w-full h-48 object-cover">
+                            <div class="p-6">
+                                <h3 class="text-xl font-bold mb-2 text-white">Portfolio V1</h3>
+                                <p class="text-gray-400 mb-4 text-sm">Versi pertama website portfolio pribadi.</p>
+                                <span class="text-xs font-semibold bg-pink-600 text-white px-3 py-1 rounded-full">HTML/CSS</span>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </section>
@@ -371,7 +455,6 @@
                 mobileDropdownToggle.addEventListener('click', toggleMobileDropdown);
             }
 
-            // Close dropdown when clicking outside
             document.addEventListener('click', (event) => {
                 if (mobileDropdownMenu && !mobileDropdownMenu.contains(event.target) && 
                     mobileDropdownToggle && !mobileDropdownToggle.contains(event.target)) {
@@ -379,7 +462,6 @@
                 }
             });
 
-            // Preload gambar untuk menghindari blur
             window.addEventListener('load', function() {
                 const headerImg = new Image();
                 headerImg.src = '/header.jpg';
@@ -388,6 +470,23 @@
                 logoImg.src = '/logo.png';
             });
         });
+
+        function scrollProjects(direction) {
+            const container = document.getElementById('projectsContainer');
+            const scrollAmount = 400;
+            
+            if (direction === 'left') {
+                container.scrollBy({
+                    left: -scrollAmount,
+                    behavior: 'smooth'
+                });
+            } else {
+                container.scrollBy({
+                    left: scrollAmount,
+                    behavior: 'smooth'
+                });
+            }
+        }
     </script>
 </body>
 </html>

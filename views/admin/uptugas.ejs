@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Upload Tugas</title> 
+    <title>Dardcor</title> 
+    <link rel="icon" href="/logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { 
-            background-color: #1a1a2e;
+            background-color: #1a1a2e; 
             min-height: 100vh; 
             font-family: sans-serif; 
             overflow-x: hidden; 
@@ -17,7 +18,7 @@
             background-color: #16213e;
             box-shadow: 0 5px 20px rgba(0,0,0,0.4);
         }
-        .content-card {
+        .form-card {
             background-color: #16213e; 
             box-shadow: 0 10px 25px rgba(0,0,0,0.3);
             animation: fadeIn 0.6s ease-out;
@@ -26,17 +27,18 @@
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        .custom-scroll::-webkit-scrollbar { height: 8px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #1e293b; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 4px; }
     </style>
 </head>
 <body class="relative">
-
     <div class="relative min-h-screen">
-
+        
         <aside id="sidebar" class="sidebar absolute h-full z-40 w-0 p-0 text-white transition-all duration-300 ease-in-out overflow-hidden flex-shrink-0 flex flex-col">
-            
             <div class="flex items-center gap-4 pb-4 border-b border-white/20 mb-4 flex-shrink-0">
                 <button id="sidebarCloseButton" class="p-1 rounded-full text-white/70 hover:bg-white/10 hover:text-white transition-colors">
-                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
                 <h2 class="text-2xl font-bold">Dashboard</h2>
             </div>
@@ -45,41 +47,43 @@
                 <ul>
                     <li class="mb-5">
                         <a href="/admin/home" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors hover:bg-blue-600">
-                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6-4a1 1 0 001-1v-1a1 1 0 10-2 0v1a1 1 0 001 1z"></path></svg>
+                            <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6-4a1 1 0 001-1v-1a1 1 0 10-2 0v1a1 1 0 001 1z"></path></svg>
                             <span>Home</span>
                         </a>
                     </li>
                     <li class="mb-5">
                         <a href="/admin/mywallet" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors hover:bg-blue-600">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                            <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z"></path>
                             </svg>
-                             <span>My Wallet</span>
+                            <span>My Wallet</span>
                         </a>
                     </li>
                     <li class="mb-5">
                         <a href="/admin/status" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors hover:bg-blue-600">
                             <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                 <path stroke-linecap="round" stroke-linejoin="round" d="M10.34 15.84c-.688-.06-1.386-.09-2.09-.09H7.5a4.5 4.5 0 00-4.5 4.5v.75c0 1.108.892 2 2 2h11c1.108 0 2-.892 2-2v-.75a4.5 4.5 0 00-4.5-4.5h-.75c-.704 0-1.402.03-2.09.09M15.34 15.84A2.25 2.25 0 0013.5 14.25h-3a2.25 2.25 0 00-1.84 1.59M9.75 11.25c0 .621.504 1.125 1.125 1.125h2.25c.621 0 1.125-.504 1.125-1.125v-2.25c0-.621-.504-1.125-1.125-1.125h-2.25A1.125 1.125 0 009.75 9v2.25z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M10.34 15.84c-.688-.06-1.386-.09-2.09-.09H7.5a4.5 4.5 0 00-4.5 4.5v.75c0 1.108.892 2 2 2h11c1.108 0 2-.892 2-2v-.75a4.5 4.5 0 00-4.5-4.5h-.75c-.704 0-1.402.03-2.09.09M15.34 15.84A2.25 2.25 0 0013.5 14.25h-3a2.25 2.25 0 00-1.84 1.59M9.75 11.25c0 .621.504 1.125 1.125 1.125h2.25c.621 0 1.125-.504 1.125-1.125v-2.25c0-.621-.504-1.125-1.125-1.125h-2.25A1.125 1.125 0 009.75 9v2.25z"></path>
                             </svg>
                             <span>Status Webhook</span>
-                         </a>
+                        </a>
                     </li>
                     <li class="mb-5">
                         <a href="/admin/upload-ai" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors hover:bg-blue-600">
-                             <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M12 5V3m0 18v-2M7.05 7.05l-1.414-1.414M18.364 18.364l-1.414-1.414M7.05 18.364l-1.414 1.414M18.364 7.05l-1.414 1.414M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M12 5V3m0 18v-2M7.05 7.05l-1.414-1.414M18.364 18.364l-1.414-1.414M7.05 18.364l-1.414 1.414M18.364 7.05l-1.414 1.414M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
                             <span>Upload AI</span>
-                         </a>
+                        </a>
                     </li>
                     <li class="mb-5">
                         <a href="/admin/upload-jadwal" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors hover:bg-blue-600">
-                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                             <span>Upload Jadwal</span>
                         </a>
                     </li>
                     <li class="mb-5">
-                         <a href="/admin/upload-tugas" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors bg-blue-600 text-white">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                        <a href="/admin/upload-tugas" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors bg-blue-600 text-white">
+                            <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
                             <span>Upload Tugas</span>
                         </a>
                     </li>
@@ -88,39 +92,125 @@
 
             <div class="mt-auto flex-shrink-0"> 
                 <a href="/logout" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors bg-red-600/20 text-red-300 hover:bg-red-600 hover:text-white">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"></path></svg>
+                    <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"></path>
+                    </svg>
                     <span>Logout</span>
                 </a>
-             </div>
+            </div>
         </aside>
 
-        <main class="relative flex items-center justify-center p-4 min-h-screen">
+        <main class="relative flex items-center justify-center p-4 min-h-screen pt-24 md:pt-28">
             <div class="absolute top-0 left-0 w-full p-4 md:p-6 flex justify-center z-20">
                 <nav class="w-full max-w-6xl bg-white/90 backdrop-blur-sm rounded-full shadow-lg border border-gray-200/50 flex items-center justify-between px-4 py-3">
                     <div class="flex items-center gap-1 md:gap-3">
-                         <button id="sidebarToggle" class="text-gray-700 p-2 transition-colors hover:bg-gray-100 rounded-full">
+                        <button id="sidebarToggle" class="text-gray-700 p-2 transition-colors hover:bg-gray-100 rounded-full">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                         </button>
-                         <a href="/" class="flex items-center gap-2">
+                        <a href="/" class="flex items-center gap-2">
                             <span class="text-xl font-bold text-gray-800 hidden sm:block">Dardcor</span>
                         </a>
-                     </div>
+                    </div>
+                    
                     <a href="/admin" class="w-10 h-10 rounded-full flex items-center justify-center bg-gray-100 hover:bg-gray-200 transition-colors" aria-label="Admin Login">
                         <img src="/logo.png" alt="Logo Admin" class="w-full h-full object-contain p-1 rounded-full">
                     </a>
                 </nav>
             </div>
             
-            <div class="content-card text-center text-white p-12 rounded-2xl max-w-lg mx-4">
-                <svg class="w-16 h-16 mx-auto mb-6 text-blue-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21M9 17.25v-10.5a2.25 2.25 0 00-2.25-2.25H4.5A2.25 2.25 0 002.25 6.75v10.5a2.25 2.25 0 002.25 2.25h2.25m4.5-15H17.25a2.25 2.25 0 012.25 2.25v10.5a2.25 2.25 0 01-2.25 2.25H9.75M14.25 9m0 3h.008v.008h-.008V12zm0 0h.008v.008h-.008V12zm0 0h.008v.008h-.008V12zm0 0h.008v.008h-.008V12z"></path>
-                </svg>
-                <h1 class="text-4xl font-extrabold mb-4">Halaman Upload Tugas</h1>
-                <p class="text-xl text-gray-300 mb-8">
-                    Fitur ini sedang dalam pengembangan.
-                </p>
-            </div>
+            <div class="w-full max-w-4xl mx-auto mt-10">
+                <div class="form-card p-6 rounded-2xl mb-8">
+                    <h2 class="text-2xl font-bold text-white mb-6 border-b border-gray-700 pb-2">Tambah Tugas Baru</h2>
+                    <form action="/admin/upload-tugas" method="POST" class="space-y-4">
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-400 mb-1">Mata Kuliah</label>
+                                <input type="text" name="mata_kuliah" required placeholder="Contoh: Pemrograman Web" class="w-full bg-gray-800 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
 
+                            <div>
+                                <label class="block text-sm font-medium text-gray-400 mb-1">Deadline</label>
+                                <input type="datetime-local" name="deadline" class="w-full bg-gray-800 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-400 mb-1">Hari</label>
+                                <select name="hari" required class="w-full bg-gray-800 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="Senin">Senin</option>
+                                    <option value="Selasa">Selasa</option>
+                                    <option value="Rabu">Rabu</option>
+                                    <option value="Kamis">Kamis</option>
+                                    <option value="Jumat">Jumat</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-400 mb-1">Minggu Ke-</label>
+                                <select name="minggu" required class="w-full bg-gray-800 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                                    <% for(let i=1; i<=16; i++) { %>
+                                        <option value="<%= i %>">Minggu <%= i %></option>
+                                    <% } %>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-1">Deskripsi Tugas</label>
+                            <textarea name="deskripsi" rows="4" required placeholder="Detail tugas..." class="w-full bg-gray-800 border border-gray-600 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                        </div>
+
+                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition-all transform hover:scale-[1.02]">
+                            Upload Tugas
+                        </button>
+                    </form>
+                </div>
+
+                <div class="form-card p-6 rounded-2xl">
+                    <h3 class="text-xl font-bold text-white mb-4">Daftar Tugas Terupload</h3>
+                    <div class="overflow-x-auto custom-scroll">
+                        <table class="w-full text-left text-sm text-gray-300">
+                            <thead class="bg-gray-800 text-gray-100 uppercase">
+                                <tr>
+                                    <th class="px-4 py-3 rounded-tl-lg">Minggu</th>
+                                    <th class="px-4 py-3">Hari</th>
+                                    <th class="px-4 py-3">Matkul</th>
+                                    <th class="px-4 py-3">Deadline</th>
+                                    <th class="px-4 py-3 rounded-tr-lg text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-700">
+                                <% if (tasks && tasks.length > 0) { %>
+                                    <% tasks.forEach(task => { %>
+                                        <tr class="hover:bg-gray-800/50 transition-colors">
+                                            <td class="px-4 py-3">Mg <%= task.minggu %></td>
+                                            <td class="px-4 py-3"><%= task.hari %></td>
+                                            <td class="px-4 py-3 font-medium text-white"><%= task.mata_kuliah %></td>
+                                            <td class="px-4 py-3 text-red-400">
+                                                <%= task.deadline ? new Date(task.deadline).toLocaleString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute:'2-digit' }) : '-' %>
+                                            </td>
+                                            <td class="px-4 py-3 text-center">
+                                                <form action="/admin/delete-tugas" method="POST" onsubmit="return confirm('Hapus tugas ini?');">
+                                                    <input type="hidden" name="id" value="<%= task.id %>">
+                                                    <button type="submit" class="text-red-500 hover:text-red-400 bg-red-500/10 p-2 rounded-lg transition-colors">
+                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    <% }) %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="5" class="px-4 py-6 text-center text-gray-500">Belum ada tugas yang diupload.</td>
+                                    </tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </main>
     </div> 
     
@@ -135,9 +225,9 @@
 
             function toggleMenu() {
                 sidebar.classList.toggle('w-60'); 
-                sidebar.classList.toggle('w-0');   
+                sidebar.classList.toggle('w-0');
                 sidebar.classList.toggle('p-6'); 
-                sidebar.classList.toggle('p-0'); 
+                sidebar.classList.toggle('p-0');
                 backdrop.classList.toggle('hidden');
             }
 
