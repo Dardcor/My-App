@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>User Dashboard - Dardcor</title>
+    <link rel="icon" href="/logo.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            background-color: #1a1a2e;
+            min-height: 100vh; 
+            font-family: 'Poppins', sans-serif; 
+            overflow-x: hidden; 
+            color: #cbd5e1; 
+        }
+        .sidebar {
+            background-color: #16213e;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+        }
+        .navbar {
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        .navbar-scrolled {
+            background-color: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        .dashboard-card {
+            background: linear-gradient(145deg, #1e293b, #0f172a);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            border: 1px solid #334155;
+            animation: fadeIn 0.6s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="relative">
+
+    <div class="relative min-h-screen">
+
+        <aside id="sidebar" class="sidebar fixed h-full z-50 w-0 p-0 text-white transition-all duration-300 ease-in-out overflow-hidden flex-shrink-0 flex flex-col">
+            <div class="flex items-center gap-4 pb-4 border-b border-white/20 mb-4 flex-shrink-0 px-6 pt-6">
+                <button id="sidebarCloseButton" class="p-1 rounded-full text-white/70 hover:bg-white/10 hover:text-white transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+                <h2 class="text-2xl font-bold">My App</h2>
+            </div>
+            
+            <nav class="flex-grow px-6"> 
+                <ul>
+                    <li class="mb-5">
+                        <a href="/user/home" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors bg-blue-600 text-white">
+                            <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6-4a1 1 0 001-1v-1a1 1 0 10-2 0v1a1 1 0 001 1z"></path></svg>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="mt-auto flex-shrink-0 px-6 pb-6"> 
+                <a href="/user-logout" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors bg-red-600/20 text-red-300 hover:bg-red-600 hover:text-white">
+                    <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"></path>
+                    </svg>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </aside>
+
+        <main class="relative flex items-center justify-center p-4 min-h-screen">
+            <div class="fixed top-0 left-0 w-full p-4 md:p-6 flex justify-center z-30">
+                <nav id="navbar" class="w-full max-w-6xl bg-white/90 backdrop-blur-sm rounded-full shadow-lg border border-gray-200/50 flex items-center justify-between px-4 py-3 navbar">
+                    <div class="flex items-center gap-1 md:gap-3">
+                        <button id="sidebarToggle" class="text-gray-700 p-2 transition-colors hover:bg-gray-100 rounded-full">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                        </button>
+                        <a href="/" class="flex items-center gap-2">
+                            <span class="text-xl font-bold text-gray-800 hidden sm:block">Dardcor</span>
+                        </a>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-gray-700 font-medium hidden sm:block"><%= user.full_name || user.username %></span>
+                        <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold">
+                            <%= (user.full_name || user.username).charAt(0).toUpperCase() %>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+            
+            <div class="container mx-auto w-full max-w-6xl pt-24 md:pt-28">
+                <div class="dashboard-card p-8 rounded-2xl text-center">
+                    <h1 class="text-3xl sm:text-4xl font-bold text-white mb-4">Selamat Datang!</h1>
+                    <p class="text-lg text-gray-300 mb-8">Halo, <span class="text-blue-400 font-semibold"><%= user.full_name || user.username %></span>. Ini adalah halaman dashboard khusus Anda.</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
+                        <div class="bg-slate-800/50 p-6 rounded-xl border border-slate-700">
+                            <h3 class="text-gray-400 text-sm mb-1">Username</h3>
+                            <p class="text-xl font-medium text-white"><%= user.username %></p>
+                        </div>
+                        <div class="bg-slate-800/50 p-6 rounded-xl border border-slate-700">
+                            <h3 class="text-gray-400 text-sm mb-1">Nama Lengkap</h3>
+                            <p class="text-xl font-medium text-white"><%= user.full_name || '-' %></p>
+                        </div>
+                    </div>
+
+                    <div class="mt-10">
+                        <a href="/user-logout" class="inline-block bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-lg transition-colors">
+                            Logout Akun
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div> 
+    
+    <div id="sidebarBackdrop" class="fixed inset-0 bg-black/50 z-40 hidden"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggleButton = document.getElementById('sidebarToggle');
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('sidebarBackdrop');
+            const closeButton = document.getElementById('sidebarCloseButton');
+            const navbar = document.getElementById('navbar');
+
+            function toggleMenu() {
+                sidebar.classList.toggle('w-60'); 
+                sidebar.classList.toggle('w-0');
+                sidebar.classList.toggle('p-6');
+                sidebar.classList.toggle('p-0');
+                backdrop.classList.toggle('hidden');
+            }
+
+            function handleScroll() {
+                if (window.scrollY > 10) {
+                    navbar.classList.add('navbar-scrolled');
+                } else {
+                    navbar.classList.remove('navbar-scrolled');
+                }
+            }
+
+            if (toggleButton && sidebar && backdrop && closeButton) {
+                toggleButton.addEventListener('click', toggleMenu);
+                backdrop.addEventListener('click', toggleMenu);
+                closeButton.addEventListener('click', toggleMenu);
+            }
+            
+            window.addEventListener('scroll', handleScroll);
+            handleScroll();
+        });
+    </script>
+</body>
+</html>

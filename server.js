@@ -42,6 +42,7 @@ app.use(session({
     } 
 }));
 
+// Middleware Admin Auth
 function checkAuth(req, res, next) {
     if (req.session.isLoggedIn) {
         next();
@@ -49,6 +50,8 @@ function checkAuth(req, res, next) {
         res.redirect('/admin');
     }
 }
+
+// --- ADMIN ROUTES ---
 
 app.get('/admin', (req, res) => {
     if (req.session.isLoggedIn) {
@@ -90,6 +93,8 @@ app.get('/logout', (req, res) => {
     });
 });
 
+// --- PUBLIC & USER ROUTES ---
+
 app.get('/', (req, res) => {
     res.render('index', { error: null });
 });
@@ -125,6 +130,85 @@ app.get('/list-tugas', async (req, res) => {
         res.render('listtugas', { tasks: [] });
     }
 });
+
+// --- USER AUTHENTICATION ---
+
+app.get('/user', (req, res) => {
+    // Jika sudah login, langsung arahkan ke User Dashboard
+    if (req.session.userAccount) {
+        return res.redirect('/user/home');
+    }
+    // Jika belum, tampilkan halaman login
+    res.render('user', { error: null });
+});
+
+app.post('/user-login', async (req, res) => {
+    const { username, password } = req.body;
+    try {
+        const { data, error } = await supabase
+            .from('public_users')
+            .select('*')
+            .eq('username', username)
+            .single();
+
+        if (error || !data) {
+            return res.render('user', { error: 'Username tidak ditemukan!' });
+        }
+
+        if (password === data.password) {
+            req.session.userAccount = data; // Simpan sesi user
+            res.redirect('/user/home'); // Redirect ke folder user/home.ejs
+        } else {
+            res.render('user', { error: 'Password salah!' });
+        }
+    } catch (err) {
+        res.render('user', { error: 'Terjadi kesalahan server.' });
+    }
+});
+
+// Route Dashboard User (Folder views/user/home.ejs)
+app.get('/user/home', (req, res) => {
+    if (!req.session.userAccount) {
+        return res.redirect('/user');
+    }
+    res.render('user/home', { user: req.session.userAccount });
+});
+
+app.get('/user-logout', (req, res) => {
+    req.session.userAccount = null;
+    res.redirect('/user');
+});
+
+app.get('/register', (req, res) => {
+    res.render('register', { error: null });
+});
+
+app.post('/register', async (req, res) => {
+    const { fullname, username, password } = req.body;
+    try {
+        const { data: existingUser } = await supabase
+            .from('public_users')
+            .select('username')
+            .eq('username', username)
+            .single();
+
+        if (existingUser) {
+            return res.render('register', { error: 'Username sudah digunakan!' });
+        }
+
+        const { error } = await supabase
+            .from('public_users')
+            .insert([{ full_name: fullname, username, password }]);
+
+        if (error) throw error;
+
+        res.redirect('/user'); // Setelah daftar, suruh login
+    } catch (err) {
+        res.render('register', { error: 'Gagal mendaftar: ' + err.message });
+    }
+});
+
+// --- ADMIN DASHBOARD ROUTES ---
 
 app.get('/admin/status', checkAuth, (req, res) => {
     res.render('admin/status', { logs: [] }); 
