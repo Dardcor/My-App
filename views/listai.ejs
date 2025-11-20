@@ -19,7 +19,14 @@
             background-color: #16213e;
             box-shadow: 0 5px 20px rgba(0,0,0,0.4);
         }
-        
+        .navbar {
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        .navbar-scrolled {
+            background-color: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
         .ai-grid-container {
             background-color: #16213e; 
             box-shadow: 0 10px 25px rgba(0,0,0,0.3);
@@ -37,14 +44,6 @@
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
-        }
-        .navbar {
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-        }
-        .navbar-scrolled {
-            background-color: rgba(255, 255, 255, 0.95);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
@@ -93,7 +92,7 @@
             </div>
         </aside>
 
-        <div id="navbar" class="navbar fixed top-0 left-0 w-full p-4 md:p-6 flex justify-center z-30">
+        <div class="fixed top-0 left-0 w-full p-4 md:p-6 flex justify-center z-30">
             <nav class="w-full max-w-6xl bg-white/90 backdrop-blur-sm rounded-full shadow-lg border border-gray-200/50 flex items-center justify-between px-4 py-3">
                 <div class="flex items-center gap-1 md:gap-3">
                     <button id="sidebarToggle" class="text-gray-700 p-2 transition-colors hover:bg-gray-100 rounded-full">
@@ -103,16 +102,11 @@
                         <span class="text-xl font-bold text-gray-800">Dardcor</span>
                     </a>
                 </div>
-                
-                <div class="flex items-center gap-4">
-                    <a href="/admin" class="w-10 h-10 rounded-full flex items-center justify-center bg-gray-100 hover:bg-gray-200 transition-colors" aria-label="Admin Login">
-                        <img src="/logo.png" alt="Logo Admin" class="w-full h-full object-contain p-1 rounded-full">
-                    </a>
-                </div>
+                <a href="/admin" class="w-10 h-10 rounded-full flex items-center justify-center bg-gray-100 hover:bg-gray-200 transition-colors" aria-label="Admin Login">
+                    <img src="/logo.png" alt="Logo Admin" class="w-full h-full object-contain p-1 rounded-full">
+                </a>
             </nav>
         </div>
-
-
         
         <div class="absolute top-0 left-0 w-full h-48 sm:h-64 md:h-80 lg:h-96 z-10">
             <img src="/header.jpg" alt="Header" class="w-full h-full object-cover">
