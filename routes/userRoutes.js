@@ -13,7 +13,6 @@ router.get('/user', (req, res) => {
 router.post('/user-login', async (req, res) => {
     const { username, password } = req.body;
     try {
-        // 1. Cari user berdasarkan username
         const { data, error } = await supabase
             .from('public_users')
             .select('*')
@@ -24,7 +23,6 @@ router.post('/user-login', async (req, res) => {
             return res.render('user', { error: 'Username tidak ditemukan!' });
         }
 
-        // 2. Bandingkan password input dengan hash di database
         const match = await bcrypt.compare(password, data.password);
 
         if (match) {
@@ -56,36 +54,42 @@ router.get('/register', (req, res) => {
 });
 
 router.post('/register', async (req, res) => {
-    const { fullname, username, password } = req.body;
+    const { fullname, username, email, password } = req.body;
     
     try {
-        // 1. Cek apakah username sudah ada
-        const { data: existingUser } = await supabase
+        const { data: userCheck } = await supabase
             .from('public_users')
             .select('username')
             .eq('username', username)
             .single();
 
-        if (existingUser) {
-            // Return JSON untuk fetch API di frontend
+        if (userCheck) {
             return res.status(400).json({ success: false, message: 'Username sudah digunakan!' });
         }
 
-        // 2. Enkripsi Password
+        const { data: emailCheck } = await supabase
+            .from('public_users')
+            .select('email')
+            .eq('email', email)
+            .single();
+
+        if (emailCheck) {
+            return res.status(400).json({ success: false, message: 'Email sudah terdaftar!' });
+        }
+
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // 3. Simpan ke database
         const { error } = await supabase
             .from('public_users')
             .insert([{ 
                 full_name: fullname, 
                 username: username, 
+                email: email,
                 password: hashedPassword 
             }]);
 
         if (error) throw error;
 
-        // Return sukses JSON
         res.status(200).json({ success: true });
 
     } catch (err) {
