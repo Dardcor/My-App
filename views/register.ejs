@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Dardcor - Register</title>
+    <title>Dardcor</title>
     <link rel="icon" href="/logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -31,6 +31,78 @@
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        
+        /* Styles untuk Animasi Sukses */
+        .success-checkmark {
+            width: 80px;
+            height: 115px;
+            margin: 0 auto;
+        }
+        .check-icon {
+            width: 80px;
+            height: 80px;
+            position: relative;
+            border-radius: 50%;
+            box-sizing: content-box;
+            border: 4px solid #4CAF50;
+        }
+        .check-icon::before {
+            top: 3px;
+            left: -2px;
+            width: 30px;
+            transform-origin: 100% 50%;
+            border-radius: 100px 0 0 100px;
+        }
+        .check-icon::after {
+            top: 0;
+            left: 30px;
+            width: 60px;
+            transform-origin: 0 50%;
+            border-radius: 0 100px 100px 0;
+            animation: rotate-circle 4.25s ease-in;
+        }
+        .check-icon::before, .check-icon::after {
+            content: '';
+            height: 100px;
+            position: absolute;
+            background: transparent;
+            transform: rotate(-45deg);
+        }
+        .icon-line {
+            height: 5px;
+            background-color: #4CAF50;
+            display: block;
+            border-radius: 2px;
+            position: absolute;
+            z-index: 10;
+        }
+        .icon-line.line-tip {
+            top: 46px;
+            left: 14px;
+            width: 25px;
+            transform: rotate(45deg);
+            animation: icon-line-tip 0.75s;
+        }
+        .icon-line.line-long {
+            top: 38px;
+            right: 8px;
+            width: 47px;
+            transform: rotate(-45deg);
+            animation: icon-line-long 0.75s;
+        }
+        @keyframes icon-line-tip {
+            0% { width: 0; left: 1px; top: 19px; }
+            54% { width: 0; left: 1px; top: 19px; }
+            70% { width: 50px; left: -8px; top: 37px; }
+            84% { width: 17px; left: 21px; top: 48px; }
+            100% { width: 25px; left: 14px; top: 46px; }
+        }
+        @keyframes icon-line-long {
+            0% { width: 0; right: 46px; top: 54px; }
+            65% { width: 0; right: 46px; top: 54px; }
+            84% { width: 55px; right: 0px; top: 35px; }
+            100% { width: 47px; right: 8px; top: 38px; }
+        }
     </style>
 </head>
 <body class="relative">
@@ -40,11 +112,12 @@
         <div class="absolute inset-0 bg-black/60 z-10"></div>
 
         <main class="relative z-20 w-full max-w-md">
-            <div class="login-container text-white p-10 md:p-12 rounded-2xl">
-                
+            
+            <!-- Form Register -->
+            <div id="registerCard" class="login-container text-white p-10 md:p-12 rounded-2xl">
                 <h1 class="text-3xl font-extrabold mb-6 text-center">Buat Akun</h1>
 
-                <form action="/register" method="POST">
+                <form id="registerForm">
                     <div class="mb-5">
                         <label for="fullname" class="block text-sm font-medium text-gray-300 mb-2">Nama Lengkap</label>
                         <input type="text" id="fullname" name="fullname" class="w-full p-3 rounded-lg placeholder-gray-500" placeholder="Nama Lengkap" required>
@@ -60,13 +133,9 @@
                         <input type="password" id="password" name="password" class="w-full p-3 rounded-lg placeholder-gray-500" placeholder="Buat password" required>
                     </div>
 
-                    <p class="text-center text-red-400 mb-4 text-sm">
-                         <% if (typeof error !== 'undefined' && error) { %>
-                             <%= error %>
-                         <% } %>
-                    </p>
+                    <p id="errorMessage" class="text-center text-red-400 mb-4 text-sm hidden"></p>
                     
-                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold p-3 rounded-lg transition-colors duration-200">
+                    <button type="submit" id="submitBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold p-3 rounded-lg transition-colors duration-200">
                         Daftar
                     </button>
                 </form>
@@ -78,7 +147,70 @@
                     </a>
                 </div>
             </div>
+
+            <!-- Success Modal (Hidden by default) -->
+            <div id="successModal" class="hidden login-container text-white p-10 rounded-2xl text-center">
+                <div class="success-checkmark mb-6">
+                    <div class="check-icon">
+                        <span class="icon-line line-tip"></span>
+                        <span class="icon-line line-long"></span>
+                    </div>
+                </div>
+                <h2 class="text-2xl font-bold mb-2">Pendaftaran Berhasil!</h2>
+                <p class="text-gray-300 mb-4">Akun Anda telah dibuat.</p>
+                <p class="text-blue-400 text-sm animate-pulse">Mengalihkan ke halaman login...</p>
+            </div>
+
         </main>
     </div>
+
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const errorMessage = document.getElementById('errorMessage');
+            const registerCard = document.getElementById('registerCard');
+            const successModal = document.getElementById('successModal');
+            
+            // Disable button & show loading state
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Memproses...';
+            errorMessage.classList.add('hidden');
+
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
+
+            try {
+                const response = await fetch('/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    // Hide form, Show success animation
+                    registerCard.classList.add('hidden');
+                    successModal.classList.remove('hidden');
+                    
+                    // Redirect after 2 seconds
+                    setTimeout(() => {
+                        window.location.href = '/user';
+                    }, 2000);
+                } else {
+                    throw new Error(result.message || 'Gagal mendaftar');
+                }
+            } catch (error) {
+                errorMessage.textContent = error.message;
+                errorMessage.classList.remove('hidden');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Daftar';
+            }
+        });
+    </script>
 </body>
 </html>

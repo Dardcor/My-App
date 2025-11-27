@@ -97,7 +97,7 @@
 
     <div id="sidebarBackdrop" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden transition-opacity duration-300 opacity-0"></div>
 
-    <div class="relative min-h-screen flex">
+    <div class="relative min-h-screen">
 
         <aside id="sidebar" class="sidebar fixed top-0 left-0 h-full w-64 p-0 text-white transform -translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
             
@@ -144,10 +144,10 @@
             </div>
         </aside>
 
-        <div id="mainContent" class="flex-1 min-w-0 flex flex-col min-h-screen transition-all duration-300">
+        <div class="min-h-screen">
             
-            <div class="sticky top-0 z-30 p-4 md:p-6">
-                <nav id="navbar" class="w-full max-w-6xl mx-auto bg-white/90 backdrop-blur-sm rounded-full shadow-lg border border-gray-200/50 flex items-center justify-between px-4 py-3 navbar">
+            <div class="fixed top-0 left-0 w-full p-4 md:p-6 flex justify-center z-30">
+                <nav id="navbar" class="w-full max-w-6xl bg-white/90 backdrop-blur-sm rounded-full shadow-lg border border-gray-200/50 flex items-center justify-between px-4 py-3 navbar">
                     <div class="flex items-center gap-1 md:gap-3">
                         <button id="sidebarToggle" class="text-gray-700 p-2 transition-colors hover:bg-gray-100 rounded-full">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
@@ -345,7 +345,6 @@
             const backdrop = document.getElementById('sidebarBackdrop');
             const closeButton = document.getElementById('sidebarCloseButton');
             const navbar = document.getElementById('navbar');
-            const mainContent = document.getElementById('mainContent');
             
             const mobileDropdownToggle = document.getElementById('mobileDropdownToggle');
             const mobileDropdownMenu = document.getElementById('mobileDropdownMenu');
@@ -358,8 +357,6 @@
                     backdrop.classList.remove('hidden');
                     setTimeout(() => backdrop.classList.remove('opacity-0'), 10);
                     document.body.style.overflow = 'hidden';
-                } else {
-                    mainContent.classList.add('lg:ml-64');
                 }
                 sidebarOpen = true;
             }
@@ -370,8 +367,6 @@
                     backdrop.classList.add('opacity-0');
                     setTimeout(() => backdrop.classList.add('hidden'), 300);
                     document.body.style.overflow = '';
-                } else {
-                    mainContent.classList.remove('lg:ml-64');
                 }
                 sidebarOpen = false;
             }
@@ -424,16 +419,11 @@
                     document.body.style.overflow = '';
                     
                     if (sidebarOpen) {
-                        sidebar.classList.remove('-translate-x-full');
-                        mainContent.classList.add('lg:ml-64');
-                    } else {
-                        sidebar.classList.add('-translate-x-full');
-                        mainContent.classList.remove('lg:ml-64');
+                        closeSidebar();
                     }
                 } else {
                     if (sidebarOpen) {
                         sidebar.classList.add('-translate-x-full');
-                        mainContent.classList.remove('lg:ml-64');
                         backdrop.classList.add('hidden');
                         backdrop.classList.add('opacity-0');
                         document.body.style.overflow = '';

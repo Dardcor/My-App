@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const bcrypt = require('bcrypt');
 const supabase = require('../config/supabase');
 
 router.get('/user', (req, res) => {
@@ -12,6 +13,7 @@ router.get('/user', (req, res) => {
 router.post('/user-login', async (req, res) => {
     const { username, password } = req.body;
     try {
+        // 1. Cari user berdasarkan username
         const { data, error } = await supabase
             .from('public_users')
             .select('*')
@@ -22,13 +24,17 @@ router.post('/user-login', async (req, res) => {
             return res.render('user', { error: 'Username tidak ditemukan!' });
         }
 
-        if (password === data.password) {
+        // 2. Bandingkan password input dengan hash di database
+        const match = await bcrypt.compare(password, data.password);
+
+        if (match) {
             req.session.userAccount = data;
             res.redirect('/user/home');
         } else {
             res.render('user', { error: 'Password salah!' });
         }
     } catch (err) {
+        console.error(err);
         res.render('user', { error: 'Terjadi kesalahan server.' });
     }
 });
@@ -51,7 +57,9 @@ router.get('/register', (req, res) => {
 
 router.post('/register', async (req, res) => {
     const { fullname, username, password } = req.body;
+    
     try {
+        // 1. Cek apakah username sudah ada
         const { data: existingUser } = await supabase
             .from('public_users')
             .select('username')
@@ -59,18 +67,30 @@ router.post('/register', async (req, res) => {
             .single();
 
         if (existingUser) {
-            return res.render('register', { error: 'Username sudah digunakan!' });
+            // Return JSON untuk fetch API di frontend
+            return res.status(400).json({ success: false, message: 'Username sudah digunakan!' });
         }
 
+        // 2. Enkripsi Password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // 3. Simpan ke database
         const { error } = await supabase
             .from('public_users')
-            .insert([{ full_name: fullname, username, password }]);
+            .insert([{ 
+                full_name: fullname, 
+                username: username, 
+                password: hashedPassword 
+            }]);
 
         if (error) throw error;
 
-        res.redirect('/user'); 
+        // Return sukses JSON
+        res.status(200).json({ success: true });
+
     } catch (err) {
-        res.render('register', { error: 'Gagal mendaftar: ' + err.message });
+        console.error(err);
+        res.status(500).json({ success: false, message: 'Gagal mendaftar: ' + err.message });
     }
 });
 
