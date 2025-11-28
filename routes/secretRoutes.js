@@ -60,11 +60,6 @@ router.get('/secret/home', checkSecretAuth, (req, res) => {
 // MY SERVER CONTROL
 router.get('/secret/myserver', checkSecretAuth, async (req, res) => {
     try {
-        // Ambil status maintenance dari DB (Table: settings)
-        // Kita asumsikan ada tabel 'settings' dengan kolom 'key' dan 'value'
-        // Jika belum ada, kita pakai default dari global variable di server.js (via req.app.get)
-        
-        // Untuk simplifikasi, kita baca dari global app setting
         const isMaintenance = req.app.get('isMaintenance') || false;
 
         res.render('secret/myserver', { user: req.session.secretUser, isMaintenance });
@@ -77,15 +72,17 @@ router.get('/secret/myserver', checkSecretAuth, async (req, res) => {
 router.post('/secret/maintenance/toggle', checkSecretAuth, (req, res) => {
     const currentStatus = req.app.get('isMaintenance') || false;
     const newStatus = !currentStatus;
-    
-    // Update global app setting
+
     req.app.set('isMaintenance', newStatus);
-    
+
     console.log(`Maintenance Mode switched to: ${newStatus}`);
     res.redirect('/secret/myserver');
 });
 
-// MY WALLET
+// --------------------------------------------------------------------------------------------------
+// MY WALLET (TELAH DIVERSIFIKASI UNTUK HANYA MENGGUNAKAN DEPOSIT & TRANSFER)
+// --------------------------------------------------------------------------------------------------
+
 router.get('/secret/mywallet', checkSecretAuth, async (req, res) => {
     try {
         const { data: transactions, error } = await supabase
@@ -95,36 +92,49 @@ router.get('/secret/mywallet', checkSecretAuth, async (req, res) => {
 
         if (error) throw error;
 
-        const totals = { total_deposit: 0, total_withdraw: 0, total_transfer: 0, total_payment: 0, total_reward: 0 };
+        // Inisialisasi hanya untuk tipe yang ADA di skema BARU
+        const totals = { total_deposit: 0, total_transfer: 0 }; 
         
+        // Memasukkan data lama ke tampilan (data lama tetap terbaca tapi tidak dihitung ke balance baru)
+        let balance = 0; 
+
         transactions.forEach(tx => {
             const amount = parseFloat(tx.amount) || 0;
-            switch (tx.type) {
-                case 'deposit': totals.total_deposit += amount; break;
-                case 'withdraw': totals.total_withdraw += amount; break;
-                case 'transfer': totals.total_transfer += amount; break;
-                case 'payment': totals.total_payment += amount; break;
-                case 'reward': totals.total_reward += amount; break;
-            }
+            if (tx.type === 'deposit') {
+                totals.total_deposit += amount;
+                balance += amount;
+            } else if (tx.type === 'transfer') {
+                totals.total_transfer += amount;
+                balance -= amount;
+            } 
+            // Untuk data lama (withdraw, payment, reward) masih bisa ditampilkan tapi tidak dihitung ke total deposit/transfer di sini.
+            // Jika Anda ingin membersihkan data lama ini, jalankan query SQL penghapusan data lama di database Anda.
         });
 
-        const balance = (totals.total_deposit || 0) - (totals.total_withdraw || 0) - (totals.total_transfer || 0) - (totals.total_payment || 0) + (totals.total_reward || 0);
+        // Catatan: Jika Anda ingin mempertahankan tampilan "Total Keluar" (Total_Outflow) untuk data lama, 
+        // Anda perlu menyesuaikan ulang logika perhitungan total, tetapi untuk menjaga kesederhanaan,
+        // saat ini hanya menghitung balance dari 'deposit' dan 'transfer'.
 
         res.render('secret/mywallet', { balance, totals, transactions, user: req.session.secretUser });
     } catch (error) {
         console.error("Error Secret Wallet:", error.message);
-        res.render('secret/mywallet', { balance: 0, totals: {}, transactions: [], user: req.session.secretUser });
+        // Mengirimkan totals dengan nilai 0 untuk menghindari error di EJS
+        res.render('secret/mywallet', { balance: 0, totals: { total_deposit: 0, total_transfer: 0 }, transactions: [], user: req.session.secretUser });
     }
 });
 
 router.post('/secret/bank/add', checkSecretAuth, async (req, res) => {
     try {
-        const { amount, type, description, recipient } = req.body;
+        // Hapus recipient dari destructuring
+        const { amount, type, description } = req.body; 
+
         const newTransactionData = { 
             user_id: req.session.secretUser.username, 
             amount: parseFloat(amount) || 0, 
-            type, description, 
-            recipient: (type === 'transfer' || type === 'payment') ? (recipient || null) : null 
+            type, 
+            description,
+            // Hapus field recipient dari objek yang akan di-insert
+            // recipient: null 
         };
         const { error } = await supabase.from('transactions').insert([newTransactionData]);
         if (error) throw error;
@@ -137,11 +147,15 @@ router.post('/secret/bank/add', checkSecretAuth, async (req, res) => {
 
 router.post('/secret/bank/edit', checkSecretAuth, async (req, res) => {
     try {
-        const { id, amount, type, description, recipient } = req.body;
+        // Hapus recipient dari destructuring
+        const { id, amount, type, description } = req.body; 
+        
         const updateData = { 
             amount: parseFloat(amount) || 0, 
-            type, description, 
-            recipient: (type === 'transfer' || type === 'payment') ? (recipient || null) : null 
+            type, 
+            description,
+            // Hapus field recipient dari objek yang akan di-update
+            // recipient: null 
         };
         const { error } = await supabase.from('transactions').update(updateData).eq('id', id);
         if (error) throw error;
