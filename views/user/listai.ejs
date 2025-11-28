@@ -6,14 +6,16 @@
     <title>Dardcor</title>
     <link rel="icon" href="/logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         html { scroll-behavior: smooth; }
         body { 
             background-color: #1a1a2e; 
             min-height: 100vh; 
-            font-family: sans-serif; 
+            font-family: 'Poppins', sans-serif; 
             overflow-x: hidden; 
-            color: #cbd5e1;
+            color: #cbd5e1; 
         }
         .sidebar {
             background-color: #16213e;
@@ -30,8 +32,9 @@
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         }
         .ai-grid-container {
-            background-color: #16213e; 
+            background: linear-gradient(145deg, #1e293b, #0f172a);
             box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            border: 1px solid #334155;
             animation: fadeIn 0.6s ease-out;
         }
         .ai-item {
@@ -42,13 +45,14 @@
         .ai-item:hover {
             transform: translateY(-5px);
             background-color: #1e406b;
+            border-color: #3b82f6;
         }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body class="relative">
@@ -69,35 +73,36 @@
             <nav class="flex-grow px-6 overflow-y-auto no-scrollbar"> 
                 <ul class="space-y-3">
                     <li>
-                        <a href="/" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors hover:bg-blue-600 text-gray-300 hover:text-white whitespace-nowrap">
+                        <a href="/user/home" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors hover:bg-blue-600 text-gray-300 hover:text-white whitespace-nowrap">
                             <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6-4a1 1 0 001-1v-1a1 1 0 10-2 0v1a1 1 0 001 1z"></path></svg>
                             <span>Home</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/list-ai" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors bg-blue-600 text-white whitespace-nowrap">
+                        <a href="/user/list-ai" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors bg-blue-600 text-white whitespace-nowrap">
                             <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M12 5V3m0 18v-2M7.05 7.05l-1.414-1.414M18.364 18.364l-1.414-1.414M7.05 18.364l-1.414 1.414M18.364 7.05l-1.414 1.414M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                             <span>List AI</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/jadwal-kuliah" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors hover:bg-blue-600 text-gray-300 hover:text-white whitespace-nowrap">
+                        <a href="/user/jadwal-kuliah" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors hover:bg-blue-600 text-gray-300 hover:text-white whitespace-nowrap">
                             <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                             <span>Jadwal Kuliah</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/list-tugas" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors hover:bg-blue-600 text-gray-300 hover:text-white whitespace-nowrap">
+                        <a href="/user/list-tugas" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors hover:bg-blue-600 text-gray-300 hover:text-white whitespace-nowrap">
                             <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
                             <span>List Tugas</span>
                         </a>
                     </li>
                 </ul>
             </nav>
+
             <div class="mt-auto flex-shrink-0 px-6 pb-6"> 
-                <a href="/user" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors hover:bg-blue-600 text-gray-300 hover:text-white whitespace-nowrap">
-                    <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm-2.92 7.06a11.91 11.91 0 00-2.16 0A11.97 11.97 0 005 21h14a11.97 11.97 0 00-4.08-3.94z"></path></svg>
-                    <span>Login</span>
+                <a href="/user-logout" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors bg-red-600/20 text-red-300 hover:bg-red-600 hover:text-white whitespace-nowrap">
+                    <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"></path></svg>
+                    <span>Logout</span>
                 </a>
             </div>
         </aside>
@@ -114,37 +119,45 @@
                             <span class="text-xl font-bold text-gray-800">Dardcor</span>
                         </a>
                     </div>
-                    <a href="/admin" class="w-10 h-10 rounded-full flex items-center justify-center bg-gray-100 hover:bg-gray-200 transition-colors" aria-label="Admin Login">
-                        <img src="/logo.png" alt="Logo Admin" class="w-full h-full object-contain p-1 rounded-full">
-                    </a>
+                    
+                    <div class="flex items-center gap-3">
+                        <a href="/user/profile" class="flex items-center gap-2 hover:bg-gray-100 rounded-full pr-3 pl-1 py-1 transition-colors">
+                            <img src="<%= user.profile_image || 'https://ui-avatars.com/api/?name=' + user.username + '&background=random' %>" alt="Profile" class="w-8 h-8 rounded-full object-cover">
+                        </a>
+                    </div>
                 </nav>
             </div>
 
-            <main class="relative min-h-screen">
-                <div class="relative flex items-center justify-center w-full px-4 py-8 pt-32 md:pt-40">
-                    <div class="ai-grid-container text-white p-6 md:p-8 rounded-2xl w-full max-w-6xl mx-4">
+            <main class="relative min-h-screen pt-24 md:pt-28">
+                <div class="w-full max-w-6xl mx-auto px-4">
+                    
+                    <div class="ai-grid-container text-white p-6 md:p-8 rounded-2xl w-full">
                         <h1 class="text-2xl md:text-3xl font-extrabold mb-6 md:mb-8 text-center">List AI</h1>
                         
                         <% if (typeof tools !== 'undefined' && tools.length > 0) { %>
                             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
                                 <% tools.forEach(tool => { %>
                                     <a href="<%= tool.website_link %>" target="_blank" rel="noopener noreferrer" 
-                                       class="ai-item flex flex-col items-center p-3 md:p-4 rounded-lg">
+                                       class="ai-item flex flex-col items-center p-3 md:p-4 rounded-lg group">
                                         <img src="<%= tool.image_url %>" alt="<%= tool.name %>" 
-                                             class="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full object-contain p-1 bg-white mb-2 md:mb-3">
-                                        <span class="text-xs sm:text-sm font-medium text-gray-300 text-center leading-tight"><%= tool.name %></span>
+                                             class="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full object-contain p-1 bg-white mb-2 md:mb-3 group-hover:scale-110 transition-transform duration-200">
+                                        <span class="text-xs sm:text-sm font-medium text-gray-300 text-center leading-tight group-hover:text-white transition-colors"><%= tool.name %></span>
                                     </a>
                                 <% }) %>
                             </div>
                         <% } else { %>
-                            <p class="text-center text-gray-500 text-base md:text-lg">Belum ada AI yang ditambahkan.</p>
+                            <div class="text-center py-10 text-gray-500">
+                                <i class="fas fa-robot text-4xl mb-3 opacity-50"></i>
+                                <p class="text-base md:text-lg">Belum ada AI yang ditambahkan.</p>
+                            </div>
                         <% } %>
                     </div>
+
+                    <footer class="relative z-20 text-center p-6 sm:p-8 text-gray-500 text-sm sm:text-base mt-8">
+                        © 2025 Dardcor. Semua hak cipta dilindungi.
+                    </footer>
+
                 </div>
-                
-                <footer class="relative z-20 text-center p-6 md:p-8 text-gray-500 text-sm md:text-base">
-                    © 2025 Dardcor. Semua hak cipta dilindungi.
-                </footer>
             </main>
         </div>
     </div> 
@@ -156,7 +169,7 @@
             const backdrop = document.getElementById('sidebarBackdrop');
             const closeButton = document.getElementById('sidebarCloseButton');
             const navbar = document.getElementById('navbar');
-
+            
             let sidebarOpen = false;
 
             function openSidebar() {

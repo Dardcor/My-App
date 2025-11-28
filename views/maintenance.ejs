@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dardcor</title>
+    <link rel="icon" href="/logo.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            background-color: #020617; 
+            color: #cbd5e1; 
+            overflow-x: hidden;
+        }
+        
+        .glitch { 
+            position: relative; 
+            color: white; 
+            font-size: 2.5rem; 
+            font-weight: bold; 
+            text-transform: uppercase; 
+            letter-spacing: 0.1em; 
+        }
+        .glitch::before, .glitch::after { 
+            content: attr(data-text); 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            opacity: 0.8;
+        }
+        .glitch::before { 
+            left: 2px; 
+            text-shadow: -1px 0 #ff00c1; 
+            clip: rect(44px, 450px, 56px, 0); 
+            animation: glitch-anim-1 3s infinite linear alternate-reverse; 
+        }
+        .glitch::after { 
+            left: -2px; 
+            text-shadow: -1px 0 #00fff9; 
+            clip: rect(44px, 450px, 56px, 0); 
+            animation: glitch-anim-2 3s infinite linear alternate-reverse; 
+        }
+        
+        @keyframes glitch-anim-1 { 
+            0% { clip: rect(10px, 9999px, 30px, 0); } 
+            5% { clip: rect(60px, 9999px, 80px, 0); } 
+            10% { clip: rect(20px, 9999px, 90px, 0); } 
+            15% { clip: rect(80px, 9999px, 100px, 0); } 
+            20% { clip: rect(40px, 9999px, 60px, 0); } 
+            25% { clip: rect(50px, 9999px, 70px, 0); } 
+            30% { clip: rect(30px, 9999px, 50px, 0); } 
+            35% { clip: rect(70px, 9999px, 90px, 0); } 
+            40% { clip: rect(10px, 9999px, 30px, 0); } 
+            45% { clip: rect(60px, 9999px, 80px, 0); } 
+            50% { clip: rect(20px, 9999px, 90px, 0); } 
+            55% { clip: rect(80px, 9999px, 100px, 0); } 
+            60% { clip: rect(40px, 9999px, 60px, 0); } 
+            65% { clip: rect(50px, 9999px, 70px, 0); } 
+            70% { clip: rect(30px, 9999px, 50px, 0); } 
+            75% { clip: rect(70px, 9999px, 90px, 0); } 
+            80% { clip: rect(10px, 9999px, 30px, 0); } 
+            85% { clip: rect(60px, 9999px, 80px, 0); } 
+            90% { clip: rect(20px, 9999px, 90px, 0); } 
+            95% { clip: rect(80px, 9999px, 100px, 0); } 
+            100% { clip: rect(40px, 9999px, 60px, 0); } 
+        }
+        
+        @keyframes glitch-anim-2 { 
+            0% { clip: rect(80px, 9999px, 100px, 0); } 
+            5% { clip: rect(20px, 9999px, 60px, 0); } 
+            10% { clip: rect(90px, 9999px, 10px, 0); } 
+            15% { clip: rect(10px, 9999px, 30px, 0); } 
+            20% { clip: rect(60px, 9999px, 80px, 0); } 
+            25% { clip: rect(30px, 9999px, 50px, 0); } 
+            30% { clip: rect(70px, 9999px, 90px, 0); } 
+            35% { clip: rect(10px, 9999px, 30px, 0); } 
+            40% { clip: rect(60px, 9999px, 80px, 0); } 
+            45% { clip: rect(20px, 9999px, 90px, 0); } 
+            50% { clip: rect(80px, 9999px, 100px, 0); } 
+            55% { clip: rect(40px, 9999px, 60px, 0); } 
+            60% { clip: rect(50px, 9999px, 70px, 0); } 
+            65% { clip: rect(30px, 9999px, 50px, 0); } 
+            70% { clip: rect(70px, 9999px, 90px, 0); } 
+            75% { clip: rect(10px, 9999px, 30px, 0); } 
+            80% { clip: rect(60px, 9999px, 80px, 0); } 
+            85% { clip: rect(20px, 9999px, 90px, 0); } 
+            90% { clip: rect(80px, 9999px, 100px, 0); } 
+            95% { clip: rect(40px, 9999px, 60px, 0); } 
+            100% { clip: rect(50px, 9999px, 70px, 0); } 
+        }
+        
+        @keyframes loading {
+            0% { transform: translateX(-100%); }
+            50% { transform: translateX(0); }
+            100% { transform: translateX(100%); }
+        }
+        
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(-45deg, #020617, #0f172a, #1e293b, #334155);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .float {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        #particles-js {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+        
+        .status-card {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 16px -2px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .status-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 20px -4px rgba(0, 0, 0, 0.3);
+            border-color: rgba(96, 165, 250, 0.3);
+        }
+        
+        .status-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: #60a5fa;
+        }
+        
+        .social-link {
+            transition: all 0.3s ease;
+        }
+        
+        .social-link:hover {
+            transform: translateY(-3px);
+            color: #60a5fa;
+        }
+        
+        .progress-step {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+        
+        .step-number {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #1e293b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-weight: 600;
+            color: #94a3b8;
+            border: 2px solid #334155;
+            flex-shrink: 0;
+        }
+        
+        .step-active .step-number {
+            background: #60a5fa;
+            color: white;
+            border-color: #60a5fa;
+        }
+        
+        .step-completed .step-number {
+            background: #10b981;
+            color: white;
+            border-color: #10b981;
+        }
+        
+        .step-text {
+            flex: 1;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+        
+        .step-line {
+            position: absolute;
+            left: 15px;
+            top: 32px;
+            bottom: -16px;
+            width: 2px;
+            background: #334155;
+            z-index: -1;
+        }
+        
+        .step-completed .step-line {
+            background: #10b981;
+        }
+        
+        @media (min-width: 768px) {
+            .glitch {
+                font-size: 4rem;
+            }
+            .step-text {
+                font-size: 1rem;
+            }
+        }
+        
+        @media (min-width: 1024px) {
+            .glitch {
+                font-size: 6rem;
+            }
+        }
+    </style>
+</head>
+<body class="gradient-bg flex flex-col items-center justify-center min-h-screen text-center p-4 relative overflow-hidden">
+    <div id="particles-js"></div>
+    
+    <div class="max-w-4xl mx-auto z-10 w-full px-4">
+        <div class="mb-8 md:mb-12 relative">
+            <div class="absolute inset-0 bg-blue-500/30 blur-[100px] rounded-full"></div>
+            <div class="float">
+                <svg class="w-24 h-24 md:w-32 md:h-32 text-blue-500 mx-auto relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"></path>
+                </svg>
+            </div>
+        </div>
+        
+        <h1 class="glitch text-3xl md:text-6xl lg:text-7xl mb-4 md:mb-6" data-text="SYSTEM UPGRADE">SYSTEM UPGRADE</h1>
+        
+        <p class="text-base md:text-lg lg:text-xl text-slate-300 max-w-2xl mx-auto mb-6 md:mb-10 leading-relaxed px-2">
+            We're performing scheduled maintenance to enhance your experience. Our systems will be back online shortly with improved performance and new features.
+        </p>
+        
+        <div class="mb-8 md:mb-12 max-w-md mx-auto w-full">
+            <h2 class="text-lg md:text-xl lg:text-2xl text-slate-400 mb-4 md:mb-6">Upgrade Progress</h2>
+            
+            <div class="progress-step step-completed">
+                <div class="step-number">1</div>
+                <div class="step-text">System Backup</div>
+                <div class="step-line"></div>
+            </div>
+            
+            <div class="progress-step step-completed">
+                <div class="step-number">2</div>
+                <div class="step-text">Database Migration</div>
+                <div class="step-line"></div>
+            </div>
+            
+            <div class="progress-step step-active">
+                <div class="step-number">3</div>
+                <div class="step-text">Core System Update</div>
+                <div class="step-line"></div>
+            </div>
+            
+            <div class="progress-step">
+                <div class="step-number">4</div>
+                <div class="step-text">Security Enhancements</div>
+                <div class="step-line"></div>
+            </div>
+            
+            <div class="progress-step">
+                <div class="step-number">5</div>
+                <div class="step-text">Final Testing & Launch</div>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8 md:mb-12">
+            <div class="status-card">
+                <div class="status-icon">🔧</div>
+                <h3 class="text-base md:text-lg font-semibold mb-2">Maintenance</h3>
+                <p class="text-slate-400 text-xs md:text-sm">Scheduled system improvements in progress</p>
+            </div>
+            
+            <div class="status-card">
+                <div class="status-icon">⚡</div>
+                <h3 class="text-base md:text-lg font-semibold mb-2">Performance</h3>
+                <p class="text-slate-400 text-xs md:text-sm">Enhanced speed and reliability coming soon</p>
+            </div>
+            
+            <div class="status-card">
+                <div class="status-icon">🛡️</div>
+                <h3 class="text-base md:text-lg font-semibold mb-2">Security</h3>
+                <p class="text-slate-400 text-xs md:text-sm">Advanced security features being implemented</p>
+            </div>
+        </div>
+        
+        <div class="mb-8 md:mb-12 w-full max-w-md mx-auto">
+            <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                <div class="w-3/4 h-full bg-gradient-to-r from-blue-500 to-purple-600 animate-[loading_2s_ease-in-out_infinite]"></div>
+            </div>
+            <p class="text-slate-400 mt-2 text-sm md:text-base">Upgrade in progress... 75% complete</p>
+        </div>
+        
+        <div class="flex justify-center space-x-4 md:space-x-6 mb-6 md:mb-8">
+            <a href="#" class="social-link text-slate-400 hover:text-blue-400">
+                <svg class="w-5 h-5 md:w-6 md:h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"></path></svg>
+            </a>
+            <a href="#" class="social-link text-slate-400 hover:text-blue-400">
+                <svg class="w-5 h-5 md:w-6 md:h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"></path></svg>
+            </a>
+            <a href="#" class="social-link text-slate-400 hover:text-blue-400">
+                <svg class="w-5 h-5 md:w-6 md:h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"></path></svg>
+            </a>
+        </div>
+        
+        <div class="text-slate-500 text-xs md:text-sm">
+            <p>Need immediate assistance? Contact us at <a href="mailto:support@dardcor.com" class="text-blue-400 hover:text-blue-300 transition-colors">support@dardcor.com</a></p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    
+    <script>
+        particlesJS('particles-js', {
+            particles: {
+                number: { value: 60, density: { enable: true, value_area: 800 } },
+                color: { value: "#60a5fa" },
+                shape: { type: "circle" },
+                opacity: { value: 0.5, random: true },
+                size: { value: 3, random: true },
+                line_linked: {
+                    enable: true,
+                    distance: 150,
+                    color: "#60a5fa",
+                    opacity: 0.2,
+                    width: 1
+                },
+                move: {
+                    enable: true,
+                    speed: 2,
+                    direction: "none",
+                    random: true,
+                    straight: false,
+                    out_mode: "out",
+                    bounce: false
+                }
+            },
+            interactivity: {
+                detect_on: "canvas",
+                events: {
+                    onhover: { enable: true, mode: "repulse" },
+                    onclick: { enable: true, mode: "push" },
+                    resize: true
+                }
+            },
+            retina_detect: true
+        });
+    </script>
+</body>
+</html>

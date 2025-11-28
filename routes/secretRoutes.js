@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const supabase = require('../config/supabase');
 
+// Middleware
 function checkSecretAuth(req, res, next) {
     if (req.session.isSecretLoggedIn) {
         next();
@@ -10,6 +11,7 @@ function checkSecretAuth(req, res, next) {
     }
 }
 
+// --- Login & Logout ---
 router.get('/secret', (req, res) => {
     if (req.session.isSecretLoggedIn) {
         return res.redirect('/secret/home');
@@ -49,10 +51,41 @@ router.get('/secret-logout', (req, res) => {
     res.redirect('/secret');
 });
 
+// --- Dashboard & Features ---
+
 router.get('/secret/home', checkSecretAuth, (req, res) => {
     res.render('secret/home', { user: req.session.secretUser });
 });
 
+// MY SERVER CONTROL
+router.get('/secret/myserver', checkSecretAuth, async (req, res) => {
+    try {
+        // Ambil status maintenance dari DB (Table: settings)
+        // Kita asumsikan ada tabel 'settings' dengan kolom 'key' dan 'value'
+        // Jika belum ada, kita pakai default dari global variable di server.js (via req.app.get)
+        
+        // Untuk simplifikasi, kita baca dari global app setting
+        const isMaintenance = req.app.get('isMaintenance') || false;
+
+        res.render('secret/myserver', { user: req.session.secretUser, isMaintenance });
+    } catch (error) {
+        console.error(error);
+        res.render('secret/myserver', { user: req.session.secretUser, isMaintenance: false });
+    }
+});
+
+router.post('/secret/maintenance/toggle', checkSecretAuth, (req, res) => {
+    const currentStatus = req.app.get('isMaintenance') || false;
+    const newStatus = !currentStatus;
+    
+    // Update global app setting
+    req.app.set('isMaintenance', newStatus);
+    
+    console.log(`Maintenance Mode switched to: ${newStatus}`);
+    res.redirect('/secret/myserver');
+});
+
+// MY WALLET
 router.get('/secret/mywallet', checkSecretAuth, async (req, res) => {
     try {
         const { data: transactions, error } = await supabase
@@ -77,12 +110,7 @@ router.get('/secret/mywallet', checkSecretAuth, async (req, res) => {
 
         const balance = (totals.total_deposit || 0) - (totals.total_withdraw || 0) - (totals.total_transfer || 0) - (totals.total_payment || 0) + (totals.total_reward || 0);
 
-        res.render('secret/mywallet', { 
-            balance, 
-            totals, 
-            transactions,
-            user: req.session.secretUser 
-        });
+        res.render('secret/mywallet', { balance, totals, transactions, user: req.session.secretUser });
     } catch (error) {
         console.error("Error Secret Wallet:", error.message);
         res.render('secret/mywallet', { balance: 0, totals: {}, transactions: [], user: req.session.secretUser });
@@ -95,14 +123,11 @@ router.post('/secret/bank/add', checkSecretAuth, async (req, res) => {
         const newTransactionData = { 
             user_id: req.session.secretUser.username, 
             amount: parseFloat(amount) || 0, 
-            type: type, 
-            description: description, 
+            type, description, 
             recipient: (type === 'transfer' || type === 'payment') ? (recipient || null) : null 
         };
-        
         const { error } = await supabase.from('transactions').insert([newTransactionData]);
         if (error) throw error;
-        
         res.redirect('/secret/mywallet'); 
     } catch (error) {
         console.error("Error add transaction:", error);
@@ -113,18 +138,13 @@ router.post('/secret/bank/add', checkSecretAuth, async (req, res) => {
 router.post('/secret/bank/edit', checkSecretAuth, async (req, res) => {
     try {
         const { id, amount, type, description, recipient } = req.body;
-        if (!id) return res.status(400).send("ID Transaksi dibutuhkan");
-        
         const updateData = { 
             amount: parseFloat(amount) || 0, 
-            type: type, 
-            description: description, 
+            type, description, 
             recipient: (type === 'transfer' || type === 'payment') ? (recipient || null) : null 
         };
-        
         const { error } = await supabase.from('transactions').update(updateData).eq('id', id);
         if (error) throw error;
-        
         res.redirect('/secret/mywallet'); 
     } catch (error) {
         console.error("Error edit transaction:", error);
@@ -135,11 +155,8 @@ router.post('/secret/bank/edit', checkSecretAuth, async (req, res) => {
 router.post('/secret/bank/delete', checkSecretAuth, async (req, res) => {
     try {
         const { id } = req.body;
-        if (!id) return res.status(400).send("ID Transaksi dibutuhkan");
-        
         const { error } = await supabase.from('transactions').delete().eq('id', id);
         if (error) throw error;
-        
         res.redirect('/secret/mywallet'); 
     } catch (error) {
         console.error("Error delete transaction:", error);
