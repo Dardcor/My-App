@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Dardcor</title>
+    <title>Dardcor - Dashboard</title>
     <link rel="icon" href="/logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -15,22 +15,43 @@
             min-height: 100vh; 
             font-family: 'Poppins', sans-serif; 
             overflow-x: hidden; 
-            color: #cbd5e1; 
+            color: #cbd5e1;
         }
         .sidebar {
             background-color: #16213e;
             box-shadow: 5px 0 15px rgba(0,0,0,0.4);
             z-index: 50;
         }
-        .navbar {
+        /* Hapus backdrop-filter di navbar-top-area */
+        .navbar-top-area {
             transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
             z-index: 40;
         }
-        .navbar-scrolled {
-            background-color: rgba(255, 255, 255, 0.95);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        
+        /* Style default navbar (putih solid) */
+        .navbar-nav {
+            background-color: #ffffff; /* Putih Solid */
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         }
+        
+        /* Warna teks default navbar (dark) */
+        .navbar-nav .nav-text-dark {
+            color: #1f2937 !important;
+        }
+        /* Warna ikon toggle default navbar (dark) */
+        .navbar-nav .toggle-icon-dark svg {
+            stroke: #1f2937;
+        }
+
+        /* Style navbar saat di-scroll */
+        .navbar-scrolled .navbar-nav {
+            background-color: #ffffff; /* Tetap Putih Solid */
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            border-color: #cbd5e1;
+        }
+        
         .dashboard-card {
             background: linear-gradient(145deg, #1e293b, #0f172a);
             box-shadow: 0 10px 25px rgba(0,0,0,0.3);
@@ -54,7 +75,7 @@
         <aside id="sidebar" class="sidebar fixed top-0 left-0 h-full w-64 p-0 text-white transform -translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
             
             <div class="flex items-center justify-between pb-4 border-b border-white/20 mb-4 flex-shrink-0 px-6 pt-6">
-                <h2 class="text-2xl font-bold whitespace-nowrap">My App</h2>
+                <h2 class="text-2xl font-bold whitespace-nowrap">Dardcor App</h2>
                 <button id="sidebarCloseButton" class="p-1 rounded-full text-white/70 hover:bg-white/10 hover:text-white transition-colors">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
@@ -88,7 +109,7 @@
                     </li>
                     <li>
                         <a href="/user/dardcor-ai" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors hover:bg-blue-600 text-gray-300 hover:text-white whitespace-nowrap">
-                            <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                            <i class="fa-solid fa-robot w-6 h-6 flex-shrink-0 text-center"></i>
                             <span>Chat Bot</span>
                         </a>
                     </li>
@@ -97,28 +118,26 @@
 
             <div class="mt-auto flex-shrink-0 px-6 pb-6"> 
                 <a href="/user-logout" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors bg-red-600/20 text-red-300 hover:bg-red-600 hover:text-white whitespace-nowrap">
-                    <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"></path></svg>
+                    <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"></path></svg>
                     <span>Logout</span>
                 </a>
             </div>
         </aside>
 
-        <div class="min-h-screen">
+        <div class="min-h-screen main-content-wrapper w-full">
             
-            <div class="fixed top-0 left-0 w-full p-4 md:p-6 flex justify-center z-30">
-                <nav id="navbar" class="w-full max-w-6xl bg-white/90 backdrop-blur-sm rounded-full shadow-lg border border-gray-200/50 flex items-center justify-between px-4 py-3 navbar">
+            <div class="fixed top-0 left-0 w-full p-4 md:p-6 flex justify-center z-30 navbar-top-area">
+                <nav id="navbar" class="navbar-nav w-full max-w-6xl rounded-full flex items-center justify-between px-4 py-3">
                     <div class="flex items-center gap-1 md:gap-3">
-                        <button id="sidebarToggle" class="text-gray-700 p-2 transition-colors hover:bg-gray-100 rounded-full">
+                        <button id="sidebarToggle" class="toggle-icon-dark text-gray-700 p-2 transition-colors hover:bg-gray-100 rounded-full">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                         </button>
-                        <a href="/" class="flex items-center gap-2">
-                            <span class="text-xl font-bold text-gray-800">Dardcor</span>
-                        </a>
+                        <span class="text-xl font-bold nav-text-dark">Dardcor</span>
                     </div>
                     
                     <div class="flex items-center gap-3">
-                        <a href="/user/profile" class="flex items-center gap-2 hover:bg-gray-100 rounded-full pr-3 pl-1 py-1 transition-colors">
-                            <img src="<%= user.profile_image || 'https://ui-avatars.com/api/?name=' + user.username + '&background=random' %>" alt="Profile" class="w-8 h-8 rounded-full object-cover">
+                        <a href="/user/profile" class="profile-link flex items-center gap-2 hover:bg-gray-100 rounded-full pr-3 pl-1 py-1 transition-colors">
+                            <img src="<%= user.profile_image || 'https://ui-avatars.com/api/?name=' + (user.username || 'User') + '&background=random&color=fff' %>" alt="Profile" class="w-8 h-8 rounded-full object-cover">
                         </a>
                     </div>
                 </nav>
@@ -126,14 +145,103 @@
 
             <main class="relative min-h-screen pt-24 md:pt-28">
                 <div class="w-full max-w-6xl mx-auto px-4">
-                    <div class="dashboard-card p-8 rounded-2xl text-center">
-                        <h1 class="text-3xl sm:text-4xl font-bold text-white mb-4">Selamat Datang!</h1>
-                        <p class="text-lg text-gray-300 mb-8">Halo, <span class="text-blue-400 font-semibold"><%= user.full_name || user.username %></span>. Ini adalah halaman dashboard khusus Anda.</p>
+                    
+                    <div class="dashboard-card p-8 rounded-2xl text-center mb-8">
+                        <h1 class="text-3xl sm:text-4xl font-bold text-white mb-4">👋 Selamat Datang!</h1>
+                        <p class="text-lg text-gray-300">Halo, <span class="text-blue-400 font-semibold"><%= user.full_name || user.username || 'Pengguna' %></span>. Akses cepat ke aktivitas Anda:</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                         
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
+                        <div class="dashboard-card p-6 rounded-xl flex items-center justify-between">
+                            <div>
+                                <h3 class="text-gray-400 text-sm mb-1 font-medium">Total Tugas</h3>
+                                <p class="text-3xl font-bold text-blue-400">12</p>
+                                <p class="text-sm text-gray-500 mt-1">Belum Selesai</p>
+                            </div>
+                            <i class="fa-solid fa-list-check text-4xl text-blue-600/50"></i>
+                        </div>
+
+                        <div class="dashboard-card p-6 rounded-xl flex items-center justify-between">
+                            <div>
+                                <h3 class="text-gray-400 text-sm mb-1 font-medium">Jadwal Hari Ini</h3>
+                                <p class="text-3xl font-bold text-teal-400">3</p>
+                                <p class="text-sm text-gray-500 mt-1">Mata Kuliah</p>
+                            </div>
+                            <i class="fa-solid fa-calendar-day text-4xl text-teal-600/50"></i>
+                        </div>
+
+                        <div class="dashboard-card p-6 rounded-xl flex items-center justify-between">
+                            <div>
+                                <h3 class="text-gray-400 text-sm mb-1 font-medium">Tugas Mendesak</h3>
+                                <p class="text-3xl font-bold text-red-400">2</p>
+                                <p class="text-sm text-gray-500 mt-1">Dalam 24 Jam</p>
+                            </div>
+                            <i class="fa-solid fa-triangle-exclamation text-4xl text-red-600/50"></i>
+                        </div>
+                        
+                        <div class="dashboard-card p-6 rounded-xl flex items-center justify-between">
+                            <div>
+                                <h3 class="text-gray-400 text-sm mb-1 font-medium">Level Pengguna</h3>
+                                <p class="text-3xl font-bold text-purple-400">5</p>
+                                <p class="text-sm text-gray-500 mt-1">Student Elite</p>
+                            </div>
+                            <i class="fa-solid fa-star text-4xl text-purple-600/50"></i>
+                        </div>
+
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                        <div class="dashboard-card p-6 rounded-2xl lg:col-span-2">
+                            <h2 class="text-xl font-semibold text-white mb-4 flex items-center gap-2"><i class="fa-solid fa-book text-blue-400"></i> Jadwal Kuliah Hari Ini</h2>
+                            <div class="space-y-4">
+                                
+                                <div class="p-4 bg-slate-800/50 rounded-lg border-l-4 border-l-green-500">
+                                    <p class="font-semibold text-white">Struktur Data</p>
+                                    <p class="text-sm text-gray-400">Senin, 08:00 - 10:00 (Ruang A101)</p>
+                                </div>
+                                
+                                <div class="p-4 bg-slate-800/50 rounded-lg border-l-4 border-l-yellow-500">
+                                    <p class="font-semibold text-white">Algoritma & Pemrograman</p>
+                                    <p class="text-sm text-gray-400">Senin, 10:30 - 12:30 (Ruang B203)</p>
+                                </div>
+
+                                <div class="p-4 bg-slate-800/50 rounded-lg border-l-4 border-l-red-500">
+                                    <p class="font-semibold text-white">Kalkulus Lanjut</p>
+                                    <p class="text-sm text-gray-400">Senin, 14:00 - 16:00 (Online)</p>
+                                </div>
+
+                            </div>
+                            <a href="/user/jadwal-kuliah" class="block mt-4 text-center text-blue-400 hover:text-blue-300 transition-colors">Lihat Semua Jadwal</a>
+                        </div>
+                        
+                        <div class="dashboard-card p-6 rounded-2xl">
+                            <h2 class="text-xl font-semibold text-white mb-4 flex items-center gap-2"><i class="fa-solid fa-clipboard-list text-red-400"></i> Tugas Mendatang</h2>
+                            <ul class="space-y-3">
+                                <li class="p-3 bg-slate-800/50 rounded-lg">
+                                    <p class="font-medium text-white">Presentasi WebDev</p>
+                                    <p class="text-xs text-red-400 mt-1"><i class="fa-solid fa-clock"></i> Deadline: Besok</p>
+                                </li>
+                                <li class="p-3 bg-slate-800/50 rounded-lg">
+                                    <p class="font-medium text-white">Laporan Praktikum Fisika</p>
+                                    <p class="text-xs text-yellow-400 mt-1"><i class="fa-solid fa-clock"></i> Deadline: 3 Hari Lagi</p>
+                                </li>
+                                <li class="p-3 bg-slate-800/50 rounded-lg">
+                                    <p class="font-medium text-white">Esai Filsafat</p>
+                                    <p class="text-xs text-gray-400 mt-1"><i class="fa-solid fa-clock"></i> Deadline: 1 Minggu Lagi</p>
+                                </li>
+                            </ul>
+                            <a href="/user/list-tugas" class="block mt-4 text-center text-blue-400 hover:text-blue-300 transition-colors">Lihat Semua Tugas</a>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-card p-8 rounded-2xl text-left mt-8">
+                        <h2 class="text-xl font-semibold text-white mb-4 flex items-center gap-2"><i class="fa-solid fa-user text-orange-400"></i> Detail Akun</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="bg-slate-800/50 p-6 rounded-xl border border-slate-700">
                                 <h3 class="text-gray-400 text-sm mb-1">Username</h3>
-                                <p class="text-xl font-medium text-white"><%= user.username %></p>
+                                <p class="text-xl font-medium text-white"><%= user.username || '-' %></p>
                             </div>
                             <div class="bg-slate-800/50 p-6 rounded-xl border border-slate-700">
                                 <h3 class="text-gray-400 text-sm mb-1">Nama Lengkap</h3>
@@ -145,6 +253,8 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="h-16"></div>
                 </div>
             </main>
         </div>
@@ -157,6 +267,7 @@
             const backdrop = document.getElementById('sidebarBackdrop');
             const closeButton = document.getElementById('sidebarCloseButton');
             const navbar = document.getElementById('navbar');
+            const navbarTopArea = document.querySelector('.navbar-top-area');
             
             let sidebarOpen = false;
 
@@ -200,32 +311,29 @@
 
             window.addEventListener('scroll', () => {
                 if (window.scrollY > 10) {
-                    navbar.classList.add('navbar-scrolled');
+                    navbarTopArea.classList.add('navbar-scrolled');
                 } else {
-                    navbar.classList.remove('navbar-scrolled');
+                    navbarTopArea.classList.remove('navbar-scrolled');
                 }
             });
 
-            window.addEventListener('resize', () => {
+            function handleResize() {
                 if (window.innerWidth >= 1024) {
-                    backdrop.classList.add('hidden');
-                    backdrop.classList.add('opacity-0');
-                    document.body.style.overflow = '';
-                    
                     if (sidebarOpen) {
                         closeSidebar();
                     }
+                    backdrop.classList.add('hidden');
+                    document.body.style.overflow = '';
                 } else {
-                    if (sidebarOpen) {
-                        sidebar.classList.add('-translate-x-full');
-                        backdrop.classList.add('hidden');
-                        backdrop.classList.add('opacity-0');
-                        document.body.style.overflow = '';
-                        sidebarOpen = false;
+                    if (!sidebarOpen) {
+                         backdrop.classList.add('hidden');
+                         document.body.style.overflow = '';
                     }
                 }
-            });
+            }
 
+            window.addEventListener('resize', handleResize);
+            
             document.querySelectorAll('nav a').forEach(link => {
                 link.addEventListener('click', () => {
                     if (window.innerWidth < 1024) {
@@ -234,9 +342,7 @@
                 });
             });
 
-            if (window.innerWidth >= 1024) {
-                closeSidebar();
-            }
+            handleResize();
         });
     </script>
 </body>

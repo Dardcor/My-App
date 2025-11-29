@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Dardcor</title>
+    <title>Dardcor - Chat Bot</title>
     <link rel="icon" href="/logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -22,48 +22,236 @@
             box-shadow: 5px 0 15px rgba(0,0,0,0.4);
             z-index: 50;
         }
-        .navbar {
+        
+        .navbar-top-area {
             transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
             z-index: 40;
         }
-        .navbar-scrolled {
-            background-color: rgba(26, 26, 46, 0.95);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        
+        .navbar-nav {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         }
-        .chat-container {
-            height: calc(100vh - 200px);
-            overflow-y: auto;
+        
+        .navbar-nav .nav-text-dark {
+            color: #1f2937 !important;
+        }
+        .navbar-nav .toggle-icon-dark svg {
+            stroke: #1f2937;
+        }
+
+        .navbar-scrolled .navbar-nav {
+            background-color: #ffffff;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            border-color: #cbd5e1;
+        }
+
+        .dashboard-card {
+            background: #1a1a2e; 
+            border: none; 
+            height: calc(100vh - 140px);
             display: flex;
             flex-direction: column;
-            padding-bottom: 10px;
+            box-shadow: none;
         }
+        
+        #chatContainer {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+
+        .chat-input-area {
+            background: #1a1a2e; 
+            padding: 1rem;
+            border-top: none; 
+            position: sticky;
+            bottom: 0;
+            z-index: 30;
+        }
+        
         .message-user {
             background-color: #3f51b5; 
             align-self: flex-end;
             border-radius: 18px 18px 4px 18px;
             max-width: 85%;
+            color: white;
+            word-wrap: break-word;
         }
         .message-bot {
             background-color: #16213e; 
             align-self: flex-start;
             border-radius: 18px 18px 18px 4px;
-            border: 1px solid #334155;
+            border: none;
             max-width: 85%;
+            word-wrap: break-word;
+            color: #cbd5e1;
         }
+
+        .message-bot pre {
+            position: relative;
+            background-color: #0f172a;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .copy-button {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            color: #cbd5e1;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            border: none;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .copy-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .message-bot code {
+            font-family: monospace;
+            color: #93c5fd;
+            font-size: 0.9rem;
+            white-space: pre-wrap; 
+            display: block;
+        }
+
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        @media (max-width: 640px) {
-            .chat-container {
-                height: calc(100vh - 160px);
-            }
-            .message-user, .message-bot {
-                max-width: 90%;
-            }
+        
+        .chat-input-wrapper {
+            background: #1e293b; 
+            border: 1px solid #334155;
+            border-radius: 16px; 
+            padding: 12px; 
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); 
+            transition: all 0.2s ease;
         }
-        @media (max-width: 480px) {
-            .chat-container {
-                height: calc(100vh - 150px);
+        
+        .chat-input-wrapper.drag-over {
+            border: 2px dashed #93c5fd;
+            box-shadow: 0 0 10px rgba(147, 197, 253, 0.5);
+        }
+
+        .input-actions {
+            display: flex; 
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .input-main-area {
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+        }
+        
+        .text-input-container {
+            flex: 1;
+            position: relative;
+        }
+        
+        .chat-textarea {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: white;
+            resize: none;
+            outline: none;
+            font-family: 'Poppins', sans-serif;
+            font-size: 16px; 
+            line-height: 1.6; 
+            padding: 0;
+            margin-top: 4px;
+            min-height: 24px;
+            max-height: 120px;
+        }
+        
+        .chat-textarea::placeholder {
+            color: #64748b;
+        }
+        
+        .send-button {
+            background: #3f51b5;
+            border: none;
+            border-radius: 12px; 
+            width: 44px; 
+            height: 44px; 
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .send-button:hover:not(:disabled) {
+            background: #303f9f;
+        }
+        
+        .send-button:disabled {
+            background: #475569;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        
+        .file-preview-area {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            margin-bottom: 8px;
+            background: #0f172a;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            color: #cbd5e1;
+        }
+        
+        .file-preview-area img {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-right: 12px;
+        }
+        
+        .file-info {
+            flex-grow: 1;
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .file-remove-button {
+            background: transparent;
+            border: none;
+            color: #ef4444;
+            cursor: pointer;
+            font-size: 18px;
+            margin-left: 12px;
+        }
+        
+        .character-count {
+             display: none; /* Hilangkan character count */
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-card {
+                height: calc(100vh - 120px);
             }
         }
     </style>
@@ -74,7 +262,7 @@
     <div class="relative min-h-screen">
         <aside id="sidebar" class="sidebar fixed top-0 left-0 h-full w-64 p-0 text-white transform -translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
             <div class="flex items-center justify-between pb-4 border-b border-white/20 mb-4 flex-shrink-0 px-6 pt-6">
-                <h2 class="text-2xl font-bold whitespace-nowrap">My App</h2>
+                <h2 class="text-2xl font-bold whitespace-nowrap">Dardcor App</h2>
                 <button id="sidebarCloseButton" class="p-1 rounded-full text-white/70 hover:bg-white/10 hover:text-white transition-colors">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
@@ -108,7 +296,7 @@
                     </li>
                     <li>
                         <a href="/user/dardcor-ai" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors bg-blue-600 text-white whitespace-nowrap">
-                            <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                            <i class="fa-solid fa-robot w-6 h-6 flex-shrink-0 text-center"></i>
                             <span>Chat Bot</span>
                         </a>
                     </li>
@@ -117,24 +305,26 @@
 
             <div class="mt-auto flex-shrink-0 px-6 pb-6"> 
                 <a href="/user-logout" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors bg-red-600/20 text-red-300 hover:bg-red-600 hover:text-white whitespace-nowrap">
-                    <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"></path></svg>
+                    <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"></path></svg>
                     <span>Logout</span>
                 </a>
             </div>
         </aside>
 
         <div class="min-h-screen">
-            <div class="fixed top-0 left-0 w-full p-3 md:p-6 flex justify-center z-30">
-                <nav id="navbar" class="w-full max-w-6xl bg-white/90 backdrop-blur-sm rounded-full shadow-lg border border-gray-200/50 flex items-center justify-between px-4 py-3 navbar">
+            <div class="fixed top-0 left-0 w-full p-3 md:p-6 flex justify-center z-30 navbar-top-area">
+                <nav id="navbar" class="navbar-nav w-full max-w-6xl rounded-full flex items-center justify-between px-4 py-3">
                     <div class="flex items-center gap-1 md:gap-3">
-                        <button id="sidebarToggle" class="text-gray-700 p-2 transition-colors hover:bg-gray-100 rounded-full">
+                        <button id="sidebarToggle" class="toggle-icon-dark text-gray-700 p-2 transition-colors hover:bg-gray-100 rounded-full">
                             <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                         </button>
-                        <span class="text-lg md:text-xl font-bold text-gray-800">Dardcor</span>
+                        <a href="/user/home" class="flex items-center gap-2">
+                            <span class="text-lg md:text-xl font-bold nav-text-dark">Dardcor</span>
+                        </a>
                     </div>
                     
                     <div class="flex items-center gap-3">
-                        <a href="/user/profile" class="flex items-center gap-2 hover:bg-gray-100 rounded-full pr-3 pl-1 py-1 transition-colors">
+                        <a href="/user/profile" class="profile-link flex items-center gap-2 hover:bg-gray-100 rounded-full pr-3 pl-1 py-1 transition-colors">
                             <img src="<%= user.profile_image || 'https://ui-avatars.com/api/?name=' + user.username + '&background=random' %>" alt="Profile" class="w-7 h-7 md:w-8 md:h-8 rounded-full object-cover">
                         </a>
                     </div>
@@ -142,15 +332,12 @@
             </div>
 
             <main class="relative min-h-screen pt-20 md:pt-28 pb-4">
-                <div class="w-full max-w-6xl mx-auto px-3 md:px-4 h-full flex flex-col">
-                    <div class="dashboard-card p-4 sm:p-6 rounded-2xl flex flex-col flex-1 min-h-0">
-                        <h1 class="text-lg md:text-xl font-bold text-white mb-4 flex items-center gap-2">
-                            <i class="fas fa-robot text-blue-400"></i> Dardcor AI Assistant
-                        </h1>
-                        <div id="chatContainer" class="chat-container no-scrollbar space-y-3 md:space-y-4 flex-1 overflow-y-auto">
+                <div class="w-full max-w-6xl mx-auto px-3 md:px-4 h-full">
+                    <div class="dashboard-card flex flex-col">
+                        <div id="chatContainer" class="no-scrollbar space-y-3 md:space-y-4 p-0 md:p-4 flex-1 overflow-y-auto">
                             <div class="flex">
                                 <div class="message-bot p-3 text-sm md:text-base">
-                                    Halo <%= user.full_name || user.username %>! Saya Dardcor AI. Ada yang bisa saya bantu terkait perkuliahan atau tugas Anda hari ini?
+                                    Halo <%= user.full_name || user.username %>! Saya **Dardcor AI**. Ada yang bisa saya bantu terkait perkuliahan atau tugas Anda hari ini?
                                 </div>
                             </div>
 
@@ -162,25 +349,60 @@
                                     %>
                                     <div class="flex <%= sender === 'user' ? 'justify-end' : 'justify-start' %>">
                                         <div class="p-3 text-sm md:text-base <%= sender === 'user' ? 'message-user' : 'message-bot' %>">
-                                            <%= text %>
+                                            <% if (sender === 'bot') { %>
+                                                <div class="markdown-content">
+                                                    <%- text.replace(/```(\w+)?\n([\s\S]*?)\n```/g, function(match, lang, code) {
+                                                        const langDisplay = lang ? lang.toUpperCase() : 'CODE';
+                                                        const escapedCode = code.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                                                        return '<pre><button class="copy-button" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button><code>' + escapedCode + '</code></pre>';
+                                                    }).replace(/\n/g, '<br>') %>
+                                                </div>
+                                            <% } else { %>
+                                                <%= text %>
+                                                
+                                                <% if (item.parts[0].inlineData) { %>
+                                                    <div class="mt-2 p-2 border border-blue-400/50 rounded-lg text-xs bg-blue-900/30">
+                                                        <i class="fas fa-file-alt mr-2"></i> Mengirim: **<%= item.parts[0].inlineData.mimeType %>** (File)
+                                                    </div>
+                                                <% } %>
+                                            <% } %>
                                         </div>
                                     </div>
                                 <% }); %>
                             <% } %>
                         </div>
-
-                        <div class="mt-4 pt-4 border-t border-slate-700 flex-shrink-0">
-                            <form id="chatForm" class="flex gap-2 md:gap-3 items-end">
-                                <div class="flex-1">
-                                    <input type="text" id="chatInput" placeholder="Ketik pesan Anda di sini..." 
-                                           class="w-full p-2 md:p-3 rounded-lg bg-[#0f172a] border border-slate-700 text-white focus:ring-blue-500 focus:border-blue-500 text-sm md:text-base" 
-                                           autocomplete="off" required>
+                        <div class="chat-input-area mt-auto">
+                            <div class="chat-input-wrapper" id="chatInputWrapper">
+                                <div id="filePreview" class="hidden">
+                                    <div class="file-preview-area">
+                                        <img id="previewImage" src="" alt="File Preview">
+                                        <div class="file-info">
+                                            <span id="fileName"></span>
+                                        </div>
+                                        <button id="removeFile" class="file-remove-button"><i class="fas fa-times"></i></button>
+                                    </div>
                                 </div>
-                                <button type="submit" id="sendButton"
-                                        class="bg-blue-600 hover:bg-blue-700 text-white p-2 md:p-3 rounded-lg transition-colors disabled:bg-slate-700 disabled:text-slate-400 flex items-center justify-center w-10 h-10 md:w-12 md:h-12 flex-shrink-0">
-                                    <i class="fas fa-paper-plane text-sm md:text-base"></i>
-                                </button>
-                            </form>
+                                <div class="input-main-area">
+                                    <button id="fileAttachButton" class="send-button bg-gray-600 hover:bg-gray-700" style="width: 44px; height: 44px; margin-right: -12px; margin-bottom: 2px;">
+                                        <i class="fas fa-paperclip"></i>
+                                    </button>
+                                    <div class="text-input-container">
+                                        <textarea 
+                                            id="chatInput" 
+                                            class="chat-textarea" 
+                                            placeholder="Ketik pesan Anda di sini, atau drop file apa pun." 
+                                            rows="1"
+                                            autocomplete="off"
+                                        ></textarea>
+                                        <div class="character-count">
+                                            <span id="charCount">0</span>/<span id="maxChars">8192</span>
+                                        </div>
+                                    </div>
+                                    <button id="sendButton" class="send-button" disabled>
+                                        <i class="fas fa-paper-plane"></i>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -188,26 +410,79 @@
         </div>
     </div> 
     
+    <input type="file" id="fileInput" name="file_attachment" style="display: none;">
+
     <script>
         const chatContainer = document.getElementById('chatContainer');
-        const chatForm = document.getElementById('chatForm');
         const chatInput = document.getElementById('chatInput');
         const sendButton = document.getElementById('sendButton');
+        const chatInputWrapper = document.getElementById('chatInputWrapper');
+        const filePreview = document.getElementById('filePreview');
+        const previewImage = document.getElementById('previewImage');
+        const fileNameSpan = document.getElementById('fileName');
+        const removeFileButton = document.getElementById('removeFile');
+        const fileInput = document.getElementById('fileInput');
+        const fileAttachButton = document.getElementById('fileAttachButton');
 
-        function appendMessage(sender, text) {
+        let attachedFile = null; 
+
+        window.copyCode = function(button) {
+            const pre = button.closest('pre');
+            const codeElement = pre.querySelector('code');
+            const codeText = codeElement.innerText;
+
+            navigator.clipboard.writeText(codeText).then(() => {
+                button.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                setTimeout(() => {
+                    button.innerHTML = '<i class="fas fa-copy"></i> Copy';
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+            });
+        }
+        
+        // --- CHAT LOGIC ---
+
+        function formatBotResponse(text) {
+            const codeBlockRegex = /```(\w+)?\n([\s\S]*?)\n```/g;
+            
+            let html = text.replace(codeBlockRegex, function(match, lang, code) {
+                const langDisplay = lang ? lang.toUpperCase() : 'CODE';
+                const escapedCode = code.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                return '<pre><button class="copy-button" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button><code>' + escapedCode + '</code></pre>';
+            });
+
+            html = html.replace(/(?![^<]*>)\n/g, '<br>');
+            html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+
+            return html;
+        }
+
+        function appendMessage(sender, text, fileData = null) {
             const messageWrapper = document.createElement('div');
-            messageWrapper.classList.add('flex');
+            messageWrapper.classList.add('flex', 'p-2'); 
             
             const messageContent = document.createElement('div');
             messageContent.classList.add('p-3', 'text-sm', 'md:text-base');
-            messageContent.textContent = text;
-
+            
             if (sender === 'user') {
                 messageWrapper.classList.add('justify-end');
                 messageContent.classList.add('message-user');
+                messageContent.textContent = text;
+                
+                if (fileData) {
+                    const fileDiv = document.createElement('div');
+                    fileDiv.classList.add('mt-2', 'p-2', 'border', 'border-blue-400/50', 'rounded-lg', 'text-xs', 'bg-blue-900/30');
+                    const fileIcon = fileData.type.startsWith('image/') ? '<i class="fas fa-image mr-2"></i>' : '<i class="fas fa-file-alt mr-2"></i>';
+                    fileDiv.innerHTML = `${fileIcon} Mengirim: **${fileData.name}** (${fileData.type})`;
+                    messageContent.appendChild(fileDiv);
+                }
+
             } else {
                 messageWrapper.classList.add('justify-start');
                 messageContent.classList.add('message-bot');
+                messageContent.innerHTML = formatBotResponse(text); 
             }
 
             messageWrapper.appendChild(messageContent);
@@ -216,25 +491,144 @@
         }
 
         function scrollToBottom() {
-            chatContainer.scrollTop = chatContainer.scrollHeight;
+            chatContainer.scrollTo({
+                top: chatContainer.scrollHeight,
+                behavior: 'smooth'
+            });
+        }
+        
+        // --- INPUT AND FILE HANDLING ---
+
+        function updateSendButtonState() {
+            const hasText = chatInput.value.trim().length > 0;
+            const hasFile = attachedFile !== null;
+            
+            // Tombol kirim aktif jika ada pesan ATAU ada file terlampir
+            sendButton.disabled = !(hasText || hasFile);
         }
 
-        // Auto scroll to bottom on page load
-        setTimeout(scrollToBottom, 100);
+        function autoResizeTextarea() {
+            chatInput.style.height = 'auto';
+            chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + 'px';
+        }
 
-        chatForm.addEventListener('submit', async function(e) {
+        function handleFileAttachment(file) {
+            if (file) {
+                attachedFile = file;
+                fileNameSpan.textContent = file.name;
+                filePreview.classList.remove('hidden');
+
+                // Tampilkan preview gambar atau ikon file
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        previewImage.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    previewImage.src = '[https://via.placeholder.com/40x40?text=File](https://via.placeholder.com/40x40?text=File)'; 
+                }
+                
+                updateSendButtonState();
+            } else {
+                removeFile();
+            }
+        }
+        
+        function removeFile() {
+            attachedFile = null;
+            fileInput.value = ''; 
+            filePreview.classList.add('hidden');
+            previewImage.src = '';
+            fileNameSpan.textContent = '';
+            updateSendButtonState();
+        }
+        
+        // Event Listeners for Input & File
+        
+        chatInput.addEventListener('input', function() {
+            updateSendButtonState();
+            autoResizeTextarea();
+        });
+
+        chatInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        sendButton.addEventListener('click', sendMessage);
+        removeFileButton.addEventListener('click', removeFile);
+        
+        fileAttachButton.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileAttachment(e.target.files[0]);
+            }
+        });
+        
+        // --- DRAG AND DROP LOGIC ---
+
+        chatInputWrapper.addEventListener('dragover', (e) => {
             e.preventDefault();
+            e.stopPropagation();
+            chatInputWrapper.classList.add('drag-over');
+        });
+
+        chatInputWrapper.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            chatInputWrapper.classList.remove('drag-over');
+        });
+
+        chatInputWrapper.addEventListener('drop', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            chatInputWrapper.classList.remove('drag-over');
+
+            if (e.dataTransfer.files.length > 0) {
+                handleFileAttachment(e.dataTransfer.files[0]);
+            }
+        });
+
+        // --- SEND MESSAGE FUNCTION ---
+
+        async function sendMessage() {
             const message = chatInput.value.trim();
 
-            if (!message) return;
+            if ((!message && !attachedFile) || sendButton.disabled) return;
 
-            appendMessage('user', message);
-            chatInput.value = '';
+            // Menonaktifkan input dan tombol
             sendButton.disabled = true;
             chatInput.disabled = true;
+            fileAttachButton.disabled = true;
+            removeFileButton.disabled = true;
 
+            // Tampilkan pesan pengguna
+            const fileDataToSend = attachedFile ? { name: attachedFile.name, type: attachedFile.type } : null;
+            appendMessage('user', message || (attachedFile ? "Analisis file ini." : ""), fileDataToSend);
+
+            // Persiapan FormData untuk mengirim teks dan file
+            const formData = new FormData();
+            formData.append('message', message);
+            if (attachedFile) {
+                // Nama field harus sesuai dengan yang diatur di Multer: 'file_attachment'
+                formData.append('file_attachment', attachedFile);
+            }
+
+            // Bersihkan input
+            chatInput.value = '';
+            removeFile();
+            updateSendButtonState();
+            autoResizeTextarea();
+
+            // Tampilkan pesan loading
             const loadingMessage = document.createElement('div');
-            loadingMessage.classList.add('flex', 'justify-start');
+            loadingMessage.classList.add('flex', 'justify-start', 'p-2');
             loadingMessage.innerHTML = '<div class="message-bot p-3 text-sm md:text-base text-slate-400"><i class="fas fa-spinner fa-spin"></i> Mengetik...</div>';
             chatContainer.appendChild(loadingMessage);
             scrollToBottom();
@@ -242,10 +636,7 @@
             try {
                 const response = await fetch('/user/ai/chat', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ message: message })
+                    body: formData 
                 });
 
                 const result = await response.json();
@@ -261,25 +652,31 @@
             } catch (error) {
                 console.error('Error saat fetch chat:', error);
                 chatContainer.removeChild(loadingMessage);
-                appendMessage('bot', '[ERROR] Koneksi ke server gagal.');
+                appendMessage('bot', '[ERROR] Koneksi ke server gagal atau terjadi masalah jaringan.');
             }
 
-            sendButton.disabled = false;
+            // Mengaktifkan kembali input dan tombol
             chatInput.disabled = false;
+            fileAttachButton.disabled = false;
+            removeFileButton.disabled = false;
+            updateSendButtonState(); 
             chatInput.focus();
-        });
+        }
 
-        // Auto-focus input on page load
         setTimeout(() => {
             chatInput.focus();
+            updateSendButtonState();
+            scrollToBottom();
         }, 500);
         
+        // --- Sidebar & UI Logic ---
+
         document.addEventListener('DOMContentLoaded', () => {
             const toggleButton = document.getElementById('sidebarToggle');
             const sidebar = document.getElementById('sidebar');
             const backdrop = document.getElementById('sidebarBackdrop');
             const closeButton = document.getElementById('sidebarCloseButton');
-            const navbar = document.getElementById('navbar');
+            const navbarTopArea = document.querySelector('.navbar-top-area');
             
             let sidebarOpen = false;
 
@@ -320,53 +717,32 @@
             if (backdrop) {
                 backdrop.addEventListener('click', closeSidebar);
             }
-
+            
             window.addEventListener('scroll', () => {
                 if (window.scrollY > 10) {
-                    navbar.classList.add('navbar-scrolled');
-                    navbar.classList.remove('bg-white/90');
-                    navbar.classList.add('bg-gray-900/90');
-                    document.querySelectorAll('#navbar a, #navbar span, #navbar button').forEach(el => {
-                        if (el.classList.contains('text-gray-700') || el.classList.contains('text-gray-800')) {
-                             el.classList.remove('text-gray-700', 'text-gray-800');
-                             el.classList.add('text-white');
-                        }
-                    });
+                    navbarTopArea.classList.add('navbar-scrolled');
                 } else {
-                    navbar.classList.remove('navbar-scrolled');
-                    navbar.classList.remove('bg-gray-900/90');
-                    navbar.classList.add('bg-white/90');
-                     document.querySelectorAll('#navbar a, #navbar span, #navbar button').forEach(el => {
-                        if (el.classList.contains('text-white')) {
-                             el.classList.remove('text-white');
-                             el.classList.add('text-gray-700');
-                        }
-                    });
-                     document.querySelector('#navbar .text-lg, #navbar .text-xl').classList.remove('text-gray-700');
-                     document.querySelector('#navbar .text-lg, #navbar .text-xl').classList.add('text-gray-800');
+                    navbarTopArea.classList.remove('navbar-scrolled');
                 }
             });
 
-            window.addEventListener('resize', () => {
+            function handleResize() {
                 if (window.innerWidth >= 1024) {
-                    backdrop.classList.add('hidden');
-                    backdrop.classList.add('opacity-0');
-                    document.body.style.overflow = '';
-                    
                     if (sidebarOpen) {
                         closeSidebar();
                     }
+                    backdrop.classList.add('hidden');
+                    document.body.style.overflow = '';
                 } else {
-                    if (sidebarOpen) {
-                        sidebar.classList.add('-translate-x-full');
-                        backdrop.classList.add('hidden');
-                        backdrop.classList.add('opacity-0');
-                        document.body.style.overflow = '';
-                        sidebarOpen = false;
+                    if (!sidebarOpen) {
+                         backdrop.classList.add('hidden');
+                         document.body.style.overflow = '';
                     }
                 }
-            });
+            }
 
+            window.addEventListener('resize', handleResize);
+            
             document.querySelectorAll('nav a').forEach(link => {
                 link.addEventListener('click', () => {
                     if (window.innerWidth < 1024) {
@@ -375,9 +751,7 @@
                 });
             });
 
-            if (window.innerWidth >= 1024) {
-                closeSidebar();
-            }
+            handleResize();
         });
     </script>
 </body>

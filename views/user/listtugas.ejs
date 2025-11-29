@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Dardcor</title>
+    <title>Dardcor - List Tugas</title>
     <link rel="icon" href="/logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -22,15 +22,37 @@
             box-shadow: 5px 0 15px rgba(0,0,0,0.4);
             z-index: 50;
         }
-        .navbar {
+        
+        /* Hapus backdrop-filter di navbar-top-area */
+        .navbar-top-area {
             transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
             z-index: 40;
         }
-        .navbar-scrolled {
-            background-color: rgba(255, 255, 255, 0.95);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        
+        /* Style default navbar (putih solid) */
+        .navbar-nav {
+            background-color: #ffffff; /* Putih Solid Default */
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         }
+        
+        /* Warna teks default navbar (dark) */
+        .navbar-nav .nav-text-dark {
+            color: #1f2937 !important;
+        }
+        /* Warna ikon toggle default navbar (dark) */
+        .navbar-nav .toggle-icon-dark svg {
+            stroke: #1f2937;
+        }
+
+        /* Style navbar saat di-scroll */
+        .navbar-scrolled .navbar-nav {
+            background-color: #ffffff; /* Tetap Putih Solid */
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            border-color: #cbd5e1;
+        }
+        
         .task-card {
             background: linear-gradient(145deg, #1e293b, #0f172a);
             border: 1px solid #334155;
@@ -61,7 +83,7 @@
         <aside id="sidebar" class="sidebar fixed top-0 left-0 h-full w-64 p-0 text-white transform -translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
             
             <div class="flex items-center justify-between pb-4 border-b border-white/20 mb-4 flex-shrink-0 px-6 pt-6">
-                <h2 class="text-2xl font-bold whitespace-nowrap">My App</h2>
+                <h2 class="text-2xl font-bold whitespace-nowrap">Dardcor App</h2>
                 <button id="sidebarCloseButton" class="p-1 rounded-full text-white/70 hover:bg-white/10 hover:text-white transition-colors">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
@@ -93,12 +115,18 @@
                             <span>List Tugas</span>
                         </a>
                     </li>
+                    <li>
+                        <a href="/user/dardcor-ai" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors hover:bg-blue-600 text-gray-300 hover:text-white whitespace-nowrap">
+                            <i class="fa-solid fa-robot w-6 h-6 flex-shrink-0 text-center"></i>
+                            <span>Chat Bot</span>
+                        </a>
+                    </li>
                 </ul>
             </nav>
 
             <div class="mt-auto flex-shrink-0 px-6 pb-6"> 
                 <a href="/user-logout" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors bg-red-600/20 text-red-300 hover:bg-red-600 hover:text-white whitespace-nowrap">
-                    <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"></path></svg>
+                    <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"></path></svg>
                     <span>Logout</span>
                 </a>
             </div>
@@ -106,19 +134,19 @@
 
         <div class="min-h-screen">
             
-            <div class="fixed top-0 left-0 w-full p-4 md:p-6 flex justify-center z-30">
-                <nav id="navbar" class="w-full max-w-6xl bg-white/90 backdrop-blur-sm rounded-full shadow-lg border border-gray-200/50 flex items-center justify-between px-4 py-3 navbar">
+            <div class="fixed top-0 left-0 w-full p-4 md:p-6 flex justify-center z-30 navbar-top-area">
+                <nav id="navbar" class="navbar-nav w-full max-w-6xl rounded-full flex items-center justify-between px-4 py-3">
                     <div class="flex items-center gap-1 md:gap-3">
-                        <button id="sidebarToggle" class="text-gray-700 p-2 transition-colors hover:bg-gray-100 rounded-full">
+                        <button id="sidebarToggle" class="toggle-icon-dark text-gray-700 p-2 transition-colors hover:bg-gray-100 rounded-full">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                         </button>
-                        <a href="/" class="flex items-center gap-2">
-                            <span class="text-xl font-bold text-gray-800">Dardcor</span>
+                        <a href="/user/home" class="flex items-center gap-2">
+                            <span class="text-xl font-bold nav-text-dark">Dardcor</span>
                         </a>
                     </div>
                     
                     <div class="flex items-center gap-3">
-                        <a href="/user/profile" class="flex items-center gap-2 hover:bg-gray-100 rounded-full pr-3 pl-1 py-1 transition-colors">
+                        <a href="/user/profile" class="profile-link flex items-center gap-2 hover:bg-gray-100 rounded-full pr-3 pl-1 py-1 transition-colors">
                             <img src="<%= user.profile_image || 'https://ui-avatars.com/api/?name=' + user.username + '&background=random' %>" alt="Profile" class="w-8 h-8 rounded-full object-cover">
                         </a>
                     </div>
@@ -192,6 +220,7 @@
             const backdrop = document.getElementById('sidebarBackdrop');
             const closeButton = document.getElementById('sidebarCloseButton');
             const navbar = document.getElementById('navbar');
+            const navbarTopArea = document.querySelector('.navbar-top-area');
             
             let sidebarOpen = false;
 
@@ -233,34 +262,32 @@
                 backdrop.addEventListener('click', closeSidebar);
             }
 
+            // Scroll effect for the navbar
             window.addEventListener('scroll', () => {
                 if (window.scrollY > 10) {
-                    navbar.classList.add('navbar-scrolled');
+                    navbarTopArea.classList.add('navbar-scrolled');
                 } else {
-                    navbar.classList.remove('navbar-scrolled');
+                    navbarTopArea.classList.remove('navbar-scrolled');
                 }
             });
 
-            window.addEventListener('resize', () => {
+            function handleResize() {
                 if (window.innerWidth >= 1024) {
-                    backdrop.classList.add('hidden');
-                    backdrop.classList.add('opacity-0');
-                    document.body.style.overflow = '';
-                    
                     if (sidebarOpen) {
                         closeSidebar();
                     }
+                    backdrop.classList.add('hidden');
+                    document.body.style.overflow = '';
                 } else {
-                    if (sidebarOpen) {
-                        sidebar.classList.add('-translate-x-full');
-                        backdrop.classList.add('hidden');
-                        backdrop.classList.add('opacity-0');
-                        document.body.style.overflow = '';
-                        sidebarOpen = false;
+                    if (!sidebarOpen) {
+                         backdrop.classList.add('hidden');
+                         document.body.style.overflow = '';
                     }
                 }
-            });
+            }
 
+            window.addEventListener('resize', handleResize);
+            
             document.querySelectorAll('nav a').forEach(link => {
                 link.addEventListener('click', () => {
                     if (window.innerWidth < 1024) {
@@ -268,10 +295,6 @@
                     }
                 });
             });
-
-            if (window.innerWidth >= 1024) {
-                closeSidebar();
-            }
 
             // Filter Logic
             const weekFilter = document.getElementById('weekFilter');
@@ -300,6 +323,8 @@
                     }
                 });
             }
+
+            handleResize();
         });
     </script>
 </body>

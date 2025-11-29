@@ -4,23 +4,18 @@ const bcrypt = require('bcrypt');
 const multer = require('multer');
 const supabase = require('../config/supabase');
 const { GoogleGenAI } = require("@google/genai"); 
+const fs = require('fs'); // Diperlukan untuk konteks Gemini API
 
 // GANTI BARIS INI DENGAN KUNCI API GEMINI ASLI ANDA
 const GEMINI_API_KEY_ANDA = 'AIzaSyBwmZCcpT5FBLk9yXW4aIlc4hu6Pfefbvw'; 
 const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY_ANDA }); 
 
 const storage = multer.memoryStorage();
+// Hapus batasan fileFilter, dan batasan ukuran (limits) agar bisa mengunggah semua file
 const upload = multer({ 
     storage: storage,
-    limits: { fileSize: 2 * 1024 * 1024 },
-    fileFilter: (req, file, cb) => {
-        if (file.mimetype == "image/png" || file.mimetype == "image/jpg" || file.mimetype == "image/jpeg") {
-            cb(null, true);
-        } else {
-            cb(null, false);
-            return cb(new Error('Hanya format .png, .jpg and .jpeg yang diperbolehkan!'));
-        }
-    }
+    // Batasan ukuran dihapus agar tidak membatasi 2MB. 
+    // Batasan ukuran yang sebenarnya akan dipatuhi oleh Gemini API (biasanya puluhan hingga ratusan MB)
 });
 
 function checkUserAuth(req, res, next) {
@@ -30,6 +25,17 @@ function checkUserAuth(req, res, next) {
         res.redirect('/user');
     }
 }
+
+function fileToGenerativePart(buffer, mimeType) {
+    return {
+        inlineData: {
+            data: buffer.toString("base64"),
+            mimeType
+        },
+    };
+}
+
+const uploadMiddleware = upload.single('file_attachment'); // Mengganti 'image' menjadi 'file_attachment'
 
 // --- Auth Routes ---
 
@@ -69,7 +75,7 @@ router.post('/user-login', async (req, res) => {
 
 router.get('/user-logout', (req, res) => {
     req.session.userAccount = null;
-    req.session.chatHistory = null; // Hapus riwayat chat saat logout
+    req.session.chatHistory = null;
     res.redirect('/user');
 });
 
@@ -127,26 +133,6 @@ router.post('/register', async (req, res) => {
 
 router.get('/user/home', checkUserAuth, (req, res) => {
     res.render('user/home', { user: req.session.userAccount });
-});
-
-// Route Profile
-router.get('/user/profile', checkUserAuth, async (req, res) => {
-    try {
-        const { data, error } = await supabase
-            .from('public_users')
-            .select('*')
-            .eq('id', req.session.userAccount.id)
-            .single();
-
-        if(data) {
-            req.session.userAccount = data;
-            res.render('user/profile', { user: data });
-        } else {
-            res.render('user/profile', { user: req.session.userAccount });
-        }
-    } catch (err) {
-        res.render('user/profile', { user: req.session.userAccount });
-    }
 });
 
 router.post('/user/profile/update', checkUserAuth, upload.single('profile_image'), async (req, res) => {
@@ -209,7 +195,26 @@ router.post('/user/profile/update', checkUserAuth, upload.single('profile_image'
     }
 });
 
-// Route List AI (User View)
+router.get('/user/profile', checkUserAuth, async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('public_users')
+            .select('*')
+            .eq('id', req.session.userAccount.id)
+            .single();
+
+        if(data) {
+            req.session.userAccount = data;
+            res.render('user/profile', { user: data });
+        } else {
+            res.render('user/profile', { user: req.session.userAccount });
+        }
+    } catch (err) {
+        res.render('user/profile', { user: req.session.userAccount });
+    }
+});
+
+
 router.get('/user/list-ai', checkUserAuth, async (req, res) => {
     try {
         const { data, error } = await supabase
@@ -226,12 +231,10 @@ router.get('/user/list-ai', checkUserAuth, async (req, res) => {
     }
 });
 
-// Route Jadwal Kuliah (User View)
 router.get('/user/jadwal-kuliah', checkUserAuth, (req, res) => {
     res.render('user/jadwalkuliah', { user: req.session.userAccount });
 });
 
-// Route List Tugas (User View)
 router.get('/user/list-tugas', checkUserAuth, async (req, res) => {
     try {
         const { data, error } = await supabase
@@ -248,7 +251,6 @@ router.get('/user/list-tugas', checkUserAuth, async (req, res) => {
     }
 });
 
-// FIX: Route Chat Bot (User View)
 router.get('/user/dardcor-ai', checkUserAuth, (req, res) => {
     if (!req.session.chatHistory) {
         req.session.chatHistory = [];
@@ -260,14 +262,32 @@ router.get('/user/dardcor-ai', checkUserAuth, (req, res) => {
     });
 });
 
-// --- NEW: Chat API Endpoint (Diperbarui dengan Gemini Chat Session) ---
-router.post('/user/ai/chat', checkUserAuth, async (req, res) => {
-    const { message } = req.body;
+// --- UPDATED: Chat API Endpoint untuk Multimodal Semua File ---
+router.post('/user/ai/chat', checkUserAuth, (req, res, next) => {
+    uploadMiddleware(req, res, function (err) {
+        if (err instanceof multer.MulterError) {
+            console.error("Multer Error:", err.message);
+            return res.status(400).json({
+                success: false,
+                response: `Gagal mengunggah file. Detail: ${err.message}`
+            });
+        } else if (err) {
+            console.error("Upload Error:", err.message);
+            return res.status(400).json({
+                success: false,
+                response: `Gagal mengunggah file: ${err.message}`
+            });
+        }
+        next();
+    });
+}, async (req, res) => {
+    const message = req.body.message ? req.body.message.trim() : "";
+    const uploadedFile = req.file; // Ganti imageFile menjadi uploadedFile
 
-    if (!message) {
+    if (!message && !uploadedFile) {
         return res.json({
             success: false,
-            response: "Pesan tidak boleh kosong."
+            response: "Pesan atau file tidak boleh kosong."
         });
     }
 
@@ -280,13 +300,24 @@ router.post('/user/ai/chat', checkUserAuth, async (req, res) => {
             model: "gemini-2.5-flash",
             history: req.session.chatHistory, 
             config: {
-                systemInstruction: "Anda adalah asisten AI Dardcor yang ramah dan membantu, dirancang khusus untuk mahasiswa di Indonesia. Jawablah semua pertanyaan dengan singkat, jelas, dan relevan dengan topik akademik, tugas, atau jadwal kuliah.",
+                systemInstruction: "Anda adalah asisten AI Dardcor yang ramah dan membantu, dirancang khusus untuk mahasiswa di Indonesia. Jawablah semua pertanyaan dengan singkat, jelas, dan relevan dengan topik akademik, tugas, atau jadwal kuliah. Jika Anda menerima file, berikan analisis atau jawaban terkait file tersebut. Selalu gunakan markdown untuk memformat teks, termasuk menggunakan code block (```) jika Anda memberikan contoh kode.",
             }
         });
-
-        const response = await chat.sendMessage({ message: message });
+        
+        const parts = [];
+        if (uploadedFile) {
+            parts.push(fileToGenerativePart(uploadedFile.buffer, uploadedFile.mimetype));
+        }
+        if (message) {
+            parts.push({ text: message });
+        } else if (uploadedFile) {
+            parts.push({ text: "Tolong jelaskan atau analisis file ini." });
+        }
+        
+        const response = await chat.sendMessage({ message: parts });
 
         const updatedHistory = await chat.getHistory();
+        
         req.session.chatHistory = updatedHistory;
 
         res.json({
@@ -296,6 +327,7 @@ router.post('/user/ai/chat', checkUserAuth, async (req, res) => {
         
     } catch (error) {
         console.error("Error calling Gemini API:", error);
+        
         res.status(500).json({
             success: false,
             response: "Terjadi kesalahan saat memproses permintaan chat. Cek kunci API atau koneksi server."
