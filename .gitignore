@@ -1,0 +1,9 @@
+# Folder dependencies yang diinstal oleh NPM
+/node_modules
+
+# File Environment Variables (Sangat penting untuk keamanan!)
+.env
+
+# Log atau file build/dist
+/logs
+/dist

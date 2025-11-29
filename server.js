@@ -1,8 +1,19 @@
+// Memuat Environment Variables dari file .env (wajib jika menggunakan .env secara lokal)
+// Pastikan Anda telah menginstal 'dotenv': npm install dotenv
+require('dotenv').config();
+
 const express = require('express');
 const path = require('path');
 const session = require('express-session');
 const app = express();
 const port = process.env.PORT || 3000;
+
+// Ambil session secret dari Environment Variable
+const SESSION_SECRET = process.env.SESSION_SECRET;
+
+if (!SESSION_SECRET) {
+    throw new Error("SESSION_SECRET tidak ditemukan. Harap atur Environment Variable ini.");
+}
 
 // Set Global Variable untuk Status Maintenance (Default: False)
 app.set('isMaintenance', false);
@@ -19,11 +30,18 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'image')));
 
+// --- Konfigurasi Session yang Diperbaiki ---
 app.use(session({
-    secret: 'RAHASIA_INI_HARUS_DIganti_NANTI_YA!', 
+    secret: SESSION_SECRET, // Menggunakan Environment Variable
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false, maxAge: 1000 * 60 * 60 * 24 } 
+    // Jika di-deploy di HTTPS (Vercel, dll.), gunakan konfigurasi ini:
+    cookie: { 
+        secure: process.env.NODE_ENV === 'production', // true di production (HTTPS)
+        maxAge: 1000 * 60 * 60 * 24 // 24 jam
+    },
+    // Wajib jika di-deploy di belakang proxy (Vercel) dan 'secure: true'
+    proxy: true 
 }));
 
 // --- Middleware Cek Maintenance ---

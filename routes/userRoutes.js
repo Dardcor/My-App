@@ -4,18 +4,20 @@ const bcrypt = require('bcrypt');
 const multer = require('multer');
 const supabase = require('../config/supabase');
 const { GoogleGenAI } = require("@google/genai"); 
-const fs = require('fs'); // Diperlukan untuk konteks Gemini API
+const fs = require('fs'); 
 
-// GANTI BARIS INI DENGAN KUNCI API GEMINI ASLI ANDA
-const GEMINI_API_KEY_ANDA = 'AIzaSyBwmZCcpT5FBLk9yXW4aIlc4hu6Pfefbvw'; 
-const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY_ANDA }); 
+// Menggunakan Environment Variable untuk kunci API Gemini
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY; 
+
+if (!GEMINI_API_KEY) {
+    throw new Error("GEMINI_API_KEY tidak ditemukan. Harap atur Environment Variable ini.");
+}
+
+const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY }); 
 
 const storage = multer.memoryStorage();
-// Hapus batasan fileFilter, dan batasan ukuran (limits) agar bisa mengunggah semua file
 const upload = multer({ 
     storage: storage,
-    // Batasan ukuran dihapus agar tidak membatasi 2MB. 
-    // Batasan ukuran yang sebenarnya akan dipatuhi oleh Gemini API (biasanya puluhan hingga ratusan MB)
 });
 
 function checkUserAuth(req, res, next) {
@@ -35,7 +37,7 @@ function fileToGenerativePart(buffer, mimeType) {
     };
 }
 
-const uploadMiddleware = upload.single('file_attachment'); // Mengganti 'image' menjadi 'file_attachment'
+const uploadMiddleware = upload.single('file_attachment'); 
 
 // --- Auth Routes ---
 
@@ -282,7 +284,7 @@ router.post('/user/ai/chat', checkUserAuth, (req, res, next) => {
     });
 }, async (req, res) => {
     const message = req.body.message ? req.body.message.trim() : "";
-    const uploadedFile = req.file; // Ganti imageFile menjadi uploadedFile
+    const uploadedFile = req.file; 
 
     if (!message && !uploadedFile) {
         return res.json({
