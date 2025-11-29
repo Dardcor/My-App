@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Dardcor</title>
+    <link rel="icon" href="/logo.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        html { scroll-behavior: smooth; }
+        body { 
+            background-color: #1a1a2e;
+            min-height: 100vh; 
+            font-family: 'Poppins', sans-serif; 
+            overflow-x: hidden; 
+            color: #cbd5e1; 
+        }
+        .sidebar {
+            background-color: #16213e;
+            box-shadow: 5px 0 15px rgba(0,0,0,0.4);
+            z-index: 50;
+        }
+        .navbar {
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            z-index: 40;
+        }
+        .navbar-scrolled {
+            background-color: rgba(26, 26, 46, 0.95);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        .chat-container {
+            height: calc(100vh - 200px);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 10px;
+        }
+        .message-user {
+            background-color: #3f51b5; 
+            align-self: flex-end;
+            border-radius: 18px 18px 4px 18px;
+            max-width: 85%;
+        }
+        .message-bot {
+            background-color: #16213e; 
+            align-self: flex-start;
+            border-radius: 18px 18px 18px 4px;
+            border: 1px solid #334155;
+            max-width: 85%;
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        @media (max-width: 640px) {
+            .chat-container {
+                height: calc(100vh - 160px);
+            }
+            .message-user, .message-bot {
+                max-width: 90%;
+            }
+        }
+        @media (max-width: 480px) {
+            .chat-container {
+                height: calc(100vh - 150px);
+            }
+        }
+    </style>
+</head>
+<body class="relative">
+    <div id="sidebarBackdrop" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden transition-opacity duration-300 opacity-0"></div>
+
+    <div class="relative min-h-screen">
+        <aside id="sidebar" class="sidebar fixed top-0 left-0 h-full w-64 p-0 text-white transform -translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
+            <div class="flex items-center justify-between pb-4 border-b border-white/20 mb-4 flex-shrink-0 px-6 pt-6">
+                <h2 class="text-2xl font-bold whitespace-nowrap">My App</h2>
+                <button id="sidebarCloseButton" class="p-1 rounded-full text-white/70 hover:bg-white/10 hover:text-white transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            
+            <nav class="flex-grow px-6 overflow-y-auto no-scrollbar"> 
+                <ul class="space-y-3">
+                    <li>
+                        <a href="/user/home" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors hover:bg-blue-600 text-gray-300 hover:text-white whitespace-nowrap">
+                            <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6-4a1 1 0 001-1v-1a1 1 0 10-2 0v1a1 1 0 001 1z"></path></svg>
+                            <span>Home</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/user/list-ai" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors hover:bg-blue-600 text-gray-300 hover:text-white whitespace-nowrap">
+                            <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M12 5V3m0 18v-2M7.05 7.05l-1.414-1.414M18.364 18.364l-1.414-1.414M7.05 18.364l-1.414 1.414M18.364 7.05l-1.414 1.414M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            <span>List AI</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/user/jadwal-kuliah" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors hover:bg-blue-600 text-gray-300 hover:text-white whitespace-nowrap">
+                            <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            <span>Jadwal Kuliah</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/user/list-tugas" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors hover:bg-blue-600 text-gray-300 hover:text-white whitespace-nowrap">
+                            <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                            <span>List Tugas</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/user/dardcor-ai" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors bg-blue-600 text-white whitespace-nowrap">
+                            <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                            <span>Chat Bot</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="mt-auto flex-shrink-0 px-6 pb-6"> 
+                <a href="/user-logout" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors bg-red-600/20 text-red-300 hover:bg-red-600 hover:text-white whitespace-nowrap">
+                    <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"></path></svg>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </aside>
+
+        <div class="min-h-screen">
+            <div class="fixed top-0 left-0 w-full p-3 md:p-6 flex justify-center z-30">
+                <nav id="navbar" class="w-full max-w-6xl bg-white/90 backdrop-blur-sm rounded-full shadow-lg border border-gray-200/50 flex items-center justify-between px-4 py-3 navbar">
+                    <div class="flex items-center gap-1 md:gap-3">
+                        <button id="sidebarToggle" class="text-gray-700 p-2 transition-colors hover:bg-gray-100 rounded-full">
+                            <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                        </button>
+                        <span class="text-lg md:text-xl font-bold text-gray-800">Dardcor</span>
+                    </div>
+                    
+                    <div class="flex items-center gap-3">
+                        <a href="/user/profile" class="flex items-center gap-2 hover:bg-gray-100 rounded-full pr-3 pl-1 py-1 transition-colors">
+                            <img src="<%= user.profile_image || 'https://ui-avatars.com/api/?name=' + user.username + '&background=random' %>" alt="Profile" class="w-7 h-7 md:w-8 md:h-8 rounded-full object-cover">
+                        </a>
+                    </div>
+                </nav>
+            </div>
+
+            <main class="relative min-h-screen pt-20 md:pt-28 pb-4">
+                <div class="w-full max-w-6xl mx-auto px-3 md:px-4 h-full flex flex-col">
+                    <div class="dashboard-card p-4 sm:p-6 rounded-2xl flex flex-col flex-1 min-h-0">
+                        <h1 class="text-lg md:text-xl font-bold text-white mb-4 flex items-center gap-2">
+                            <i class="fas fa-robot text-blue-400"></i> Dardcor AI Assistant
+                        </h1>
+                        <div id="chatContainer" class="chat-container no-scrollbar space-y-3 md:space-y-4 flex-1 overflow-y-auto">
+                            <div class="flex">
+                                <div class="message-bot p-3 text-sm md:text-base">
+                                    Halo <%= user.full_name || user.username %>! Saya Dardcor AI. Ada yang bisa saya bantu terkait perkuliahan atau tugas Anda hari ini?
+                                </div>
+                            </div>
+
+                            <% if (typeof chatHistory !== 'undefined' && chatHistory.length > 0) { %>
+                                <% chatHistory.forEach(item => { %>
+                                    <% 
+                                        const sender = item.role === 'user' ? 'user' : 'bot';
+                                        const text = item.parts[0].text || '';
+                                    %>
+                                    <div class="flex <%= sender === 'user' ? 'justify-end' : 'justify-start' %>">
+                                        <div class="p-3 text-sm md:text-base <%= sender === 'user' ? 'message-user' : 'message-bot' %>">
+                                            <%= text %>
+                                        </div>
+                                    </div>
+                                <% }); %>
+                            <% } %>
+                        </div>
+
+                        <div class="mt-4 pt-4 border-t border-slate-700 flex-shrink-0">
+                            <form id="chatForm" class="flex gap-2 md:gap-3 items-end">
+                                <div class="flex-1">
+                                    <input type="text" id="chatInput" placeholder="Ketik pesan Anda di sini..." 
+                                           class="w-full p-2 md:p-3 rounded-lg bg-[#0f172a] border border-slate-700 text-white focus:ring-blue-500 focus:border-blue-500 text-sm md:text-base" 
+                                           autocomplete="off" required>
+                                </div>
+                                <button type="submit" id="sendButton"
+                                        class="bg-blue-600 hover:bg-blue-700 text-white p-2 md:p-3 rounded-lg transition-colors disabled:bg-slate-700 disabled:text-slate-400 flex items-center justify-center w-10 h-10 md:w-12 md:h-12 flex-shrink-0">
+                                    <i class="fas fa-paper-plane text-sm md:text-base"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div> 
+    
+    <script>
+        const chatContainer = document.getElementById('chatContainer');
+        const chatForm = document.getElementById('chatForm');
+        const chatInput = document.getElementById('chatInput');
+        const sendButton = document.getElementById('sendButton');
+
+        function appendMessage(sender, text) {
+            const messageWrapper = document.createElement('div');
+            messageWrapper.classList.add('flex');
+            
+            const messageContent = document.createElement('div');
+            messageContent.classList.add('p-3', 'text-sm', 'md:text-base');
+            messageContent.textContent = text;
+
+            if (sender === 'user') {
+                messageWrapper.classList.add('justify-end');
+                messageContent.classList.add('message-user');
+            } else {
+                messageWrapper.classList.add('justify-start');
+                messageContent.classList.add('message-bot');
+            }
+
+            messageWrapper.appendChild(messageContent);
+            chatContainer.appendChild(messageWrapper);
+            scrollToBottom();
+        }
+
+        function scrollToBottom() {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // Auto scroll to bottom on page load
+        setTimeout(scrollToBottom, 100);
+
+        chatForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const message = chatInput.value.trim();
+
+            if (!message) return;
+
+            appendMessage('user', message);
+            chatInput.value = '';
+            sendButton.disabled = true;
+            chatInput.disabled = true;
+
+            const loadingMessage = document.createElement('div');
+            loadingMessage.classList.add('flex', 'justify-start');
+            loadingMessage.innerHTML = '<div class="message-bot p-3 text-sm md:text-base text-slate-400"><i class="fas fa-spinner fa-spin"></i> Mengetik...</div>';
+            chatContainer.appendChild(loadingMessage);
+            scrollToBottom();
+
+            try {
+                const response = await fetch('/user/ai/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message: message })
+                });
+
+                const result = await response.json();
+
+                chatContainer.removeChild(loadingMessage);
+
+                if (result.success) {
+                    appendMessage('bot', result.response);
+                } else {
+                    appendMessage('bot', `[ERROR] ${result.response || 'Terjadi kesalahan tidak terduga.'}`);
+                }
+
+            } catch (error) {
+                console.error('Error saat fetch chat:', error);
+                chatContainer.removeChild(loadingMessage);
+                appendMessage('bot', '[ERROR] Koneksi ke server gagal.');
+            }
+
+            sendButton.disabled = false;
+            chatInput.disabled = false;
+            chatInput.focus();
+        });
+
+        // Auto-focus input on page load
+        setTimeout(() => {
+            chatInput.focus();
+        }, 500);
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggleButton = document.getElementById('sidebarToggle');
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('sidebarBackdrop');
+            const closeButton = document.getElementById('sidebarCloseButton');
+            const navbar = document.getElementById('navbar');
+            
+            let sidebarOpen = false;
+
+            function openSidebar() {
+                sidebar.classList.remove('-translate-x-full');
+                if (window.innerWidth < 1024) {
+                    backdrop.classList.remove('hidden');
+                    setTimeout(() => backdrop.classList.remove('opacity-0'), 10);
+                    document.body.style.overflow = 'hidden';
+                }
+                sidebarOpen = true;
+            }
+
+            function closeSidebar() {
+                sidebar.classList.add('-translate-x-full');
+                if (window.innerWidth < 1024) {
+                    backdrop.classList.add('opacity-0');
+                    setTimeout(() => backdrop.classList.add('hidden'), 300);
+                    document.body.style.overflow = '';
+                }
+                sidebarOpen = false;
+            }
+
+            function toggleSidebar() {
+                if (sidebarOpen) {
+                    closeSidebar();
+                } else {
+                    openSidebar();
+                }
+            }
+
+            if (toggleButton) toggleButton.addEventListener('click', toggleSidebar);
+            
+            if (closeButton) {
+                closeButton.addEventListener('click', closeSidebar);
+            }
+            
+            if (backdrop) {
+                backdrop.addEventListener('click', closeSidebar);
+            }
+
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 10) {
+                    navbar.classList.add('navbar-scrolled');
+                    navbar.classList.remove('bg-white/90');
+                    navbar.classList.add('bg-gray-900/90');
+                    document.querySelectorAll('#navbar a, #navbar span, #navbar button').forEach(el => {
+                        if (el.classList.contains('text-gray-700') || el.classList.contains('text-gray-800')) {
+                             el.classList.remove('text-gray-700', 'text-gray-800');
+                             el.classList.add('text-white');
+                        }
+                    });
+                } else {
+                    navbar.classList.remove('navbar-scrolled');
+                    navbar.classList.remove('bg-gray-900/90');
+                    navbar.classList.add('bg-white/90');
+                     document.querySelectorAll('#navbar a, #navbar span, #navbar button').forEach(el => {
+                        if (el.classList.contains('text-white')) {
+                             el.classList.remove('text-white');
+                             el.classList.add('text-gray-700');
+                        }
+                    });
+                     document.querySelector('#navbar .text-lg, #navbar .text-xl').classList.remove('text-gray-700');
+                     document.querySelector('#navbar .text-lg, #navbar .text-xl').classList.add('text-gray-800');
+                }
+            });
+
+            window.addEventListener('resize', () => {
+                if (window.innerWidth >= 1024) {
+                    backdrop.classList.add('hidden');
+                    backdrop.classList.add('opacity-0');
+                    document.body.style.overflow = '';
+                    
+                    if (sidebarOpen) {
+                        closeSidebar();
+                    }
+                } else {
+                    if (sidebarOpen) {
+                        sidebar.classList.add('-translate-x-full');
+                        backdrop.classList.add('hidden');
+                        backdrop.classList.add('opacity-0');
+                        document.body.style.overflow = '';
+                        sidebarOpen = false;
+                    }
+                }
+            });
+
+            document.querySelectorAll('nav a').forEach(link => {
+                link.addEventListener('click', () => {
+                    if (window.innerWidth < 1024) {
+                        closeSidebar();
+                    }
+                });
+            });
+
+            if (window.innerWidth >= 1024) {
+                closeSidebar();
+            }
+        });
+    </script>
+</body>
+</html>

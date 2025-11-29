@@ -3,6 +3,11 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const multer = require('multer');
 const supabase = require('../config/supabase');
+const { GoogleGenAI } = require("@google/genai"); 
+
+// GANTI BARIS INI DENGAN KUNCI API GEMINI ASLI ANDA
+const GEMINI_API_KEY_ANDA = 'AIzaSyBwmZCcpT5FBLk9yXW4aIlc4hu6Pfefbvw'; 
+const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY_ANDA }); 
 
 const storage = multer.memoryStorage();
 const upload = multer({ 
@@ -64,6 +69,7 @@ router.post('/user-login', async (req, res) => {
 
 router.get('/user-logout', (req, res) => {
     req.session.userAccount = null;
+    req.session.chatHistory = null; // Hapus riwayat chat saat logout
     res.redirect('/user');
 });
 
@@ -239,6 +245,61 @@ router.get('/user/list-tugas', checkUserAuth, async (req, res) => {
     } catch (error) {
         console.error(error.message);
         res.render('user/listtugas', { tasks: [], user: req.session.userAccount });
+    }
+});
+
+// FIX: Route Chat Bot (User View)
+router.get('/user/dardcor-ai', checkUserAuth, (req, res) => {
+    if (!req.session.chatHistory) {
+        req.session.chatHistory = [];
+    }
+    
+    res.render('user/dardcorai', { 
+        user: req.session.userAccount,
+        chatHistory: req.session.chatHistory 
+    });
+});
+
+// --- NEW: Chat API Endpoint (Diperbarui dengan Gemini Chat Session) ---
+router.post('/user/ai/chat', checkUserAuth, async (req, res) => {
+    const { message } = req.body;
+
+    if (!message) {
+        return res.json({
+            success: false,
+            response: "Pesan tidak boleh kosong."
+        });
+    }
+
+    try {
+        if (!req.session.chatHistory) {
+            req.session.chatHistory = [];
+        }
+
+        const chat = ai.chats.create({
+            model: "gemini-2.5-flash",
+            history: req.session.chatHistory, 
+            config: {
+                systemInstruction: "Anda adalah asisten AI Dardcor yang ramah dan membantu, dirancang khusus untuk mahasiswa di Indonesia. Jawablah semua pertanyaan dengan singkat, jelas, dan relevan dengan topik akademik, tugas, atau jadwal kuliah.",
+            }
+        });
+
+        const response = await chat.sendMessage({ message: message });
+
+        const updatedHistory = await chat.getHistory();
+        req.session.chatHistory = updatedHistory;
+
+        res.json({
+            success: true,
+            response: response.text.trim()
+        });
+        
+    } catch (error) {
+        console.error("Error calling Gemini API:", error);
+        res.status(500).json({
+            success: false,
+            response: "Terjadi kesalahan saat memproses permintaan chat. Cek kunci API atau koneksi server."
+        });
     }
 });
 
