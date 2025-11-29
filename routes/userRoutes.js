@@ -5,8 +5,8 @@ const multer = require('multer');
 const supabase = require('../config/supabase');
 const { GoogleGenAI } = require("@google/genai"); 
 const fs = require('fs'); 
+const { v4: uuidv4 } = require('uuid');
 
-// Menggunakan Environment Variable untuk kunci API Gemini
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY; 
 
 if (!GEMINI_API_KEY) {
@@ -38,8 +38,6 @@ function fileToGenerativePart(buffer, mimeType) {
 }
 
 const uploadMiddleware = upload.single('file_attachment'); 
-
-// --- Auth Routes ---
 
 router.get('/user', (req, res) => {
     if (req.session.userAccount) {
@@ -78,6 +76,7 @@ router.post('/user-login', async (req, res) => {
 router.get('/user-logout', (req, res) => {
     req.session.userAccount = null;
     req.session.chatHistory = null;
+    req.session.currentConversationId = null; 
     res.redirect('/user');
 });
 
@@ -130,8 +129,6 @@ router.post('/register', async (req, res) => {
         res.status(500).json({ success: false, message: 'Gagal mendaftar: ' + err.message });
     }
 });
-
-// --- User Dashboard & Features Routes ---
 
 router.get('/user/home', checkUserAuth, (req, res) => {
     res.render('user/home', { user: req.session.userAccount });
@@ -253,18 +250,90 @@ router.get('/user/list-tugas', checkUserAuth, async (req, res) => {
     }
 });
 
-router.get('/user/dardcor-ai', checkUserAuth, (req, res) => {
-    if (!req.session.chatHistory) {
-        req.session.chatHistory = [];
-    }
-    
-    res.render('user/dardcorai', { 
-        user: req.session.userAccount,
-        chatHistory: req.session.chatHistory 
-    });
+// Endpoint untuk memulai chat baru: Mereset sesi dan mengarahkan ke URL baru yang unik.
+router.post('/user/ai/new-chat', checkUserAuth, (req, res) => {
+    req.session.currentConversationId = null;
+    req.session.chatHistory = [];
+    const newConversationId = uuidv4();
+    res.json({ success: true, redirectUrl: `/user/dardcor-ai/${newConversationId}` });
 });
 
-// --- UPDATED: Chat API Endpoint untuk Multimodal Semua File ---
+// Rute untuk memuat chat dengan ID spesifik
+router.get('/user/dardcor-ai/:conversationId', checkUserAuth, loadChatHandler);
+
+// Rute default untuk memuat chat terakhir (tanpa ID di URL)
+router.get('/user/dardcor-ai', checkUserAuth, loadChatHandler);
+
+
+async function loadChatHandler(req, res) {
+    const userId = req.session.userAccount.id;
+    const requestedConversationId = req.params.conversationId;
+
+    try {
+        const { data: dbHistory, error } = await supabase
+            .from('chat_history')
+            .select('conversation_id, role, message, created_at')
+            .eq('user_id', userId)
+            .order('created_at', { ascending: true }); 
+
+        if (error) throw error;
+        
+        let activeConversationId = req.session.currentConversationId;
+
+        // 1. Tentukan ID Percakapan Aktif
+        if (requestedConversationId) {
+            // Jika ada ID di URL, gunakan itu dan simpan ke sesi
+            activeConversationId = requestedConversationId;
+            req.session.currentConversationId = activeConversationId;
+        } else if (!activeConversationId && dbHistory.length > 0) {
+            // Jika tidak ada di sesi atau URL, gunakan percakapan terakhir sebagai default
+            const lastConversation = dbHistory[dbHistory.length - 1];
+            activeConversationId = lastConversation.conversation_id;
+            req.session.currentConversationId = activeConversationId;
+        } else if (!activeConversationId) {
+            // Jika tidak ada chat sama sekali
+            req.session.currentConversationId = null;
+        }
+
+        let activeChatHistory = [];
+        if (activeConversationId) {
+            activeChatHistory = dbHistory.filter(item => item.conversation_id === activeConversationId);
+        }
+        
+        // Konversi active chat history ke format Gemini API (Perbaikan role: bot -> model)
+        const chatHistoryForGemini = activeChatHistory.map(item => ({
+            role: item.role === 'bot' ? 'model' : item.role, 
+            parts: [{ text: item.message }] 
+        }));
+        
+        req.session.chatHistory = chatHistoryForGemini;
+        
+        // Kumpulkan semua Conversation ID unik untuk sidebar
+        const uniqueConversationIds = dbHistory.filter((value, index, self) => 
+            self.findIndex(t => t.conversation_id === value.conversation_id) === index
+        );
+        
+        res.render('user/dardcorai', { 
+            user: req.session.userAccount,
+            chatHistory: activeChatHistory, 
+            fullHistory: uniqueConversationIds,
+            activeConversationId: activeConversationId
+        });
+    } catch (err) {
+        console.error("Error fetching chat history:", err.message);
+        req.session.chatHistory = [];
+        req.session.currentConversationId = null;
+        res.render('user/dardcorai', { 
+            user: req.session.userAccount,
+            chatHistory: [],
+            fullHistory: [],
+            activeConversationId: null,
+            error: "Gagal memuat riwayat chat."
+        });
+    }
+}
+
+
 router.post('/user/ai/chat', checkUserAuth, (req, res, next) => {
     uploadMiddleware(req, res, function (err) {
         if (err instanceof multer.MulterError) {
@@ -285,6 +354,8 @@ router.post('/user/ai/chat', checkUserAuth, (req, res, next) => {
 }, async (req, res) => {
     const message = req.body.message ? req.body.message.trim() : "";
     const uploadedFile = req.file; 
+    const userId = req.session.userAccount.id;
+    let conversationId = req.session.currentConversationId;
 
     if (!message && !uploadedFile) {
         return res.json({
@@ -292,17 +363,38 @@ router.post('/user/ai/chat', checkUserAuth, (req, res, next) => {
             response: "Pesan atau file tidak boleh kosong."
         });
     }
+    
+    // Jika tidak ada ID percakapan di sesi, buat ID baru
+    if (!conversationId) {
+        conversationId = uuidv4(); 
+        req.session.currentConversationId = conversationId;
+        req.session.chatHistory = []; 
+    }
 
     try {
-        if (!req.session.chatHistory) {
-            req.session.chatHistory = [];
-        }
+        const userMessageText = message || (uploadedFile ? "Analisis file yang terlampir." : "Pesan tanpa teks.");
+        const fileMetadata = uploadedFile ? { 
+            filename: uploadedFile.originalname,
+            mimetype: uploadedFile.mimetype,
+            size: uploadedFile.size
+        } : null;
 
+        // Simpan pesan user
+        await supabase
+            .from('chat_history')
+            .insert({
+                user_id: userId,
+                conversation_id: conversationId,
+                role: 'user',
+                message: userMessageText,
+                file_metadata: fileMetadata
+            });
+        
         const chat = ai.chats.create({
             model: "gemini-2.5-flash",
             history: req.session.chatHistory, 
             config: {
-                systemInstruction: "Anda adalah asisten AI Dardcor yang ramah dan membantu, dirancang khusus untuk mahasiswa di Indonesia. Jawablah semua pertanyaan dengan singkat, jelas, dan relevan dengan topik akademik, tugas, atau jadwal kuliah. Jika Anda menerima file, berikan analisis atau jawaban terkait file tersebut. Selalu gunakan markdown untuk memformat teks, termasuk menggunakan code block (```) jika Anda memberikan contoh kode.",
+                systemInstruction: "Anda adalah asisten AI Dardcor yang sangat ramah, serbaguna, dan informatif. Anda dirancang untuk menjawab **semua pertanyaan** yang diajukan oleh pengguna, mulai dari akademik (tugas, materi kuliah, pemrograman) hingga pertanyaan umum (hiburan, pengetahuan, resep, perencanaan). Berikan jawaban yang akurat, jelas, dan lugas. Jika Anda menerima file, berikan analisis, ringkasan, atau terjemahan yang relevan dengan isi file tersebut. Selalu gunakan Bahasa Indonesia dan **Wajib** gunakan Markdown untuk memformat respons, termasuk bolding (**), list, dan code block (```) untuk contoh kode atau teks teknis.",
             }
         });
         
@@ -310,25 +402,33 @@ router.post('/user/ai/chat', checkUserAuth, (req, res, next) => {
         if (uploadedFile) {
             parts.push(fileToGenerativePart(uploadedFile.buffer, uploadedFile.mimetype));
         }
-        if (message) {
-            parts.push({ text: message });
-        } else if (uploadedFile) {
-            parts.push({ text: "Tolong jelaskan atau analisis file ini." });
-        }
+        parts.push({ text: userMessageText }); 
         
         const response = await chat.sendMessage({ message: parts });
-
-        const updatedHistory = await chat.getHistory();
+        const botResponseText = response.text.trim();
         
+        // Simpan respons bot
+        await supabase
+            .from('chat_history')
+            .insert({
+                user_id: userId,
+                conversation_id: conversationId,
+                role: 'bot', 
+                message: botResponseText,
+                file_metadata: null
+            });
+
+        // Update history sesi (role 'model')
+        const updatedHistory = await chat.getHistory();
         req.session.chatHistory = updatedHistory;
 
         res.json({
             success: true,
-            response: response.text.trim()
+            response: botResponseText
         });
         
     } catch (error) {
-        console.error("Error calling Gemini API:", error);
+        console.error("Error calling Gemini API or Database:", error);
         
         res.status(500).json({
             success: false,
