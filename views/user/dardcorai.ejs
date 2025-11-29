@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Dardcor - Chat Bot</title>
+    <title>Dardcor</title>
     <link rel="icon" href="/logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -337,7 +337,7 @@
                         <div id="chatContainer" class="no-scrollbar space-y-3 md:space-y-4 p-0 md:p-4 flex-1 overflow-y-auto">
                             <div class="flex">
                                 <div class="message-bot p-3 text-sm md:text-base">
-                                    Halo <%= user.full_name || user.username %>! Saya **Dardcor AI**. Ada yang bisa saya bantu terkait perkuliahan atau tugas Anda hari ini?
+                                    Halo <%= user.full_name || user.username %>! Saya Dardcor AI. Ada yang bisa saya bantu terkait perkuliahan atau tugas Anda hari ini?
                                 </div>
                             </div>
 
@@ -390,7 +390,7 @@
                                         <textarea 
                                             id="chatInput" 
                                             class="chat-textarea" 
-                                            placeholder="Ketik pesan Anda di sini, atau drop file apa pun." 
+                                            placeholder="Ask To Dardcor." 
                                             rows="1"
                                             autocomplete="off"
                                         ></textarea>
@@ -526,7 +526,7 @@
                     };
                     reader.readAsDataURL(file);
                 } else {
-                    previewImage.src = '[https://via.placeholder.com/40x40?text=File](https://via.placeholder.com/40x40?text=File)'; 
+                    previewImage.src = 'https://via.placeholder.com/40x40?text=File'; 
                 }
                 
                 updateSendButtonState();
@@ -629,7 +629,7 @@
             // Tampilkan pesan loading
             const loadingMessage = document.createElement('div');
             loadingMessage.classList.add('flex', 'justify-start', 'p-2');
-            loadingMessage.innerHTML = '<div class="message-bot p-3 text-sm md:text-base text-slate-400"><i class="fas fa-spinner fa-spin"></i> Mengetik...</div>';
+            loadingMessage.innerHTML = '<div class="message-bot p-3 text-sm md:text-base text-slate-400"><i class="fas fa-spinner fa-spin"></i> Berfikir...</div>';
             chatContainer.appendChild(loadingMessage);
             scrollToBottom();
 
