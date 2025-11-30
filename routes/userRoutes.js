@@ -250,7 +250,6 @@ router.get('/user/list-tugas', checkUserAuth, async (req, res) => {
     }
 });
 
-// Endpoint untuk memulai chat baru: Mereset sesi dan mengarahkan ke URL baru yang unik.
 router.post('/user/ai/new-chat', checkUserAuth, (req, res) => {
     req.session.currentConversationId = null;
     req.session.chatHistory = [];
@@ -258,10 +257,8 @@ router.post('/user/ai/new-chat', checkUserAuth, (req, res) => {
     res.json({ success: true, redirectUrl: `/user/dardcor-ai/${newConversationId}` });
 });
 
-// Rute untuk memuat chat dengan ID spesifik
 router.get('/user/dardcor-ai/:conversationId', checkUserAuth, loadChatHandler);
 
-// Rute default untuk memuat chat terakhir (tanpa ID di URL)
 router.get('/user/dardcor-ai', checkUserAuth, loadChatHandler);
 
 
@@ -280,18 +277,20 @@ async function loadChatHandler(req, res) {
         
         let activeConversationId = req.session.currentConversationId;
 
-        // 1. Tentukan ID Percakapan Aktif
         if (requestedConversationId) {
-            // Jika ada ID di URL, gunakan itu dan simpan ke sesi
             activeConversationId = requestedConversationId;
             req.session.currentConversationId = activeConversationId;
         } else if (!activeConversationId && dbHistory.length > 0) {
-            // Jika tidak ada di sesi atau URL, gunakan percakapan terakhir sebagai default
-            const lastConversation = dbHistory[dbHistory.length - 1];
-            activeConversationId = lastConversation.conversation_id;
-            req.session.currentConversationId = activeConversationId;
+            const uniqueConversations = dbHistory.filter((value, index, self) => 
+                self.findIndex(t => t.conversation_id === value.conversation_id) === index
+            ).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+            if (uniqueConversations.length > 0) {
+                const lastConversation = uniqueConversations[0];
+                activeConversationId = lastConversation.conversation_id;
+                req.session.currentConversationId = activeConversationId;
+            }
         } else if (!activeConversationId) {
-            // Jika tidak ada chat sama sekali
             req.session.currentConversationId = null;
         }
 
@@ -300,7 +299,6 @@ async function loadChatHandler(req, res) {
             activeChatHistory = dbHistory.filter(item => item.conversation_id === activeConversationId);
         }
         
-        // Konversi active chat history ke format Gemini API (Perbaikan role: bot -> model)
         const chatHistoryForGemini = activeChatHistory.map(item => ({
             role: item.role === 'bot' ? 'model' : item.role, 
             parts: [{ text: item.message }] 
@@ -308,10 +306,13 @@ async function loadChatHandler(req, res) {
         
         req.session.chatHistory = chatHistoryForGemini;
         
-        // Kumpulkan semua Conversation ID unik untuk sidebar
-        const uniqueConversationIds = dbHistory.filter((value, index, self) => 
-            self.findIndex(t => t.conversation_id === value.conversation_id) === index
-        );
+        const uniqueConversationsMap = new Map();
+        for (const item of dbHistory) {
+            if (!uniqueConversationsMap.has(item.conversation_id)) {
+                uniqueConversationsMap.set(item.conversation_id, item);
+            }
+        }
+        const uniqueConversationIds = Array.from(uniqueConversationsMap.values());
         
         res.render('user/dardcorai', { 
             user: req.session.userAccount,
@@ -364,8 +365,8 @@ router.post('/user/ai/chat', checkUserAuth, (req, res, next) => {
         });
     }
     
-    // Jika tidak ada ID percakapan di sesi, buat ID baru
-    if (!conversationId) {
+    const isNewConversation = !conversationId;
+    if (isNewConversation) {
         conversationId = uuidv4(); 
         req.session.currentConversationId = conversationId;
         req.session.chatHistory = []; 
@@ -379,7 +380,6 @@ router.post('/user/ai/chat', checkUserAuth, (req, res, next) => {
             size: uploadedFile.size
         } : null;
 
-        // Simpan pesan user
         await supabase
             .from('chat_history')
             .insert({
@@ -407,7 +407,6 @@ router.post('/user/ai/chat', checkUserAuth, (req, res, next) => {
         const response = await chat.sendMessage({ message: parts });
         const botResponseText = response.text.trim();
         
-        // Simpan respons bot
         await supabase
             .from('chat_history')
             .insert({
@@ -418,13 +417,14 @@ router.post('/user/ai/chat', checkUserAuth, (req, res, next) => {
                 file_metadata: null
             });
 
-        // Update history sesi (role 'model')
         const updatedHistory = await chat.getHistory();
         req.session.chatHistory = updatedHistory;
 
         res.json({
             success: true,
-            response: botResponseText
+            response: botResponseText,
+            conversationId: conversationId,
+            isNewConversation: isNewConversation
         });
         
     } catch (error) {
