@@ -2,1025 +2,972 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Dardcor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#1a1a2e">
+    <title>Dardcor AI</title>
+    
     <link rel="icon" href="/logo.png">
+    
+    <!-- External Libraries -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
     <style>
-        html { scroll-behavior: smooth; }
-        body { 
-            background-color: #1a1a2e;
-            min-height: 100vh; 
-            font-family: 'Poppins', sans-serif; 
-            overflow-x: hidden; 
-            color: #cbd5e1; 
-            touch-action: manipulation;
-        }
-        .sidebar {
-            background-color: #16213e;
-            box-shadow: 5px 0 15px rgba(0,0,0,0.4);
-            z-index: 50;
-        }
-        #historySidebar {
-            background-color: #1a1a2e;
-            box-shadow: -5px 0 15px rgba(0,0,0,0.4);
-            z-index: 50;
-        }
-        .navbar-top-area {
-            transition: all 0.3s ease;
-            z-index: 40;
-        }
-        .navbar-nav {
-            background-color: #ffffff;
-            border: 1px solid #e2e8f0;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-        }
-        .navbar-nav .nav-text-dark {
-            color: #1f2937 !important;
-        }
-        .navbar-nav .toggle-icon-dark svg {
-            stroke: #1f2937;
-        }
-        .navbar-scrolled .navbar-nav {
-            background-color: #ffffff;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-            border-color: #cbd5e1;
-        }
-        .dashboard-card {
-            background: #1a1a2e;
-            border: none; 
-            height: calc(100vh - 140px); 
-            display: flex;
-            flex-direction: column;
-            box-shadow: none;
-        }
-        #chatContainer {
-            flex: 1;
-            overflow-y: auto;
+        * { 
+            box-sizing: border-box; 
+            margin: 0;
             padding: 0;
-            padding-top: 1rem;
         }
-        #initialGreeting {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            text-align: center;
-            padding-top: 100px;
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #1a1a2e;
+            color: #cbd5e1;
+            overflow-x: hidden;
+            height: 100vh;
         }
-        #initialGreeting .message-bot {
-            background-color: #16213e;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            max-width: 400px;
-            border-radius: 12px;
-            align-self: center;
+
+        /* Custom Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
         }
-        .chat-input-area {
-            background: #1a1a2e;
-            padding: 0.5rem 0;
-            border-top: none; 
-            position: sticky;
+        
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #0f172a;
+            border-radius: 10px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 10px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+
+        /* Sidebar Styling */
+        #sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
             bottom: 0;
-            z-index: 30;
+            width: 280px;
+            background: #16213e;
+            border-right: 1px solid #334155;
+            z-index: 1000;
+            transform: translateX(-100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.3);
         }
+
+        #sidebar.open {
+            transform: translateX(0);
+        }
+
+        /* Overlay for mobile */
+        #overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+            backdrop-filter: blur(2px);
+        }
+
+        #overlay.active {
+            display: block;
+        }
+
+        /* Message Bubbles */
         .message-user {
-            background-color: #3f51b5;
-            align-self: flex-end;
-            border-radius: 18px 18px 4px 18px;
-            max-width: 85%;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
             color: white;
-            word-wrap: break-word;
+            border-radius: 18px 18px 4px 18px;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
         }
+        
         .message-bot {
-            background-color: #16213e;
-            align-self: flex-start;
+            background: #1e293b;
+            color: #e2e8f0;
             border-radius: 18px 18px 18px 4px;
+            border: 1px solid #334155;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Code Block Styling */
+        .code-block-wrapper {
+            margin: 12px 0;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #0d1117;
+            border: 1px solid #30363d;
+        }
+        
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #161b22;
+            padding: 8px 12px;
+            border-bottom: 1px solid #30363d;
+            font-size: 0.75rem;
+            color: #7d8590;
+        }
+        
+        .terminal-dots { 
+            display: flex; 
+            gap: 6px; 
+        }
+        
+        .dot { 
+            width: 10px; 
+            height: 10px; 
+            border-radius: 50%; 
+        }
+        
+        .dot-red { background: #ff5f56; }
+        .dot-yellow { background: #ffbd2e; }
+        .dot-green { background: #27c93f; }
+        
+        pre { 
+            margin: 0 !important; 
+            padding: 0 !important; 
+            background: transparent !important; 
+        }
+        
+        code.hljs {
+            padding: 16px !important;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            background: #0d1117 !important;
+        }
+        
+        .copy-btn {
+            background: transparent;
             border: none;
-            max-width: 85%;
-            word-wrap: break-word;
-            color: #cbd5e1;
-        }
-        .message-bot pre {
-            position: relative;
-            background-color: #0f172a;
-            padding: 0.75rem;
-            border-radius: 0.5rem;
-            overflow-x: auto;
-            margin-top: 0.5rem;
-            margin-bottom: 0.5rem;
-        }
-        .copy-button {
-            position: absolute;
-            top: 0.5rem;
-            right: 0.5rem;
-            background: rgba(255, 255, 255, 0.1);
-            color: #cbd5e1;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
+            color: #7d8590;
             cursor: pointer;
-            border: none;
-            transition: background 0.2s;
+            font-size: 0.75rem;
             display: flex;
             align-items: center;
             gap: 4px;
+            transition: color 0.2s;
         }
-        .copy-button:hover {
-            background: rgba(255, 255, 255, 0.2);
+        
+        .copy-btn:hover { 
+            color: #fff; 
         }
-        .message-bot code {
-            font-family: monospace;
-            color: #93c5fd;
-            font-size: 0.9rem;
-            white-space: pre-wrap; 
-            display: block;
-        }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .chat-input-wrapper {
+
+        /* Chat Input */
+        .chat-input {
             background: #1e293b;
             border: 1px solid #334155;
-            border-radius: 16px; 
-            padding: 12px; 
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); 
-            transition: all 0.2s ease;
+            border-radius: 1.5rem;
+            transition: all 0.2s;
         }
-        .chat-input-wrapper.drag-over {
-            border: 2px dashed #93c5fd;
-            box-shadow: 0 0 10px rgba(147, 197, 253, 0.5);
+        
+        .chat-input:focus-within { 
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
         }
-        .input-main-area {
-            display: flex;
-            align-items: flex-end;
-            gap: 12px;
+
+        /* Typing Indicator Animation */
+        .typing-indicator span {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background-color: #94a3b8;
+            border-radius: 50%;
+            animation: typing 1.4s infinite ease-in-out both;
+            margin: 0 1px;
         }
-        .text-input-container {
-            flex: 1;
-            position: relative;
+        
+        .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+        
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
         }
-        .chat-textarea {
-            width: 100%;
-            background: transparent;
-            border: none;
-            color: white;
-            resize: none;
-            outline: none;
-            font-family: 'Poppins', sans-serif;
-            font-size: 16px; 
-            line-height: 1.6; 
-            padding: 0;
-            margin-top: 4px;
-            min-height: 24px;
-            max-height: 120px;
-        }
-        .chat-textarea::placeholder {
-            color: #64748b;
-        }
-        .send-button {
-            background: #3f51b5;
-            border: none;
-            border-radius: 12px; 
-            width: 44px; 
-            height: 44px; 
-            color: white;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-        .send-button:hover:not(:disabled) {
-            background: #303f9f;
-        }
-        .send-button:disabled {
-            background: #475569;
-            cursor: not-allowed;
-            opacity: 0.6;
-        }
-        .file-preview-area {
-            display: flex;
-            align-items: center;
-            padding: 8px;
-            margin-bottom: 8px;
-            background: #0f172a;
-            border-radius: 8px;
-            border: 1px solid #334155;
-            color: #cbd5e1;
-        }
-        .file-preview-area img {
-            width: 40px;
-            height: 40px;
-            object-fit: cover;
-            border-radius: 4px;
-            margin-right: 12px;
-        }
-        .file-info {
-            flex-grow: 1;
-            font-size: 14px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .file-remove-button {
-            background: transparent;
-            border: none;
-            color: #ef4444;
-            cursor: pointer;
-            font-size: 18px;
-            margin-left: 12px;
-        }
-        .character-count {
-            display: none;
-        }
+
+        /* Mobile Optimizations */
         @media (max-width: 768px) {
-            .dashboard-card {
-                height: calc(100vh - 120px);
+            .message-user, 
+            .message-bot {
+                border-radius: 16px;
+                padding: 10px 14px !important;
             }
-            .chat-input-area {
-                padding-bottom: env(safe-area-inset-bottom, 0.5rem);
+            
+            .code-header {
+                flex-wrap: wrap;
+                padding: 6px 8px;
             }
-            .chat-textarea {
-                font-size: 16px;
+            
+            .chat-input {
+                border-radius: 1rem;
+                padding: 4px !important;
             }
-        }
-        @media (max-width: 480px) {
-            .navbar-top-area {
-                padding: 0.5rem;
-            }
-            .dashboard-card {
-                height: calc(100vh - 100px);
-            }
-            .message-user, .message-bot {
-                max-width: 90%;
-            }
-            .input-main-area {
-                gap: 8px;
-            }
-            .send-button {
-                width: 40px;
-                height: 40px;
+            
+            #sidebar {
+                width: 85%;
+                max-width: 300px;
             }
         }
-        .history-actions {
-            opacity: 0;
-            transition: opacity 0.3s;
+
+        @media (min-width: 1024px) {
+            #sidebar {
+                transform: translateX(0) !important;
+                position: relative !important;
+                height: 100vh;
+            }
+            
+            #overlay {
+                display: none !important;
+            }
+            
+            main {
+                margin-left: 0 !important;
+                width: calc(100% - 280px);
+            }
         }
-        .history-item:hover .history-actions {
-            opacity: 1;
+
+        /* Smooth transitions */
+        .transition-all {
+            transition-property: all;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 150ms;
         }
-        .mobile-keyboard-fix {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: #1a1a2e;
-            z-index: 1000;
-            padding: 0.5rem 1rem;
-            transform: translateY(100%);
-            transition: transform 0.3s ease;
+
+        /* Markdown content styling */
+        .markdown-body {
+            line-height: 1.6;
         }
-        .mobile-keyboard-fix.active {
-            transform: translateY(0);
+        
+        .markdown-body p {
+            margin-bottom: 0.75rem;
+        }
+        
+        .markdown-body ul, 
+        .markdown-body ol {
+            padding-left: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .markdown-body li {
+            margin-bottom: 0.25rem;
+        }
+        
+        .markdown-body h1, 
+        .markdown-body h2, 
+        .markdown-body h3 {
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        /* Avatar styling */
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        @media (max-width: 640px) {
+            .avatar {
+                width: 28px;
+                height: 28px;
+            }
         }
     </style>
 </head>
-<body class="relative">
-    <div id="sidebarBackdrop" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden transition-opacity duration-300 opacity-0"></div>
-    <div id="historyBackdrop" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden transition-opacity duration-300 opacity-0"></div>
 
-    <div class="relative min-h-screen">
-        <aside id="sidebar" class="sidebar fixed top-0 left-0 h-full w-64 p-0 text-white transform -translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
-            <div class="flex items-center justify-between pb-4 border-b border-white/20 mb-4 flex-shrink-0 px-6 pt-6">
-                <h2 class="text-2xl font-bold whitespace-nowrap">Dardcor App</h2>
-                <button id="sidebarCloseButton" class="p-1 rounded-full text-white/70 hover:bg-white/10 hover:text-white transition-colors">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
-            </div>
-            
-            <nav class="flex-grow px-6 overflow-y-auto no-scrollbar"> 
-                <ul class="space-y-3">
-                    <li>
-                        <a href="/user/home" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors hover:bg-blue-600 text-gray-300 hover:text-white whitespace-nowrap">
-                            <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6-4a1 1 0 001-1v-1a1 1 0 10-2 0v1a1 1 0 001 1z"></path></svg>
-                            <span>Home</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/user/list-ai" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors hover:bg-blue-600 text-gray-300 hover:text-white whitespace-nowrap">
-                            <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M12 5V3m0 18v-2M7.05 7.05l-1.414-1.414M18.364 18.364l-1.414-1.414M7.05 18.364l-1.414 1.414M18.364 7.05l-1.414 1.414M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                            <span>List AI</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/user/jadwal-kuliah" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors hover:bg-blue-600 text-gray-300 hover:text-white whitespace-nowrap">
-                            <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                            <span>Jadwal Kuliah</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/user/list-tugas" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors hover:bg-blue-600 text-gray-300 hover:text-white whitespace-nowrap">
-                            <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
-                            <span>List Tugas</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/user/dardcor-ai" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors bg-blue-600 text-white whitespace-nowrap">
-                            <i class="fa-solid fa-robot w-6 h-6 flex-shrink-0 text-center"></i>
-                            <span>Chat Bot</span>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
+<body class="flex h-screen overflow-hidden">
+    <!-- Mobile Overlay -->
+    <div id="overlay" onclick="closeSidebar()"></div>
 
-            <div class="mt-auto flex-shrink-0 px-6 pb-6"> 
-                <a href="/user-logout" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors bg-red-600/20 text-red-300 hover:bg-red-600 hover:text-white whitespace-nowrap">
-                    <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"></path></svg>
-                    <span>Logout</span>
-                </a>
-            </div>
-        </aside>
-        
-        <aside id="historySidebar" class="fixed top-0 right-0 h-full w-64 p-4 text-white transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col lg:w-80">
-            <div class="flex items-center justify-between pb-4 border-b border-white/20 mb-4 flex-shrink-0">
-                <h3 class="text-xl font-bold">Riwayat Chat</h3>
-                <button id="historyCloseButton" class="p-1 rounded-full text-white/70 hover:bg-white/10 hover:text-white transition-colors">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            
-            <button id="newChatButton" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg mb-4 transition-colors">
-                <i class="fas fa-plus-circle mr-2"></i> New Chat
+    <!-- Sidebar -->
+    <aside id="sidebar" class="flex flex-col h-full">
+        <!-- Sidebar Header -->
+        <div class="p-4 flex items-center justify-between border-b border-gray-800 bg-[#131b2e]">
+            <a href="/user/home" class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                    <i class="fas fa-robot text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-white">Dardcor AI</h1>
+                    <p class="text-xs text-gray-400">Asisten Cerdas</p>
+                </div>
+            </a>
+            <button onclick="closeSidebar()" class="lg:hidden text-gray-400 hover:text-white p-2 rounded-lg hover:bg-gray-800">
+                <i class="fas fa-times text-xl"></i>
             </button>
+        </div>
+
+        <!-- New Chat Button -->
+        <div class="p-4">
+            <button id="newChatBtn" class="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white py-3 px-4 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-blue-900/30 font-medium transition-all duration-200 active:scale-95">
+                <i class="fas fa-plus"></i>
+                <span>Chat Baru</span>
+            </button>
+        </div>
+
+        <!-- Chat History List -->
+        <div class="flex-1 overflow-y-auto px-3 custom-scrollbar">
+            <div class="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider sticky top-0 bg-[#16213e] z-10">
+                <div class="flex items-center justify-between">
+                    <span>Riwayat</span>
+                    <span class="text-xs bg-gray-800 px-2 py-1 rounded-full">
+                        <% if (typeof fullHistory !== 'undefined') { %>
+                            <%= fullHistory.length %>
+                        <% } else { %>
+                            0
+                        <% } %>
+                    </span>
+                </div>
+            </div>
             
-            <div id="historyList" class="flex-grow overflow-y-auto space-y-3 text-sm">
-                <% 
-                if (typeof fullHistory !== 'undefined' && fullHistory.length > 0) { 
+            <div class="space-y-1 pb-4">
+                <% if (typeof fullHistory !== 'undefined' && fullHistory.length > 0) { 
                     const reversedHistory = fullHistory.slice().reverse();
                     for(let i = 0; i < reversedHistory.length; i++) {
-                        const conversation = reversedHistory[i];
-                        const text = conversation.message || 'Percakapan Tanpa Judul';
-                        const display = text.length > 35 ? text.substring(0, 35) + '...' : text;
-                        const isCurrent = conversation.conversation_id === activeConversationId;
-                        
-                        const itemClass = isCurrent ? 
-                            'bg-blue-700/50 border-l-4 border-blue-400' : 
-                            'bg-gray-800/20 hover:bg-gray-800/40 border-l-4 border-blue-500/0 hover:border-blue-500';
-                        const titleEscaped = display.replace(/"/g, '&quot;');
-                        const onclickFunc = `event.preventDefault(); showHistoryMenu(this, '${conversation.conversation_id}', '${display.replace(/'/g, "\\'")}')`;
+                        const conv = reversedHistory[i];
+                        const isActive = conv.conversation_id === activeConversationId;
+                        const title = (conv.message || 'Percakapan Baru').substring(0, 30) + (conv.message?.length > 30 ? '...' : '');
                 %>
-                        <a 
-                            href="/user/dardcor-ai/<%= conversation.conversation_id %>"
-                            class="history-item block p-2 rounded-lg cursor-pointer transition-colors relative <%= itemClass %>" 
-                            data-conversation-id="<%= conversation.conversation_id %>" 
-                            title="<%= titleEscaped %>"
-                        >
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <span class="text-gray-300 font-medium whitespace-nowrap overflow-hidden text-ellipsis block max-w-[80%]"><%= display %></span>
-                                </div>
-                                <div class="history-actions flex gap-2">
-                                    <button class="text-white/70 hover:text-white focus:outline-none" onclick="<%= onclickFunc %>">
-                                        <i class="fas fa-ellipsis-v text-xs"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </a>
-                <% 
-                    } 
-                } else { 
-                %>
-                    <p class="text-center text-gray-500 mt-10" id="noHistoryMessage">Belum ada riwayat chat.</p>
+                    <a href="/user/dardcor-ai/<%= conv.conversation_id %>" 
+                       class="flex items-center gap-3 px-3 py-3 rounded-lg text-sm transition-all duration-200 <%= isActive ? 'bg-gradient-to-r from-blue-900/30 to-blue-800/20 text-white border-l-4 border-blue-500' : 'text-gray-400 hover:bg-gray-800/50 hover:text-gray-200' %>">
+                        <i class="fas fa-comment text-xs <%= isActive ? 'text-blue-400' : 'text-gray-600' %>"></i>
+                        <span class="truncate flex-1"><%= title %></span>
+                        <span class="text-xs text-gray-600"><%= new Date(conv.timestamp || Date.now()).toLocaleDateString('id-ID', {month: 'short', day: 'numeric'}) %></span>
+                    </a>
+                <% }} else { %>
+                    <div class="text-center py-10 px-4 opacity-50">
+                        <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-800 flex items-center justify-center">
+                            <i class="fas fa-comment-slash text-2xl text-gray-600"></i>
+                        </div>
+                        <p class="text-gray-600 text-sm">Belum ada percakapan</p>
+                        <p class="text-gray-700 text-xs mt-1">Mulai percakapan baru dengan AI</p>
+                    </div>
                 <% } %>
             </div>
-        </aside>
+        </div>
 
-        <div class="min-h-screen">
-            <div class="fixed top-0 left-0 w-full p-3 md:p-6 flex justify-center z-30 navbar-top-area">
-                <nav id="navbar" class="navbar-nav w-full max-w-6xl rounded-full flex items-center justify-between px-4 py-3">
-                    <div class="flex items-center gap-1 md:gap-3">
-                        <button id="sidebarToggle" class="toggle-icon-dark text-gray-700 p-2 transition-colors hover:bg-gray-100 rounded-full">
-                            <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-                        </button>
-                        <a href="/user/home" class="flex items-center gap-2">
-                            <span class="text-lg md:text-xl font-bold nav-text-dark">Dardcor</span>
-                        </a>
+        <!-- User Profile -->
+        <div class="p-4 border-t border-gray-800 bg-[#131b2e]">
+            <a href="/user/profile" class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-800 transition-all duration-200">
+                <div class="relative">
+                    <img src="<%= user.profile_image || 'https://ui-avatars.com/api/?name=' + (user.username || 'User') + '&background=random&color=fff' %>" 
+                         class="w-10 h-10 rounded-full object-cover border-2 border-gray-700">
+                    <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-[#131b2e]"></div>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-white truncate"><%= user.full_name || user.username %></p>
+                    <p class="text-xs text-gray-500 truncate">@<%= user.username %></p>
+                </div>
+                <i class="fas fa-chevron-right text-gray-500 text-sm"></i>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col h-full min-w-0 bg-[#1a1a2e] transition-all duration-300" id="mainContent">
+        <!-- Header -->
+        <header class="h-16 flex items-center justify-between px-4 md:px-6 border-b border-gray-800 bg-[#1a1a2e] sticky top-0 z-50 shadow-sm">
+            <div class="flex items-center gap-4">
+                <button onclick="toggleSidebar()" 
+                        class="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-all duration-200 lg:hidden">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600/20 to-purple-600/20 flex items-center justify-center border border-white/5">
+                        <i class="fas fa-robot text-blue-400"></i>
                     </div>
-                    
-                    <div class="flex items-center gap-3">
-                        <a href="/user/profile" class="profile-link flex items-center gap-2 hover:bg-gray-100 rounded-full pr-3 pl-1 py-1 transition-colors rounded-full">
-                            <img src="<%= user.profile_image || 'https://ui-avatars.com/api/?name=' + user.username + '&background=random' %>" alt="Profile" class="w-7 h-7 md:w-8 md:h-8 rounded-full object-cover">
-                        </a>
-                        <button id="historyToggleCombined" class="toggle-icon-dark text-gray-700 p-2 rounded-full transition-colors hover:bg-gray-100">
-                            <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-                        </button>
+                    <div>
+                        <h2 class="font-semibold text-white text-sm md:text-base">Asisten Dardcor AI</h2>
+                        <p class="text-xs text-green-400 flex items-center gap-1">
+                            <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span> 
+                            Online
+                        </p>
                     </div>
-                </nav>
+                </div>
             </div>
+            <div class="flex items-center gap-2">
+                <button onclick="document.documentElement.requestFullscreen()" 
+                        class="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-gray-800 transition-all duration-200 hidden sm:block">
+                    <i class="fas fa-expand"></i>
+                </button>
+                <button onclick="clearChat()" 
+                        class="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-gray-800 transition-all duration-200">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </div>
+        </header>
 
-            <main class="relative min-h-screen pt-20 md:pt-28 pb-4">
-                <div class="w-full max-w-6xl mx-auto px-3 md:px-4 h-full">
-                    <div class="dashboard-card flex flex-col">
-                        <div id="chatContainer" class="no-scrollbar space-y-3 md:space-y-4 p-0 md:p-4 flex-1 overflow-y-auto">
-                            <% if (typeof chatHistory === 'undefined' || chatHistory.length === 0) { %>
-                                <div id="initialGreeting">
-                                    <div class="message-bot p-4 text-xl md:text-2xl font-semibold">
-                                        Halo <%= user.full_name || user.username %>!
-                                        <p class="text-base font-normal mt-2 text-slate-400">Saya Dardcor AI. Tanyakan apapun untuk memulai percakapan.</p>
-                                    </div>
-                                </div>
-                            <% } else { %>
-                                <% chatHistory.forEach(item => { %>
-                                    <% 
-                                        const sender = item.role === 'user' ? 'user' : 'bot';
-                                        let text = (item.parts && item.parts[0] && item.parts[0].text) ? item.parts[0].text : (item.message || '');
-                                        const hasFileData = item.file_metadata; 
-                                        if (sender === 'user' && !text && hasFileData) {
-                                            text = "Analisis file ini.";
-                                        }
-                                    %>
-                                    <div class="flex <%= sender === 'user' ? 'justify-end' : 'justify-start' %>">
-                                        <div class="p-3 text-sm md:text-base <%= sender === 'user' ? 'message-user' : 'message-bot' %>">
-                                            <% if (sender === 'bot') { %>
-                                                <div class="markdown-content">
-                                                    <%- text.replace(/```(\w+)?\n([\s\S]*?)\n```/g, function(match, lang, code) {
-                                                        const escapedCode = code.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-                                                        return '<pre><button class="copy-button" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button><code>' + escapedCode + '</code></pre>';
-                                                    }).replace(/\n/g, '<br>') %>
-                                                </div>
-                                            <% } else { %>
-                                                <%= text %>
-                                                <% if (hasFileData) { %>
-                                                    <div class="mt-2 p-2 border border-blue-400/50 rounded-lg text-xs bg-blue-900/30">
-                                                        <i class="fas fa-file-alt mr-2"></i> Mengirim: **File Terlampir**
-                                                    </div>
-                                                <% } %>
-                                            <% } %>
-                                        </div>
-                                    </div>
-                                <% }); %>
-                            <% } %>
+        <!-- Chat Container -->
+        <div id="chatContainer" class="flex-1 overflow-y-auto p-3 md:p-6 custom-scrollbar">
+            <% if (!chatHistory || chatHistory.length === 0) { %>
+                <!-- Welcome Screen -->
+                <div id="welcomeScreen" class="h-full flex flex-col items-center justify-center text-center p-4 md:p-6">
+                    <div class="w-24 h-24 md:w-32 md:h-32 bg-gradient-to-br from-blue-600/20 to-purple-600/20 rounded-3xl flex items-center justify-center mb-6 md:mb-8 border border-white/10 shadow-2xl">
+                        <i class="fas fa-robot text-5xl md:text-6xl text-blue-400"></i>
+                    </div>
+                    <h2 class="text-2xl md:text-3xl font-bold text-white mb-3 md:mb-4">Halo, <%= user.username %>! 👋</h2>
+                    <p class="text-gray-400 max-w-md text-sm md:text-base leading-relaxed mb-8">
+                        Saya Dardcor AI, asisten cerdas Anda. Saya bisa membantu dengan coding, analisis tugas, 
+                        menjawab pertanyaan kompleks, dan banyak lagi.
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 max-w-2xl w-full">
+                        <div class="p-4 bg-gray-800/50 rounded-xl border border-gray-700">
+                            <i class="fas fa-code text-blue-400 text-xl mb-2"></i>
+                            <p class="text-xs text-gray-300">Bantuan Coding</p>
                         </div>
-                        <div class="chat-input-area mt-auto px-4 md:px-0">
-                            <div class="chat-input-wrapper" id="chatInputWrapper">
-                                <div id="filePreview" class="hidden">
-                                    <div class="file-preview-area">
-                                        <img id="previewImage" src="" alt="File Preview">
-                                        <div class="file-info">
-                                            <span id="fileName"></span>
+                        <div class="p-4 bg-gray-800/50 rounded-xl border border-gray-700">
+                            <i class="fas fa-file-alt text-green-400 text-xl mb-2"></i>
+                            <p class="text-xs text-gray-300">Analisis Dokumen</p>
+                        </div>
+                        <div class="p-4 bg-gray-800/50 rounded-xl border border-gray-700">
+                            <i class="fas fa-lightbulb text-yellow-400 text-xl mb-2"></i>
+                            <p class="text-xs text-gray-300">Ide Kreatif</p>
+                        </div>
+                    </div>
+                </div>
+            <% } else { %>
+                <!-- Chat History Rendering -->
+                <% chatHistory.forEach((msg, index) => { 
+                    const role = msg.role === 'user' ? 'user' : 'bot';
+                    let content = (msg.parts && msg.parts[0]?.text) ? msg.parts[0].text : (msg.message || '');
+                    const file = msg.file_metadata;
+                    if(role === 'user' && !content && file) content = "Mengirim file untuk dianalisis.";
+                %>
+                    <div class="flex w-full <%= role === 'user' ? 'justify-end' : 'justify-start' %> mb-4 md:mb-6">
+                        <div class="flex flex-col max-w-[90%] md:max-w-[75%] lg:max-w-[65%] gap-1">
+                            <div class="flex items-end gap-2 <%= role === 'user' ? 'flex-row-reverse' : 'flex-row' %>">
+                                <!-- Avatar -->
+                                <div class="avatar <%= role === 'user' ? 'bg-gradient-to-br from-blue-600 to-blue-800' : 'bg-gradient-to-br from-indigo-600 to-purple-600' %>">
+                                    <% if(role === 'user') { %>
+                                        <img src="<%= user.profile_image || 'https://ui-avatars.com/api/?name=' + user.username + '&background=random' %>" 
+                                             class="w-full h-full object-cover rounded-full">
+                                    <% } else { %>
+                                        <div class="w-full h-full flex items-center justify-center">
+                                            <i class="fas fa-robot text-white text-sm"></i>
                                         </div>
-                                        <button id="removeFile" class="file-remove-button"><i class="fas fa-times"></i></button>
-                                    </div>
+                                    <% } %>
                                 </div>
-                                <div class="input-main-area">
-                                    <button id="fileAttachButton" class="send-button bg-gray-600 hover:bg-gray-700" style="margin-right: -12px; margin-bottom: 2px;">
-                                        <i class="fas fa-paperclip"></i>
-                                    </button>
-                                    <div class="text-input-container">
-                                        <textarea 
-                                            id="chatInput" 
-                                            class="chat-textarea" 
-                                            placeholder="Ask To Dardcor..." 
-                                            rows="1"
-                                            autocomplete="off"
-                                        ></textarea>
-                                        <div class="character-count">
-                                            <span id="charCount">0</span>/<span id="maxChars">8192</span>
-                                        </div>
-                                    </div>
-                                    <button id="sendButton" class="send-button" disabled>
-                                        <i class="fas fa-paper-plane"></i>
-                                    </button>
+                                
+                                <!-- Message Bubble -->
+                                <div class="p-3 md:p-4 <%= role === 'user' ? 'message-user' : 'message-bot' %>">
+                                    <% if(role === 'bot') { %>
+                                        <div class="markdown-body space-y-2 text-sm md:text-base"><%- content %></div>
+                                    <% } else { %>
+                                        <div class="whitespace-pre-wrap text-sm md:text-base"><%= content %></div>
+                                        <% if(file) { %>
+                                            <div class="mt-2 flex items-center gap-2 p-2 bg-white/10 rounded-lg border border-white/10 text-xs">
+                                                <div class="w-6 h-6 md:w-8 md:h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                                                    <i class="fas <%= file.type?.startsWith('image') ? 'fa-image' : 'fa-file' %> text-xs"></i>
+                                                </div>
+                                                <div class="flex-1 min-w-0">
+                                                    <p class="text-white font-medium truncate"><%= file.name %></p>
+                                                    <p class="text-gray-400 text-xs"><%= (file.size / 1024).toFixed(1) %> KB</p>
+                                                </div>
+                                            </div>
+                                        <% } %>
+                                    <% } %>
                                 </div>
+                            </div>
+                            <div class="text-xs text-gray-500 px-1 <%= role === 'user' ? 'text-right' : 'text-left' %>">
+                                <%= new Date(msg.timestamp || Date.now()).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) %>
                             </div>
                         </div>
                     </div>
+                <% }); %>
+            <% } %>
+
+            <!-- Loading Indicator -->
+            <div id="loadingIndicator" class="hidden w-full mb-6">
+                <div class="flex gap-2 items-start max-w-[75%]">
+                    <div class="avatar bg-gradient-to-br from-indigo-600 to-purple-600">
+                        <div class="w-full h-full flex items-center justify-center">
+                            <i class="fas fa-robot text-white text-sm"></i>
+                        </div>
+                    </div>
+                    <div class="bg-[#1e293b] p-4 rounded-2xl rounded-tl-sm border border-gray-700/50">
+                        <div class="typing-indicator flex gap-1">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                        <p class="text-xs text-gray-400 mt-2">AI sedang mengetik...</p>
+                    </div>
                 </div>
-            </main>
+            </div>
         </div>
-    </div> 
-    
-    <input type="file" id="fileInput" name="file_attachment" style="display: none;">
+
+        <!-- Input Area -->
+        <div class="p-3 md:p-4 bg-[#1a1a2e] border-t border-gray-800">
+            <div class="max-w-6xl mx-auto w-full relative">
+                <!-- File Preview Popup -->
+                <div id="filePreview" class="hidden absolute bottom-full left-0 mb-2 p-3 bg-[#1e293b] border border-gray-700 rounded-xl flex items-center gap-3 shadow-2xl z-50">
+                    <div class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center overflow-hidden border border-gray-600">
+                        <img id="previewImg" class="w-full h-full object-cover hidden">
+                        <i id="previewIcon" class="fas fa-file text-blue-400"></i>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-[10px] text-gray-400 uppercase font-bold">File Terlampir</span>
+                        <div class="flex items-center gap-2">
+                            <span id="previewName" class="text-sm text-white max-w-[120px] md:max-w-[180px] truncate font-medium"></span>
+                            <span id="previewSize" class="text-xs text-gray-400"></span>
+                        </div>
+                    </div>
+                    <button onclick="clearFile()" 
+                            class="w-6 h-6 rounded-full bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white flex items-center justify-center transition-all duration-200 ml-2">
+                        <i class="fas fa-times text-xs"></i>
+                    </button>
+                </div>
+
+                <!-- Input Field -->
+                <div class="chat-input flex items-end p-1 md:p-2 gap-2">
+                    <button onclick="document.getElementById('fileInput').click()" 
+                            class="p-2 md:p-3 text-gray-400 hover:text-blue-400 flex-shrink-0 hover:bg-gray-800 rounded-xl transition-all duration-200">
+                        <i class="fas fa-paperclip text-lg"></i>
+                    </button>
+                    
+                    <textarea id="chatInput" 
+                              rows="1" 
+                              class="flex-1 bg-transparent text-white border-none focus:ring-0 p-2 md:p-3 max-h-32 resize-none text-sm md:text-base placeholder-gray-500 focus:outline-none"
+                              placeholder="Tanyakan sesuatu pada AI... (Shift+Enter untuk baris baru)"
+                              onkeydown="handleKeydown(event)"></textarea>
+                    
+                    <button id="sendBtn" 
+                            class="p-2 md:p-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-500 hover:to-blue-600 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0 shadow-lg shadow-blue-900/20 transition-all duration-200 active:scale-95"
+                            onclick="sendMessage()">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+                <p class="text-center text-xs text-gray-500 mt-2 px-2">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    Dardcor AI dapat membuat kesalahan. Harap periksa kembali informasi penting.
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <input type="file" id="fileInput" class="hidden" accept=".txt,.pdf,.jpg,.jpeg,.png,.doc,.docx">
 
     <script>
-        const chatContainer = document.getElementById('chatContainer');
+        // Global variables
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
         const chatInput = document.getElementById('chatInput');
-        const sendButton = document.getElementById('sendButton');
-        const chatInputWrapper = document.getElementById('chatInputWrapper');
-        const filePreview = document.getElementById('filePreview');
-        const previewImage = document.getElementById('previewImage');
-        const fileNameSpan = document.getElementById('fileName');
-        const removeFileButton = document.getElementById('removeFile');
+        const sendBtn = document.getElementById('sendBtn');
+        const chatContainer = document.getElementById('chatContainer');
         const fileInput = document.getElementById('fileInput');
-        const fileAttachButton = document.getElementById('fileAttachButton');
-        const historyToggle = document.getElementById('historyToggleCombined');
-        const historySidebar = document.getElementById('historySidebar');
-        const historyBackdrop = document.getElementById('historyBackdrop');
-        const historyCloseButton = document.getElementById('historyCloseButton');
-        const newChatButton = document.getElementById('newChatButton');
-        const initialGreeting = document.getElementById('initialGreeting');
-        const historyList = document.getElementById('historyList');
-        const noHistoryMessage = document.getElementById('noHistoryMessage');
-
+        const mainContent = document.getElementById('mainContent');
+        
         let attachedFile = null;
-        let activeConversationId = "<%= activeConversationId %>";
-        let isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        let isProcessing = false;
+
+        // Initialize Markdown renderer
+        const highlight = hljs;
         
-        window.copyCode = function(button) {
-            const pre = button.closest('pre');
-            const codeElement = pre.querySelector('code');
-            const codeText = codeElement.innerText;
+        marked.setOptions({
+            highlight: function(code, lang) {
+                const language = highlight.getLanguage(lang) ? lang : 'plaintext';
+                return highlight.highlight(code, { language }).value;
+            },
+            langPrefix: 'hljs language-',
+            breaks: true,
+            gfm: true
+        });
 
-            navigator.clipboard.writeText(codeText).then(() => {
-                button.innerHTML = '<i class="fas fa-check"></i> Copied!';
-                setTimeout(() => {
-                    button.innerHTML = '<i class="fas fa-copy"></i> Copy';
-                }, 2000);
-            }).catch(err => {
-                console.error('Failed to copy text: ', err);
-            });
-        }
-        
-        function formatBotResponse(text) {
-            const codeBlockRegex = /```(\w+)?\n([\s\S]*?)\n```/g;
-            let html = text.replace(codeBlockRegex, function(match, lang, code) {
-                const escapedCode = code.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-                return '<pre><button class="copy-button" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button><code>' + escapedCode + '</code></pre>';
-            });
-            html = html.replace(/(?![^<]*>)\n/g, '<br>');
-            html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-            html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
-            return html;
-        }
-
-        function appendMessage(sender, text, fileData = null) {
-            if (initialGreeting) {
-                initialGreeting.remove();
-            }
+        const renderer = new marked.Renderer();
+        renderer.code = function(code, language, escaped) {
+            const validLang = !!(language && highlight.getLanguage(language));
+            const highlighted = validLang 
+                ? highlight.highlight(code, { language }).value 
+                : highlight.highlightAuto(code).value;
+            const langLabel = validLang ? language : 'Text';
             
-            const messageWrapper = document.createElement('div');
-            messageWrapper.classList.add('flex', 'p-2');
-            
-            const messageContent = document.createElement('div');
-            messageContent.classList.add('p-3', 'text-sm', 'md:text-base');
-            
-            if (sender === 'user') {
-                messageWrapper.classList.add('justify-end');
-                messageContent.classList.add('message-user');
-                messageContent.textContent = text;
-                
-                if (fileData) {
-                    const fileDiv = document.createElement('div');
-                    fileDiv.classList.add('mt-2', 'p-2', 'border', 'border-blue-400/50', 'rounded-lg', 'text-xs', 'bg-blue-900/30');
-                    const fileIcon = fileData.type.startsWith('image/') ? '<i class="fas fa-image mr-2"></i>' : '<i class="fas fa-file-alt mr-2"></i>';
-                    fileDiv.innerHTML = `${fileIcon} Mengirim: **${fileData.name}** (${fileData.type})`;
-                    messageContent.appendChild(fileDiv);
-                }
-            } else {
-                messageWrapper.classList.add('justify-start');
-                messageContent.classList.add('message-bot');
-                messageContent.innerHTML = formatBotResponse(text);
-            }
-
-            messageWrapper.appendChild(messageContent);
-            chatContainer.appendChild(messageWrapper);
-            scrollToBottom();
-            return messageWrapper;
-        }
-
-        function scrollToBottom() {
-            chatContainer.scrollTo({
-                top: chatContainer.scrollHeight,
-                behavior: 'smooth'
-            });
-        }
-        
-        function updateSendButtonState() {
-            const hasText = chatInput.value.trim().length > 0;
-            const hasFile = attachedFile !== null;
-            sendButton.disabled = !(hasText || hasFile);
-        }
-
-        function autoResizeTextarea() {
-            chatInput.style.height = 'auto';
-            chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + 'px';
-        }
-
-        function handleFileAttachment(file) {
-            if (file) {
-                attachedFile = file;
-                fileNameSpan.textContent = file.name;
-                filePreview.classList.remove('hidden');
-
-                if (file.type.startsWith('image/')) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        previewImage.src = e.target.result;
-                    };
-                    reader.readAsDataURL(file);
-                } else {
-                    previewImage.src = 'https://via.placeholder.com/40x40?text=File';
-                }
-                
-                updateSendButtonState();
-            } else {
-                removeFile();
-            }
-        }
-        
-        function removeFile() {
-            attachedFile = null;
-            fileInput.value = '';
-            filePreview.classList.add('hidden');
-            previewImage.src = '';
-            fileNameSpan.textContent = '';
-            updateSendButtonState();
-        }
-
-        function createHistoryItem(id, message, isCurrent = false) {
-            const display = message.length > 35 ? message.substring(0, 35) + '...' : message;
-            const item = document.createElement('a');
-            item.href = `/user/dardcor-ai/${id}`;
-            item.classList.add('history-item', 'block', 'p-2', 'rounded-lg', 'cursor-pointer', 'transition-colors', 'relative');
-            
-            const classList = isCurrent ? 
-                ['bg-blue-700/50', 'border-l-4', 'border-blue-400'] : 
-                ['bg-gray-800/20', 'hover:bg-gray-800/40', 'border-l-4', 'border-blue-500/0', 'hover:border-blue-500'];
-            item.classList.add(...classList);
-
-            item.setAttribute('data-conversation-id', id);
-            item.title = display;
-            
-            const onclickFunc = `event.preventDefault(); showHistoryMenu(this, '${id}', '${display.replace(/'/g, "\\'")}')`;
-
-            item.innerHTML = `
-                <div class="flex justify-between items-start">
-                    <div>
-                        <i class="fas fa-comment-dots mr-2 text-blue-400"></i>
-                        <span class="text-gray-300 font-medium whitespace-nowrap overflow-hidden text-ellipsis block max-w-[80%]">${display}</span>
-                    </div>
-                    <div class="history-actions flex gap-2">
-                        <button class="text-white/70 hover:text-white focus:outline-none" onclick="${onclickFunc}">
-                            <i class="fas fa-ellipsis-v text-xs"></i>
+            return `
+                <div class="code-block-wrapper">
+                    <div class="code-header">
+                        <div class="flex items-center gap-2">
+                            <div class="terminal-dots">
+                                <div class="dot dot-red"></div>
+                                <div class="dot dot-yellow"></div>
+                                <div class="dot dot-green"></div>
+                            </div>
+                            <span class="uppercase font-mono text-[10px] font-bold">${langLabel}</span>
+                        </div>
+                        <button class="copy-btn" onclick="copyToClipboard(this)">
+                            <i class="far fa-copy"></i> Copy
                         </button>
                     </div>
-                </div>
-            `;
-            item.addEventListener('click', (e) => {
-                if (e.target.closest('.history-actions')) {
-                    e.preventDefault();
-                    return;
-                }
-                window.location.assign(`/user/dardcor-ai/${id}`);
-            });
-            return item;
+                    <pre><code class="hljs ${language || ''}">${highlighted}</code></pre>
+                </div>`;
+        };
+        
+        marked.use({ renderer });
+
+        // Sidebar functions
+        function toggleSidebar() {
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+            
+            if (sidebar.classList.contains('open')) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = '';
+            }
         }
 
-        function setupMobileInputFix() {
-            if (!isMobile) return;
-            
-            let keyboardActive = false;
-            
-            chatInput.addEventListener('focus', () => {
-                keyboardActive = true;
-                document.body.style.overflow = 'hidden';
-                setTimeout(() => {
-                    scrollToBottom();
-                }, 300);
-            });
-            
-            chatInput.addEventListener('blur', () => {
-                keyboardActive = false;
-                document.body.style.overflow = '';
-            });
-            
-            window.addEventListener('resize', () => {
-                if (keyboardActive) {
-                    scrollToBottom();
-                }
-            });
+        function openSidebar() {
+            sidebar.classList.add('open');
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
         }
-        
+
+        function closeSidebar() {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Auto-resize textarea
         chatInput.addEventListener('input', function() {
-            updateSendButtonState();
-            autoResizeTextarea();
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 128) + 'px';
+            updateSendButton();
         });
-        
-        chatInput.addEventListener('keydown', function(e) {
+
+        function updateSendButton() {
+            sendBtn.disabled = chatInput.value.trim() === '' && !attachedFile;
+        }
+
+        // Keyboard handling
+        function handleKeydown(e) {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
-                sendMessage();
+                if (!sendBtn.disabled && !isProcessing) {
+                    sendMessage();
+                }
             }
-        });
-        
-        // MODIFIKASI: Hapus e.preventDefault() agar sentuhan alami memicu fokus
-        chatInput.addEventListener('touchstart', function(e) {
-            // Biarkan browser menangani sentuhan untuk fokus dan keyboard
-            // Tidak perlu memanggil this.focus() secara eksplisit di sini karena sentuhan akan melakukannya
-        }, { passive: true }); // Menggunakan passive: true untuk meningkatkan kinerja scrolling
-        
-        sendButton.addEventListener('click', sendMessage);
-        removeFileButton.addEventListener('click', removeFile);
-        
-        fileAttachButton.addEventListener('click', () => {
-            fileInput.click();
-        });
-        
+        }
+
+        // File handling
         fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                handleFileAttachment(e.target.files[0]);
+            if (e.target.files[0]) {
+                attachedFile = e.target.files[0];
+                const preview = document.getElementById('filePreview');
+                preview.classList.remove('hidden');
+                
+                document.getElementById('previewName').textContent = attachedFile.name;
+                document.getElementById('previewSize').textContent = formatFileSize(attachedFile.size);
+                
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    const img = document.getElementById('previewImg');
+                    const icon = document.getElementById('previewIcon');
+                    
+                    if (attachedFile.type.startsWith('image/')) {
+                        img.src = ev.target.result;
+                        img.classList.remove('hidden');
+                        icon.classList.add('hidden');
+                    } else {
+                        img.classList.add('hidden');
+                        icon.classList.remove('hidden');
+                        icon.className = getFileIcon(attachedFile.type);
+                    }
+                };
+                reader.readAsDataURL(attachedFile);
+                updateSendButton();
             }
         });
-        
-        chatInputWrapper.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            chatInputWrapper.classList.add('drag-over');
-        });
-        
-        chatInputWrapper.addEventListener('dragleave', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            chatInputWrapper.classList.remove('drag-over');
-        });
-        
-        chatInputWrapper.addEventListener('drop', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            chatInputWrapper.classList.remove('drag-over');
 
-            if (e.dataTransfer.files.length > 0) {
-                handleFileAttachment(e.dataTransfer.files[0]);
-            }
-        });
-        
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+
+        function getFileIcon(mimeType) {
+            if (mimeType.includes('pdf')) return 'fas fa-file-pdf text-red-400';
+            if (mimeType.includes('word') || mimeType.includes('document')) return 'fas fa-file-word text-blue-400';
+            if (mimeType.includes('excel') || mimeType.includes('spreadsheet')) return 'fas fa-file-excel text-green-400';
+            if (mimeType.includes('image')) return 'fas fa-file-image text-purple-400';
+            if (mimeType.includes('text')) return 'fas fa-file-alt text-gray-400';
+            return 'fas fa-file text-gray-400';
+        }
+
+        function clearFile() {
+            attachedFile = null;
+            fileInput.value = '';
+            document.getElementById('filePreview').classList.add('hidden');
+            updateSendButton();
+        }
+
+        // Send message function
         async function sendMessage() {
-            const message = chatInput.value.trim();
-            if ((!message && !attachedFile) || sendButton.disabled) return;
+            const text = chatInput.value.trim();
+            if ((!text && !attachedFile) || isProcessing) return;
 
-            sendButton.disabled = true;
+            isProcessing = true;
+            sendBtn.disabled = true;
             chatInput.disabled = true;
-            fileAttachButton.disabled = true;
-            removeFileButton.disabled = true;
             
-            const fileDataToSend = attachedFile ? { name: attachedFile.name, type: attachedFile.type } : null;
-            const userMessageToDisplay = message || (attachedFile ? "Analisis file ini." : "");
-            
-            appendMessage('user', userMessageToDisplay, fileDataToSend);
-
-            const formData = new FormData();
-            formData.append('message', message);
-            if (attachedFile) {
-                formData.append('file_attachment', attachedFile);
+            // Remove welcome screen if exists
+            const welcomeScreen = document.getElementById('welcomeScreen');
+            if (welcomeScreen) {
+                welcomeScreen.style.opacity = '0';
+                welcomeScreen.style.transform = 'translateY(20px)';
+                setTimeout(() => welcomeScreen.remove(), 300);
             }
 
-            chatInput.value = '';
-            removeFile();
-            updateSendButtonState();
-            autoResizeTextarea();
+            // Render user message
+            const userDiv = document.createElement('div');
+            userDiv.className = 'flex w-full justify-end mb-4 md:mb-6 animate-slide-in';
+            userDiv.innerHTML = `
+                <div class="flex flex-col max-w-[90%] md:max-w-[75%] lg:max-w-[65%] gap-1">
+                    <div class="flex items-end gap-2 flex-row-reverse">
+                        <div class="avatar bg-gradient-to-br from-blue-600 to-blue-800">
+                            <img src="<%= user.profile_image || 'https://ui-avatars.com/api/?name=' + user.username + '&background=random' %>" 
+                                 class="w-full h-full object-cover rounded-full">
+                        </div>
+                        <div class="p-3 md:p-4 message-user">
+                            <div class="whitespace-pre-wrap text-sm md:text-base">${escapeHtml(text)}</div>
+                            ${attachedFile ? `
+                                <div class="mt-2 flex items-center gap-2 p-2 bg-white/10 rounded-lg border border-white/10 text-xs">
+                                    <div class="w-6 h-6 md:w-8 md:h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                                        <i class="${getFileIcon(attachedFile.type)}"></i>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-white font-medium truncate">${attachedFile.name}</p>
+                                        <p class="text-gray-400 text-xs">${formatFileSize(attachedFile.size)}</p>
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                    <div class="text-xs text-gray-500 px-1 text-right">
+                        ${new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+                    </div>
+                </div>`;
             
-            const loadingMessage = document.createElement('div');
-            loadingMessage.classList.add('flex', 'justify-start', 'p-2');
-            loadingMessage.innerHTML = '<div class="message-bot p-3 text-sm md:text-base text-slate-400"><i class="fas fa-spinner fa-spin"></i> Berfikir...</div>';
-            chatContainer.appendChild(loadingMessage);
+            chatContainer.appendChild(userDiv);
             scrollToBottom();
 
+            // Show loading indicator
+            const loading = document.getElementById('loadingIndicator');
+            loading.classList.remove('hidden');
+            scrollToBottom();
+
+            // Prepare form data
+            const formData = new FormData();
+            formData.append('message', text);
+            if (attachedFile) formData.append('file_attachment', attachedFile);
+
+            // Reset input
+            chatInput.value = '';
+            chatInput.style.height = 'auto';
+            clearFile();
+
             try {
-                const response = await fetch('/user/ai/chat', {
+                const res = await fetch('/user/ai/chat', {
                     method: 'POST',
                     body: formData
                 });
-                const result = await response.json();
-
-                chatContainer.removeChild(loadingMessage);
-
-                if (result.success) {
-                    appendMessage('bot', result.response);
-
-                    if (result.isNewConversation && result.conversationId) {
-                        activeConversationId = result.conversationId;
-                        
-                        document.querySelectorAll('.history-item').forEach(item => {
-                            item.classList.remove('bg-blue-700/50', 'border-l-4', 'border-blue-400');
-                            item.classList.add('bg-gray-800/20', 'hover:bg-gray-800/40', 'border-l-4', 'border-blue-500/0', 'hover:border-blue-500');
-                        });
-
-                        const newHistoryItem = createHistoryItem(
-                            result.conversationId, 
-                            userMessageToDisplay, 
-                            true
-                        );
-
-                        const existingNoHistoryMessage = document.getElementById('noHistoryMessage');
-                        if (existingNoHistoryMessage) existingNoHistoryMessage.remove();
-                        
-                        if (historyList.firstChild) {
-                            historyList.insertBefore(newHistoryItem, historyList.firstChild);
-                        } else {
-                            historyList.appendChild(newHistoryItem);
-                        }
-
-                        window.history.pushState(null, null, `/user/dardcor-ai/${result.conversationId}`);
-                    }
-                } else {
-                    appendMessage('bot', `[ERROR] ${result.response || 'Terjadi kesalahan tidak terduga.'}`);
-                }
-            } catch (error) {
-                console.error('Error saat fetch chat:', error);
-                chatContainer.removeChild(loadingMessage);
-                appendMessage('bot', '[ERROR] Koneksi ke server gagal atau terjadi masalah jaringan.');
-            }
-
-            chatInput.disabled = false;
-            fileAttachButton.disabled = false;
-            removeFileButton.disabled = false;
-            updateSendButtonState();
-            // JANGAN PAKSA FOCUS DI SINI. Biarkan pengguna mengklik sendiri
-            // chatInput.focus();
-        }
-
-        window.showHistoryMenu = function(button, conversationId, currentTitle) {
-            const actions = [
-                { text: 'Edit Judul', icon: 'fas fa-pen', action: 'editChatTitle' },
-                { text: 'Hapus Chat', icon: 'fas fa-trash', action: 'deleteConversation' }
-            ];
-            const menuHtml = actions.map(item => 
-                `<button 
-                    class="block w-full text-left px-4 py-2 text-sm text-white/80 hover:bg-slate-700/50" 
-                    onclick="window.historyMenuAction('${item.action}', '${conversationId}', '${currentTitle.replace(/'/g, "\\'")}')">
-                    <i class="${item.icon} mr-2"></i> ${item.text}
-                </button>`
-            ).join('');
-            const menu = document.createElement('div');
-            menu.classList.add('absolute', 'right-8', 'top-full', 'mt-2', 'w-36', 'bg-slate-800', 'rounded-lg', 'shadow-xl', 'z-50', 'overflow-hidden', 'history-menu');
-            menu.innerHTML = menuHtml;
-            
-            document.querySelectorAll('.history-menu').forEach(m => m.remove());
-            button.closest('.history-item').appendChild(menu);
-
-            function closeMenu(e) {
-                if (!menu.contains(e.target) && e.target !== button) {
-                    menu.remove();
-                    document.removeEventListener('click', closeMenu);
-                }
-            }
-            setTimeout(() => document.addEventListener('click', closeMenu), 10);
-        }
-
-        window.historyMenuAction = function(actionName, conversationId, currentTitle) {
-            document.querySelectorAll('.history-menu').forEach(m => m.remove());
-            if (actionName === 'editChatTitle') {
-                editChatTitle(conversationId, currentTitle);
-            } else if (actionName === 'deleteConversation') {
-                deleteConversation(conversationId);
-            }
-        }
-        
-        window.editChatTitle = function(conversationId, currentTitle) {
-            const newTitle = prompt("Masukkan judul baru untuk chat ini:", currentTitle);
-            if (newTitle && newTitle.trim() !== "" && newTitle !== currentTitle) {
-                alert(`[DEMO] Judul harus diubah di backend (ID: ${conversationId}, Judul Baru: ${newTitle}). Memuat ulang halaman...`);
-            }
-        }
-
-        window.deleteConversation = function(conversationId) {
-            if (confirm(`Apakah Anda yakin ingin menghapus percakapan ini secara permanen? (ID: ${conversationId})`)) {
-                alert(`[DEMO] Chat harus dihapus di backend (ID: ${conversationId}). Memuat ulang halaman...`);
-            }
-        }
-
-        document.querySelectorAll('.history-item').forEach(item => {
-            item.addEventListener('click', (e) => {
-                if (e.target.closest('.history-actions')) {
-                    e.preventDefault();
-                    return;
-                }
-                const conversationId = item.getAttribute('data-conversation-id');
-                window.location.assign(`/user/dardcor-ai/${conversationId}`);
-            });
-        });
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const sidebar = document.getElementById('sidebar');
-            const backdrop = document.getElementById('sidebarBackdrop');
-            const navbarTopArea = document.querySelector('.navbar-top-area');
-            const toggleButton = document.getElementById('sidebarToggle');
-            const closeButton = document.getElementById('sidebarCloseButton');
-            const historyToggle = document.getElementById('historyToggleCombined');
-            const historyCloseButton = document.getElementById('historyCloseButton');
-            const historyBackdrop = document.getElementById('historyBackdrop');
-            
-            let sidebarOpen = false;
-            let historyOpen = false;
-
-            function openSidebar(element, backdropElement) {
-                element.classList.remove('-translate-x-full', 'translate-x-full');
-                if (element.id === 'sidebar') element.classList.remove('-translate-x-full');
-                if (element.id === 'historySidebar') element.classList.remove('translate-x-full');
-                if (window.innerWidth < 1024) {
-                    backdropElement.classList.remove('hidden');
-                    setTimeout(() => backdropElement.classList.remove('opacity-0'), 10);
-                    document.body.style.overflow = 'hidden';
-                }
-            }
-
-            function closeSidebar(element, backdropElement) {
-                if (element.id === 'sidebar') element.classList.add('-translate-x-full');
-                if (element.id === 'historySidebar') element.classList.add('translate-x-full');
                 
-                if (window.innerWidth < 1024) {
-                    backdropElement.classList.add('opacity-0');
-                    setTimeout(() => backdropElement.classList.add('hidden'), 300);
-                    document.body.style.overflow = '';
-                }
-            }
+                const data = await res.json();
+                loading.classList.add('hidden');
 
-            function toggleMainSidebar() {
-                if (historyOpen) closeSidebar(historySidebar, historyBackdrop);
-                sidebarOpen = !sidebarOpen;
-                if (sidebarOpen) {
-                    openSidebar(sidebar, backdrop);
-                } else {
-                    closeSidebar(sidebar, backdrop);
-                }
-            }
-
-            function toggleHistorySidebar() {
-                if (sidebarOpen) closeSidebar(sidebar, backdrop);
-                historyOpen = !historyOpen;
-                if (historyOpen) {
-                    openSidebar(historySidebar, historyBackdrop);
-                } else {
-                    closeSidebar(historySidebar, historyBackdrop);
-                }
-            }
-            
-            if (newChatButton) {
-                newChatButton.addEventListener('click', async () => {
-                    try {
-                        const response = await fetch('/user/ai/new-chat', { method: 'POST' });
-                        const result = await response.json();
-                        if (result.success && result.redirectUrl) {
-                            window.location.assign(result.redirectUrl);
-                        } else {
-                            alert("Gagal memulai chat baru.");
-                        }
-                    } catch (error) {
-                        console.error("Error starting new chat:", error);
-                        alert("Kesalahan jaringan saat memulai chat baru.");
+                if (data.success) {
+                    const botDiv = document.createElement('div');
+                    botDiv.className = 'flex w-full justify-start mb-4 md:mb-6 animate-slide-in';
+                    const parsedMarkdown = marked.parse(data.response);
+                    
+                    botDiv.innerHTML = `
+                        <div class="flex flex-col max-w-[90%] md:max-w-[75%] lg:max-w-[65%] gap-1">
+                            <div class="flex items-end gap-2 flex-row">
+                                <div class="avatar bg-gradient-to-br from-indigo-600 to-purple-600">
+                                    <div class="w-full h-full flex items-center justify-center">
+                                        <i class="fas fa-robot text-white text-sm"></i>
+                                    </div>
+                                </div>
+                                <div class="p-3 md:p-4 message-bot">
+                                    <div class="markdown-body text-sm md:text-base">${parsedMarkdown}</div>
+                                </div>
+                            </div>
+                            <div class="text-xs text-gray-500 px-1 text-left">
+                                ${new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+                            </div>
+                        </div>`;
+                    
+                    chatContainer.appendChild(botDiv);
+                    
+                    // Update code highlighting for new content
+                    setTimeout(() => {
+                        document.querySelectorAll('pre code').forEach((block) => {
+                            highlight.highlightElement(block);
+                        });
+                    }, 100);
+                    
+                    if (data.isNewConversation) {
+                        window.history.pushState({}, '', `/user/dardcor-ai/${data.conversationId}`);
+                        setTimeout(() => location.reload(), 1000);
                     }
-                });
-            }
-
-            if (toggleButton) toggleButton.addEventListener('click', toggleMainSidebar);
-            if (closeButton) closeButton.addEventListener('click', toggleMainSidebar);
-            if (backdrop) backdrop.addEventListener('click', toggleMainSidebar);
-            
-            if (historyToggle) historyToggle.addEventListener('click', toggleHistorySidebar);
-            if (historyCloseButton) historyCloseButton.addEventListener('click', toggleHistorySidebar);
-            if (historyBackdrop) historyBackdrop.addEventListener('click', toggleHistorySidebar);
-            
-            window.addEventListener('scroll', () => {
-                if (window.scrollY > 10) {
-                    navbarTopArea.classList.add('navbar-scrolled');
                 } else {
-                    navbarTopArea.classList.remove('navbar-scrolled');
+                    showError('Error: ' + data.response);
                 }
-            });
-            
-            function handleResize() {
-                if (window.innerWidth >= 1024) {
-                    if (sidebarOpen) closeSidebar(sidebar, backdrop);
-                    if (historyOpen) closeSidebar(historySidebar, historyBackdrop);
-                    backdrop.classList.add('hidden');
-                    historyBackdrop.classList.add('hidden');
-                    document.body.style.overflow = '';
-                }
+            } catch (err) {
+                loading.classList.add('hidden');
+                showError('Gagal terhubung ke server. Periksa koneksi internet Anda.');
             }
 
-            window.addEventListener('resize', handleResize);
-            document.querySelectorAll('nav a').forEach(link => {
-                link.addEventListener('click', () => {
-                    if (window.innerWidth < 1024) {
-                        closeSidebar(sidebar, backdrop);
-                    }
-                });
-            });
-            
-            setupMobileInputFix();
-            handleResize();
-            
+            isProcessing = false;
+            chatInput.disabled = false;
+            chatInput.focus();
+            scrollToBottom();
+        }
+
+        // Utility functions
+        function scrollToBottom() {
             setTimeout(() => {
-                // HAPUS CHAT INPUT FOCUS
-                // chatInput.focus(); 
-                updateSendButtonState();
-                scrollToBottom();
-            }, 500);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }, 100);
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'fixed top-4 right-4 bg-red-600 text-white px-4 py-3 rounded-lg shadow-lg z-50 animate-fade-in';
+            errorDiv.innerHTML = `
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span>${message}</span>
+                </div>`;
+            document.body.appendChild(errorDiv);
+            setTimeout(() => errorDiv.remove(), 5000);
+        }
+
+        function copyToClipboard(btn) {
+            const codeBlock = btn.parentElement.nextElementSibling.querySelector('code');
+            navigator.clipboard.writeText(codeBlock.innerText).then(() => {
+                const icon = btn.querySelector('i');
+                const originalClass = icon.className;
+                icon.className = 'fas fa-check';
+                btn.classList.add('text-green-400');
+                
+                setTimeout(() => {
+                    icon.className = originalClass;
+                    btn.classList.remove('text-green-400');
+                }, 2000);
+            });
+        }
+
+        function clearChat() {
+            if (confirm('Apakah Anda yakin ingin menghapus percakapan ini?')) {
+                fetch('/user/ai/clear-chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ conversationId: '<%= activeConversationId %>' })
+                }).then(() => {
+                    location.reload();
+                });
+            }
+        }
+
+        // Initialize event listeners
+        sendBtn.addEventListener('click', sendMessage);
+        document.getElementById('newChatBtn').addEventListener('click', async () => {
+            try {
+                const res = await fetch('/user/ai/new-chat', { method: 'POST' });
+                const data = await res.json();
+                if (data.success) window.location.href = data.redirectUrl;
+            } catch (e) {
+                console.error(e);
+                showError('Gagal membuat chat baru');
+            }
         });
+
+        // Initialize on load
+        window.addEventListener('load', () => {
+            // Initialize existing markdown content
+            document.querySelectorAll('.markdown-body').forEach(block => {
+                block.innerHTML = marked.parse(block.innerHTML);
+            });
+            
+            // Highlight code blocks
+            document.querySelectorAll('pre code').forEach((block) => {
+                highlight.highlightElement(block);
+            });
+            
+            // Scroll to bottom
+            scrollToBottom();
+            
+            // Close sidebar on mobile when clicking outside
+            overlay.addEventListener('click', closeSidebar);
+            
+            // Handle escape key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeSidebar();
+            });
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 1024) {
+                closeSidebar();
+            }
+        });
+
+        // Add animation styles
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slide-in {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            
+            @keyframes fade-in {
+                from { opacity: 0; transform: translateY(-10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            
+            .animate-slide-in {
+                animation: slide-in 0.3s ease-out;
+            }
+            
+            .animate-fade-in {
+                animation: fade-in 0.3s ease-out;
+            }
+            
+            @media (max-width: 768px) {
+                #mainContent {
+                    margin-left: 0 !important;
+                }
+            }
+        `;
+        document.head.appendChild(style);
     </script>
 </body>
 </html>

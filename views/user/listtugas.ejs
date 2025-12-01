@@ -3,7 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Dardcor</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#1a1a2e">
+    <link rel="manifest" href="/manifest.json">
+    
+    <title>Dardcor - List Tugas</title>
     <link rel="icon" href="/logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -15,40 +20,32 @@
             min-height: 100vh; 
             font-family: 'Poppins', sans-serif; 
             overflow-x: hidden; 
-            color: #cbd5e1; 
+            color: #cbd5e1;
+            -webkit-user-select: none;
+            user-select: none;
         }
         .sidebar {
             background-color: #16213e;
             box-shadow: 5px 0 15px rgba(0,0,0,0.4);
             z-index: 50;
         }
-        
-        /* Hapus backdrop-filter di navbar-top-area */
         .navbar-top-area {
             transition: all 0.3s ease;
             z-index: 40;
         }
         
-        /* Style default navbar (putih solid) */
         .navbar-nav {
-            background-color: #ffffff; /* Putih Solid Default */
+            background-color: #ffffff; 
             border: 1px solid #e2e8f0;
             transition: all 0.3s ease;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         }
         
-        /* Warna teks default navbar (dark) */
-        .navbar-nav .nav-text-dark {
-            color: #1f2937 !important;
-        }
-        /* Warna ikon toggle default navbar (dark) */
-        .navbar-nav .toggle-icon-dark svg {
-            stroke: #1f2937;
-        }
+        .navbar-nav .nav-text-dark { color: #1f2937 !important; }
+        .navbar-nav .toggle-icon-dark svg { stroke: #1f2937; }
 
-        /* Style navbar saat di-scroll */
         .navbar-scrolled .navbar-nav {
-            background-color: #ffffff; /* Tetap Putih Solid */
+            background-color: #ffffff; 
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
             border-color: #cbd5e1;
         }
@@ -115,12 +112,6 @@
                             <span>List Tugas</span>
                         </a>
                     </li>
-                    <li>
-                        <a href="/user/dardcor-ai" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors hover:bg-blue-600 text-gray-300 hover:text-white whitespace-nowrap">
-                            <i class="fa-solid fa-robot w-6 h-6 flex-shrink-0 text-center"></i>
-                            <span>Chat Bot</span>
-                        </a>
-                    </li>
                 </ul>
             </nav>
 
@@ -132,7 +123,7 @@
             </div>
         </aside>
 
-        <div class="min-h-screen">
+        <div class="min-h-screen main-content-wrapper w-full">
             
             <div class="fixed top-0 left-0 w-full p-4 md:p-6 flex justify-center z-30 navbar-top-area">
                 <nav id="navbar" class="navbar-nav w-full max-w-6xl rounded-full flex items-center justify-between px-4 py-3">
@@ -140,14 +131,16 @@
                         <button id="sidebarToggle" class="toggle-icon-dark text-gray-700 p-2 transition-colors hover:bg-gray-100 rounded-full">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                         </button>
-                        <a href="/user/home" class="flex items-center gap-2">
-                            <span class="text-xl font-bold nav-text-dark">Dardcor</span>
-                        </a>
+                        <span class="text-xl font-bold nav-text-dark">Dardcor</span>
                     </div>
                     
                     <div class="flex items-center gap-3">
+                        <button onclick="toggleFullscreen()" class="p-2 text-gray-600 hover:bg-gray-100 rounded-full transition-colors" title="Layar Penuh">
+                            <i id="fullscreenIcon" class="fa-solid fa-expand text-lg"></i>
+                        </button>
+
                         <a href="/user/profile" class="profile-link flex items-center gap-2 hover:bg-gray-100 rounded-full pr-3 pl-1 py-1 transition-colors">
-                            <img src="<%= user.profile_image || 'https://ui-avatars.com/api/?name=' + user.username + '&background=random' %>" alt="Profile" class="w-8 h-8 rounded-full object-cover">
+                            <img src="<%= user.profile_image || 'https://ui-avatars.com/api/?name=' + (user.username || 'User') + '&background=random&color=fff' %>" alt="Profile" class="w-8 h-8 rounded-full object-cover">
                         </a>
                     </div>
                 </nav>
@@ -214,6 +207,20 @@
     </div> 
     
     <script>
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch((err) => {
+                    console.log(`Error attempting to enable fullscreen: ${err.message}`);
+                });
+                document.getElementById('fullscreenIcon').classList.replace('fa-expand', 'fa-compress');
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                    document.getElementById('fullscreenIcon').classList.replace('fa-compress', 'fa-expand');
+                }
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             const toggleButton = document.getElementById('sidebarToggle');
             const sidebar = document.getElementById('sidebar');
@@ -262,7 +269,6 @@
                 backdrop.addEventListener('click', closeSidebar);
             }
 
-            // Scroll effect for the navbar
             window.addEventListener('scroll', () => {
                 if (window.scrollY > 10) {
                     navbarTopArea.classList.add('navbar-scrolled');
@@ -296,7 +302,6 @@
                 });
             });
 
-            // Filter Logic
             const weekFilter = document.getElementById('weekFilter');
             const taskCards = document.querySelectorAll('.task-card');
             const emptyMessage = document.getElementById('emptyFilterMessage');

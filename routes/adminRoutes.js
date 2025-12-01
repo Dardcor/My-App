@@ -35,6 +35,7 @@ router.post('/admin', async (req, res) => {
         }
         
         if (password === data.password) {
+            req.session.cookie.maxAge = 24 * 60 * 60 * 1000;
             req.session.isLoggedIn = true; 
             req.session.username = username; 
             res.redirect('/admin/home');

@@ -62,6 +62,7 @@ router.post('/user-login', async (req, res) => {
         const match = await bcrypt.compare(password, data.password);
 
         if (match) {
+            req.session.cookie.maxAge = 24 * 60 * 60 * 1000;
             req.session.userAccount = data;
             res.redirect('/user/home');
         } else {
