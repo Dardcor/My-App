@@ -1,10 +1,11 @@
 {
   "name": "Dardcor App",
   "short_name": "Dardcor",
-  "start_url": "/user/home",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#1a1a2e",
   "theme_color": "#1a1a2e",
+  "orientation": "portrait-primary",
   "icons": [
     {
       "src": "/logo.png",

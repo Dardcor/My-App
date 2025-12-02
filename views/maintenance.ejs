@@ -2,367 +2,294 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#1a1a2e">
+    <link rel="manifest" href="/manifest.json">
+    
     <title>Dardcor</title>
     <link rel="icon" href="/logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.15.1/devicon.min.css">
+    
     <style>
+        html { scroll-behavior: smooth; }
         body { 
-            font-family: 'Poppins', sans-serif; 
-            background-color: #020617; 
-            color: #cbd5e1; 
-            overflow-x: hidden;
+            background-color: #1a1a2e;
+            min-height: 100vh; 
+            font-family: sans-serif; 
+            overflow-x: hidden; 
+            color: #cbd5e1;
         }
-        
-        .glitch { 
-            position: relative; 
-            color: white; 
-            font-size: 2.5rem; 
-            font-weight: bold; 
-            text-transform: uppercase; 
-            letter-spacing: 0.1em; 
+        .sidebar {
+            background-color: #16213e;
+            box-shadow: 5px 0 15px rgba(0,0,0,0.4);
+            z-index: 50;
         }
-        .glitch::before, .glitch::after { 
-            content: attr(data-text); 
-            position: absolute; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%; 
-            opacity: 0.8;
-        }
-        .glitch::before { 
-            left: 2px; 
-            text-shadow: -1px 0 #ff00c1; 
-            clip: rect(44px, 450px, 56px, 0); 
-            animation: glitch-anim-1 3s infinite linear alternate-reverse; 
-        }
-        .glitch::after { 
-            left: -2px; 
-            text-shadow: -1px 0 #00fff9; 
-            clip: rect(44px, 450px, 56px, 0); 
-            animation: glitch-anim-2 3s infinite linear alternate-reverse; 
-        }
-        
-        @keyframes glitch-anim-1 { 
-            0% { clip: rect(10px, 9999px, 30px, 0); } 
-            5% { clip: rect(60px, 9999px, 80px, 0); } 
-            10% { clip: rect(20px, 9999px, 90px, 0); } 
-            15% { clip: rect(80px, 9999px, 100px, 0); } 
-            20% { clip: rect(40px, 9999px, 60px, 0); } 
-            25% { clip: rect(50px, 9999px, 70px, 0); } 
-            30% { clip: rect(30px, 9999px, 50px, 0); } 
-            35% { clip: rect(70px, 9999px, 90px, 0); } 
-            40% { clip: rect(10px, 9999px, 30px, 0); } 
-            45% { clip: rect(60px, 9999px, 80px, 0); } 
-            50% { clip: rect(20px, 9999px, 90px, 0); } 
-            55% { clip: rect(80px, 9999px, 100px, 0); } 
-            60% { clip: rect(40px, 9999px, 60px, 0); } 
-            65% { clip: rect(50px, 9999px, 70px, 0); } 
-            70% { clip: rect(30px, 9999px, 50px, 0); } 
-            75% { clip: rect(70px, 9999px, 90px, 0); } 
-            80% { clip: rect(10px, 9999px, 30px, 0); } 
-            85% { clip: rect(60px, 9999px, 80px, 0); } 
-            90% { clip: rect(20px, 9999px, 90px, 0); } 
-            95% { clip: rect(80px, 9999px, 100px, 0); } 
-            100% { clip: rect(40px, 9999px, 60px, 0); } 
-        }
-        
-        @keyframes glitch-anim-2 { 
-            0% { clip: rect(80px, 9999px, 100px, 0); } 
-            5% { clip: rect(20px, 9999px, 60px, 0); } 
-            10% { clip: rect(90px, 9999px, 10px, 0); } 
-            15% { clip: rect(10px, 9999px, 30px, 0); } 
-            20% { clip: rect(60px, 9999px, 80px, 0); } 
-            25% { clip: rect(30px, 9999px, 50px, 0); } 
-            30% { clip: rect(70px, 9999px, 90px, 0); } 
-            35% { clip: rect(10px, 9999px, 30px, 0); } 
-            40% { clip: rect(60px, 9999px, 80px, 0); } 
-            45% { clip: rect(20px, 9999px, 90px, 0); } 
-            50% { clip: rect(80px, 9999px, 100px, 0); } 
-            55% { clip: rect(40px, 9999px, 60px, 0); } 
-            60% { clip: rect(50px, 9999px, 70px, 0); } 
-            65% { clip: rect(30px, 9999px, 50px, 0); } 
-            70% { clip: rect(70px, 9999px, 90px, 0); } 
-            75% { clip: rect(10px, 9999px, 30px, 0); } 
-            80% { clip: rect(60px, 9999px, 80px, 0); } 
-            85% { clip: rect(20px, 9999px, 90px, 0); } 
-            90% { clip: rect(80px, 9999px, 100px, 0); } 
-            95% { clip: rect(40px, 9999px, 60px, 0); } 
-            100% { clip: rect(50px, 9999px, 70px, 0); } 
-        }
-        
-        @keyframes loading {
-            0% { transform: translateX(-100%); }
-            50% { transform: translateX(0); }
-            100% { transform: translateX(100%); }
-        }
-        
-        @keyframes gradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        
-        .gradient-bg {
-            background: linear-gradient(-45deg, #020617, #0f172a, #1e293b, #334155);
-            background-size: 400% 400%;
-            animation: gradient 15s ease infinite;
-        }
-        
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-            100% { transform: translateY(0px); }
-        }
-        
-        .float {
-            animation: float 6s ease-in-out infinite;
-        }
-        
-        #particles-js {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            z-index: -1;
-        }
-        
-        .status-card {
-            background: rgba(30, 41, 59, 0.5);
+        .navbar {
+            transition: all 0.3s ease;
             backdrop-filter: blur(10px);
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: 0 8px 16px -2px rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.3s ease;
+            z-index: 40;
         }
-        
-        .status-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 20px -4px rgba(0, 0, 0, 0.3);
-            border-color: rgba(96, 165, 250, 0.3);
+        .navbar-scrolled {
+            background-color: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         }
-        
-        .status-icon {
-            font-size: 2rem;
-            margin-bottom: 1rem;
-            color: #60a5fa;
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* CSS Khusus Tombol Fullscreen */
+        #fullscreenBtn svg { transition: transform 0.3s ease; }
+        :fullscreen #fullscreenBtn svg { transform: scale(0.8); }
+
+        /* Animasi Gear Maintenance */
+        @keyframes spin-slow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
-        
-        .social-link {
-            transition: all 0.3s ease;
+        .animate-spin-slow {
+            animation: spin-slow 8s linear infinite;
         }
-        
-        .social-link:hover {
-            transform: translateY(-3px);
-            color: #60a5fa;
-        }
-        
-        .progress-step {
-            display: flex;
-            align-items: center;
-            margin-bottom: 1rem;
-            position: relative;
-        }
-        
-        .step-number {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: #1e293b;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 1rem;
-            font-weight: 600;
-            color: #94a3b8;
-            border: 2px solid #334155;
-            flex-shrink: 0;
-        }
-        
-        .step-active .step-number {
-            background: #60a5fa;
-            color: white;
-            border-color: #60a5fa;
-        }
-        
-        .step-completed .step-number {
-            background: #10b981;
-            color: white;
-            border-color: #10b981;
-        }
-        
-        .step-text {
-            flex: 1;
-            text-align: left;
-            font-size: 0.9rem;
-        }
-        
-        .step-line {
-            position: absolute;
-            left: 15px;
-            top: 32px;
-            bottom: -16px;
-            width: 2px;
-            background: #334155;
-            z-index: -1;
-        }
-        
-        .step-completed .step-line {
-            background: #10b981;
-        }
-        
-        @media (min-width: 768px) {
-            .glitch {
-                font-size: 4rem;
-            }
-            .step-text {
-                font-size: 1rem;
-            }
-        }
-        
-        @media (min-width: 1024px) {
-            .glitch {
-                font-size: 6rem;
-            }
+        .animate-spin-reverse {
+            animation: spin-slow 10s linear infinite reverse;
         }
     </style>
 </head>
-<body class="gradient-bg flex flex-col items-center justify-center min-h-screen text-center p-4 relative overflow-hidden">
-    <div id="particles-js"></div>
-    
-    <div class="max-w-4xl mx-auto z-10 w-full px-4">
-        <div class="mb-8 md:mb-12 relative">
-            <div class="absolute inset-0 bg-blue-500/30 blur-[100px] rounded-full"></div>
-            <div class="float">
-                <svg class="w-24 h-24 md:w-32 md:h-32 text-blue-500 mx-auto relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"></path>
-                </svg>
-            </div>
-        </div>
-        
-        <h1 class="glitch text-3xl md:text-6xl lg:text-7xl mb-4 md:mb-6" data-text="SYSTEM UPGRADE">SYSTEM UPGRADE</h1>
-        
-        <p class="text-base md:text-lg lg:text-xl text-slate-300 max-w-2xl mx-auto mb-6 md:mb-10 leading-relaxed px-2">
-            We're performing scheduled maintenance to enhance your experience. Our systems will be back online shortly with improved performance and new features.
-        </p>
-        
-        <div class="mb-8 md:mb-12 max-w-md mx-auto w-full">
-            <h2 class="text-lg md:text-xl lg:text-2xl text-slate-400 mb-4 md:mb-6">Upgrade Progress</h2>
-            
-            <div class="progress-step step-completed">
-                <div class="step-number">1</div>
-                <div class="step-text">System Backup</div>
-                <div class="step-line"></div>
-            </div>
-            
-            <div class="progress-step step-completed">
-                <div class="step-number">2</div>
-                <div class="step-text">Database Migration</div>
-                <div class="step-line"></div>
-            </div>
-            
-            <div class="progress-step step-active">
-                <div class="step-number">3</div>
-                <div class="step-text">Core System Update</div>
-                <div class="step-line"></div>
-            </div>
-            
-            <div class="progress-step">
-                <div class="step-number">4</div>
-                <div class="step-text">Security Enhancements</div>
-                <div class="step-line"></div>
-            </div>
-            
-            <div class="progress-step">
-                <div class="step-number">5</div>
-                <div class="step-text">Final Testing & Launch</div>
-            </div>
-        </div>
-        
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8 md:mb-12">
-            <div class="status-card">
-                <div class="status-icon">🔧</div>
-                <h3 class="text-base md:text-lg font-semibold mb-2">Maintenance</h3>
-                <p class="text-slate-400 text-xs md:text-sm">Scheduled system improvements in progress</p>
-            </div>
-            
-            <div class="status-card">
-                <div class="status-icon">⚡</div>
-                <h3 class="text-base md:text-lg font-semibold mb-2">Performance</h3>
-                <p class="text-slate-400 text-xs md:text-sm">Enhanced speed and reliability coming soon</p>
-            </div>
-            
-            <div class="status-card">
-                <div class="status-icon">🛡️</div>
-                <h3 class="text-base md:text-lg font-semibold mb-2">Security</h3>
-                <p class="text-slate-400 text-xs md:text-sm">Advanced security features being implemented</p>
-            </div>
-        </div>
-        
-        <div class="mb-8 md:mb-12 w-full max-w-md mx-auto">
-            <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
-                <div class="w-3/4 h-full bg-gradient-to-r from-blue-500 to-purple-600 animate-[loading_2s_ease-in-out_infinite]"></div>
-            </div>
-            <p class="text-slate-400 mt-2 text-sm md:text-base">Upgrade in progress... 75% complete</p>
-        </div>
-        
-        <div class="flex justify-center space-x-4 md:space-x-6 mb-6 md:mb-8">
-            <a href="#" class="social-link text-slate-400 hover:text-blue-400">
-                <svg class="w-5 h-5 md:w-6 md:h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"></path></svg>
-            </a>
-            <a href="#" class="social-link text-slate-400 hover:text-blue-400">
-                <svg class="w-5 h-5 md:w-6 md:h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"></path></svg>
-            </a>
-            <a href="#" class="social-link text-slate-400 hover:text-blue-400">
-                <svg class="w-5 h-5 md:w-6 md:h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"></path></svg>
-            </a>
-        </div>
-        
-        <div class="text-slate-500 text-xs md:text-sm">
-            <p>Need immediate assistance? Contact us at <a href="mailto:support@dardcor.com" class="text-blue-400 hover:text-blue-300 transition-colors">support@dardcor.com</a></p>
-        </div>
-    </div>
+<body class="relative">
 
-    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <div id="sidebarBackdrop" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden transition-opacity duration-300 opacity-0"></div>
+
+    <div class="relative min-h-screen">
+        
+        <aside id="sidebar" class="sidebar fixed top-0 left-0 h-full w-64 p-0 text-white transform -translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
+             <div class="flex items-center justify-between pb-4 border-b border-white/20 mb-4 flex-shrink-0 px-6 pt-6">
+                <h2 class="text-2xl font-bold whitespace-nowrap">My App</h2>
+                <button id="sidebarCloseButton" class="p-1 rounded-full text-white/70 hover:bg-white/10 hover:text-white transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <nav class="flex-grow px-6 overflow-y-auto no-scrollbar"> 
+                <ul class="space-y-3">
+                    <li><a href="/" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors hover:bg-blue-600 text-gray-300 hover:text-white whitespace-nowrap"><svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6-4a1 1 0 001-1v-1a1 1 0 10-2 0v1a1 1 0 001 1z"></path></svg><span>Home</span></a></li>
+                    <li><a href="/list-ai" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors hover:bg-blue-600 text-gray-300 hover:text-white whitespace-nowrap"><svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M12 5V3m0 18v-2M7.05 7.05l-1.414-1.414M18.364 18.364l-1.414-1.414M7.05 18.364l-1.414 1.414M18.364 7.05l-1.414 1.414M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg><span>List AI</span></a></li>
+                    <li><a href="/jadwal-kuliah" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors hover:bg-blue-600 text-gray-300 hover:text-white whitespace-nowrap"><svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg><span>Jadwal Kuliah</span></a></li>
+                    <li><a href="/list-tugas" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors hover:bg-blue-600 text-gray-300 hover:text-white whitespace-nowrap"><svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg><span>List Tugas</span></a></li>
+                </ul>
+            </nav>
+            <div class="mt-auto flex-shrink-0 px-6 pb-6"> 
+                <a href="/user" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors hover:bg-blue-600 text-gray-300 hover:text-white whitespace-nowrap">
+                    <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm-2.92 7.06a11.91 11.91 0 00-2.16 0A11.97 11.97 0 005 21h14a11.97 11.97 0 00-4.08-3.94z"></path></svg>
+                    <span>Login</span>
+                </a>
+            </div>
+        </aside>
+
+        <div class="min-h-screen">
+            
+            <div class="fixed top-0 left-0 w-full p-4 md:p-6 flex justify-center z-30">
+                <nav id="navbar" class="w-full max-w-6xl bg-white/90 backdrop-blur-sm rounded-full shadow-lg border border-gray-200/50 flex items-center justify-between px-4 py-3 navbar">
+                    <div class="flex items-center gap-1 md:gap-3">
+                        <button id="sidebarToggle" class="text-gray-700 p-2 transition-colors hover:bg-gray-100 rounded-full">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                        </button>
+                        <span class="text-xl font-bold text-gray-800">Dardcor</span>
+                    </div>
+
+                    <div class="hidden lg:flex items-center gap-6">
+                        <a href="/" class="text-sm font-medium text-gray-700 hover:text-black transition-colors">Home</a>
+                        <a href="/#about" class="text-sm font-medium text-gray-700 hover:text-black transition-colors">About</a>
+                        <a href="/#works" class="text-sm font-medium text-gray-700 hover:text-black transition-colors">Works</a>
+                        <a href="/#contact" class="text-sm font-medium text-gray-700 hover:text-black transition-colors">Contact</a>
+                    </div>
+                    
+                    <div class="flex items-center gap-2">
+                        <button id="fullscreenBtn" onclick="toggleFullscreen()" class="hidden sm:flex items-center justify-center text-gray-700 p-2 transition-colors hover:bg-gray-100 rounded-full" title="Toggle Fullscreen">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
+                        </button>
+
+                        <div class="lg:hidden relative">
+                            <button id="mobileDropdownToggle" class="flex items-center text-gray-700 p-2 transition-colors hover:bg-gray-100 rounded-full">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                            <div id="mobileDropdownMenu" class="absolute top-12 right-0 bg-white/95 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200/50 z-40 hidden mobile-dropdown min-w-[140px]">
+                                <div class="flex flex-col p-2 space-y-1">
+                                    <a href="/" class="text-sm font-medium text-gray-700 hover:text-black transition-colors px-3 py-2 rounded-lg hover:bg-gray-100">Home</a>
+                                    <a href="/#about" class="text-sm font-medium text-gray-700 hover:text-black transition-colors px-3 py-2 rounded-lg hover:bg-gray-100">About</a>
+                                    <a href="/#works" class="text-sm font-medium text-gray-700 hover:text-black transition-colors px-3 py-2 rounded-lg hover:bg-gray-100">Works</a>
+                                    <a href="/#contact" class="text-sm font-medium text-gray-700 hover:text-black transition-colors px-3 py-2 rounded-lg hover:bg-gray-100">Contact</a>
+                                    <button onclick="toggleFullscreen()" class="text-left w-full text-sm font-medium text-gray-700 hover:text-black transition-colors px-3 py-2 rounded-lg hover:bg-gray-100 sm:hidden">Toggle Fullscreen</button>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="/admin" class="w-10 h-10 rounded-full flex items-center justify-center bg-gray-100 hover:bg-gray-200 transition-colors" aria-label="Admin Login">
+                            <img src="/logo.png" alt="Logo Admin" class="w-full h-full object-contain p-1 rounded-full logo-img">
+                        </a>
+                    </div>
+                </nav>
+            </div>
+
+            <main class="relative min-h-screen flex flex-col items-center justify-center p-4">
+                
+                <div class="relative z-20 w-full max-w-4xl mx-auto flex flex-col items-center justify-center text-center mt-16 md:mt-0">
+                    
+                    <div class="relative w-48 h-48 sm:w-64 sm:h-64 mb-8 flex items-center justify-center">
+                        <div class="absolute w-full h-full text-blue-900/30 animate-spin-slow">
+                            <svg fill="currentColor" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+                        </div>
+                        <div class="absolute w-2/3 h-2/3 text-blue-500 animate-spin-reverse top-10 left-10">
+                            <svg fill="currentColor" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+                        </div>
+                    </div>
+
+                    <h1 class="text-4xl sm:text-5xl font-extrabold text-white mb-4 tracking-tight">
+                        Under Maintenance
+                    </h1>
+                    <p class="text-lg text-gray-400 max-w-lg mx-auto mb-8 leading-relaxed">
+                        Kami sedang melakukan perbaikan untuk meningkatkan performa sistem. Mohon maaf atas ketidaknyamanan ini, silakan coba beberapa saat lagi.
+                    </p>
+
+                    <a href="/" class="group inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-full transition-all duration-300 shadow-lg hover:shadow-blue-500/50 hover:-translate-y-1">
+                        <span>Kembali ke Beranda</span>
+                        <svg class="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                        </svg>
+                    </a>
+
+                </div>
+
+                <footer class="absolute bottom-4 text-center p-4 text-gray-600 text-xs sm:text-sm w-full">
+                    © 2025 Dardcor. Semua hak cipta dilindungi.
+                </footer>
+            </main>
+        </div>
+    </div> 
     
     <script>
-        particlesJS('particles-js', {
-            particles: {
-                number: { value: 60, density: { enable: true, value_area: 800 } },
-                color: { value: "#60a5fa" },
-                shape: { type: "circle" },
-                opacity: { value: 0.5, random: true },
-                size: { value: 3, random: true },
-                line_linked: {
-                    enable: true,
-                    distance: 150,
-                    color: "#60a5fa",
-                    opacity: 0.2,
-                    width: 1
-                },
-                move: {
-                    enable: true,
-                    speed: 2,
-                    direction: "none",
-                    random: true,
-                    straight: false,
-                    out_mode: "out",
-                    bounce: false
+        // FUNGSI JAVASCRIPT UNTUK TOGGLE FULLSCREEN
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch((err) => {
+                    console.error(`Error attempting to enable fullscreen mode: ${err.message} (${err.name})`);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
                 }
-            },
-            interactivity: {
-                detect_on: "canvas",
-                events: {
-                    onhover: { enable: true, mode: "repulse" },
-                    onclick: { enable: true, mode: "push" },
-                    resize: true
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggleButton = document.getElementById('sidebarToggle');
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('sidebarBackdrop');
+            const closeButton = document.getElementById('sidebarCloseButton');
+            const navbar = document.getElementById('navbar');
+            
+            const mobileDropdownToggle = document.getElementById('mobileDropdownToggle');
+            const mobileDropdownMenu = document.getElementById('mobileDropdownMenu');
+
+            let sidebarOpen = false;
+
+            function openSidebar() {
+                sidebar.classList.remove('-translate-x-full');
+                if (window.innerWidth < 1024) {
+                    backdrop.classList.remove('hidden');
+                    setTimeout(() => backdrop.classList.remove('opacity-0'), 10);
+                    document.body.style.overflow = 'hidden';
                 }
-            },
-            retina_detect: true
+                sidebarOpen = true;
+            }
+
+            function closeSidebar() {
+                sidebar.classList.add('-translate-x-full');
+                if (window.innerWidth < 1024) {
+                    backdrop.classList.add('opacity-0');
+                    setTimeout(() => backdrop.classList.add('hidden'), 300);
+                    document.body.style.overflow = '';
+                }
+                sidebarOpen = false;
+            }
+
+            function toggleSidebar() {
+                if (sidebarOpen) {
+                    closeSidebar();
+                } else {
+                    openSidebar();
+                }
+            }
+
+            function toggleMobileDropdown() {
+                mobileDropdownMenu.classList.toggle('hidden');
+            }
+
+            if (toggleButton) toggleButton.addEventListener('click', toggleSidebar);
+            
+            if (closeButton) {
+                closeButton.addEventListener('click', closeSidebar);
+            }
+            
+            if (backdrop) {
+                backdrop.addEventListener('click', closeSidebar);
+            }
+
+            if (mobileDropdownToggle && mobileDropdownMenu) {
+                mobileDropdownToggle.addEventListener('click', toggleMobileDropdown);
+            }
+
+            document.addEventListener('click', (event) => {
+                if (mobileDropdownMenu && !mobileDropdownMenu.contains(event.target) && 
+                    mobileDropdownToggle && !mobileDropdownToggle.contains(event.target)) {
+                    mobileDropdownMenu.classList.add('hidden');
+                }
+            });
+
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 10) {
+                    navbar.classList.add('navbar-scrolled');
+                } else {
+                    navbar.classList.remove('navbar-scrolled');
+                }
+            });
+
+            window.addEventListener('resize', () => {
+                if (window.innerWidth >= 1024) {
+                    backdrop.classList.add('hidden');
+                    backdrop.classList.add('opacity-0');
+                    document.body.style.overflow = '';
+                    
+                    if (sidebarOpen) {
+                        closeSidebar();
+                    }
+                } else {
+                    if (sidebarOpen) {
+                        sidebar.classList.add('-translate-x-full');
+                        backdrop.classList.add('hidden');
+                        backdrop.classList.add('opacity-0');
+                        document.body.style.overflow = '';
+                        sidebarOpen = false;
+                    }
+                }
+            });
+
+            document.querySelectorAll('nav a').forEach(link => {
+                link.addEventListener('click', () => {
+                    if (window.innerWidth < 1024) {
+                        closeSidebar();
+                    }
+                });
+            });
+
+            if (window.innerWidth >= 1024) {
+                closeSidebar();
+            }
+
+            window.addEventListener('load', function() {
+                const logoImg = new Image();
+                logoImg.src = '/logo.png';
+            });
         });
     </script>
 </body>

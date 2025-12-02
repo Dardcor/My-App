@@ -3,105 +3,164 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0f172a">
+    <link rel="manifest" href="/manifest.json">
+
     <title>Dardcor</title>
     <link rel="icon" href="/logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* [DIUBAH] Menggunakan font Poppins */
-        body { 
-            font-family: 'Poppins', sans-serif; 
-            overflow-x: hidden; 
+        body { font-family: 'Poppins', sans-serif; overflow-x: hidden; background-color: #0f172a; }
+        
+        .admin-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(99, 102, 241, 0.3); /* Indigo border */
+            box-shadow: 0 0 40px rgba(99, 102, 241, 0.2);
+            animation: floatUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
         
-        /* [DIUBAH] Desain 'login-container' menjadi Frosted Glass */
-        .login-container {
-            /* Warna solid #16213e diubah menjadi transparan */
-            background-color: rgba(22, 33, 62, 0.6); /* #16213e dengan opasitas 60% */
-            
-            /* Efek Kaca Frost */
-            backdrop-filter: blur(16px) saturate(120%);
-            -webkit-backdrop-filter: blur(16px) saturate(120%);
-            
-            /* Border tipis untuk menonjolkan efek kaca */
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            animation: fadeIn 0.6s ease-out;
+        @keyframes floatUp {
+            from { opacity: 0; transform: translateY(40px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
-        /* Input field dibuat sedikit lebih transparan */
+        .input-group { position: relative; transition: all 0.3s; }
+        .input-group:focus-within { transform: scale(1.02); }
+        
         input {
-            background-color: rgba(15, 23, 42, 0.75) !important; /* #0f172a dengan opasitas 75% */
-            border: 1px solid #334155 !important; 
-            color: white !important; 
+            background: rgba(15, 23, 42, 0.6) !important;
+            border: 1px solid #334155 !important;
+            color: white !important;
+            transition: all 0.3s;
         }
-        input:focus { 
-            border-color: #3b82f6 !important; 
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2) !important; 
-            outline: none !important; 
+        
+        input:focus {
+            border-color: #6366f1 !important; /* Indigo focus */
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.2) !important;
+            background: rgba(15, 23, 42, 0.9) !important;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        .admin-line {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #6366f1, transparent);
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0.7;
         }
+
+        /* CSS Khusus Tombol Fullscreen */
+        #fullscreenBtn svg { transition: transform 0.3s ease; }
+        :fullscreen #fullscreenBtn svg { transform: scale(0.8); }
     </style>
 </head>
-<body class="relative">
+<body class="relative flex items-center justify-center min-h-screen p-4">
 
-    <div class="relative min-h-screen flex items-center justify-center p-4">
-        
-        <img src="/header.jpg" alt="Header" class="absolute inset-0 w-full h-full object-cover z-0">
-        
-        <div class="absolute inset-0 bg-black/60 z-10"></div>
-
-        <main class="relative z-20 w-full max-w-md">
-            <div class="login-container text-white p-10 md:p-12 rounded-2xl">
-                
-                <svg class="w-16 h-16 mx-auto mb-6 text-blue-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A1.875 1.875 0 0118.375 22.5H5.625a1.875 1.875 0 01-1.125-2.382z"></path>
-                </svg>
-                
-                <h1 class="text-3xl font-extrabold mb-6 text-center">Admin</h1>
-
-                <form action="/admin" method="POST">
-                    <div class="mb-5">
-                        <label for="username" class="block text-sm font-medium text-gray-300 mb-2">Username</label>
-                        <input type="text" id="username" name="username" 
-                               class="w-full p-3 rounded-lg placeholder-gray-500" 
-                               placeholder="Masukkan username" required>
-                    </div>
-                    
-                    <div class="mb-6">
-                        <label for="password" class="block text-sm font-medium text-gray-300 mb-2">Password</label>
-                        <input type="password" id="password" name="password" 
-                               class="w-full p-3 rounded-lg placeholder-gray-500" 
-                               placeholder="Masukkan password" required>
-                    </div>
-
-                    <p id="message" class="message text-center text-red-400 mb-4 text-sm">
-                         <% if (typeof error !== 'undefined' && error) { %>
-                             <%= error %>
-                         <% } %>
-                    </p>
-                    
-                    <button type="submit" 
-                            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold p-3 rounded-lg transition-colors duration-200">
-                        Login
-                    </button>
-                </form>
-                
-                <div class="text-center mt-6">
-                    <a href="/" class="text-sm text-blue-400 hover:text-blue-300 transition-colors">
-                        &larr; Kembali ke Home
-                    </a>
-                </div>
-            </div>
-        </main>
+    <div class="fixed inset-0 z-0">
+        <img src="/header.jpg" alt="Background" class="w-full h-full object-cover opacity-40">
+        <div class="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-[#0f172a]/80 to-transparent"></div>
     </div>
-    
+
+    <button id="fullscreenBtn" onclick="toggleFullscreen()" class="fixed top-4 right-4 z-50 p-3 bg-slate-800/50 backdrop-blur-md border border-slate-600/50 rounded-full text-slate-300 hover:text-white hover:bg-indigo-600/50 transition-all duration-300 shadow-lg group">
+        <svg class="w-6 h-6 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
+        </svg>
+    </button>
+
+    <main class="relative z-10 w-full max-w-md">
+        <div class="admin-card p-8 rounded-2xl relative overflow-hidden">
+            <div class="admin-line"></div>
+            
+            <div class="text-center mb-8">
+                <div class="w-20 h-20 bg-indigo-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-indigo-500/30 shadow-[0_0_30px_rgba(99,102,241,0.3)]">
+                    <i class="fas fa-user-shield text-4xl text-indigo-400"></i>
+                </div>
+                <h1 class="text-3xl font-bold text-white tracking-tight">Admin Portal</h1>
+                <p class="text-slate-400 text-sm mt-2">Secure Access Only</p>
+            </div>
+
+            <form action="/admin" method="POST" class="space-y-5">
+                <div class="input-group">
+                    <label class="block text-xs font-semibold text-indigo-400 uppercase tracking-wider mb-1 ml-1">Username</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-user text-slate-500"></i>
+                        </div>
+                        <input type="text" name="username" class="w-full py-3 pl-10 pr-4 rounded-lg focus:outline-none" placeholder="Admin Username" required>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label class="block text-xs font-semibold text-indigo-400 uppercase tracking-wider mb-1 ml-1">Password</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-lock text-slate-500"></i>
+                        </div>
+                        <input type="password" id="passwordInput" name="password" class="w-full py-3 pl-10 pr-10 rounded-lg focus:outline-none" placeholder="••••••••" required>
+                        <button type="button" id="togglePassword" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-indigo-400 transition-colors focus:outline-none">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <% if (typeof error !== 'undefined' && error) { %>
+                    <div class="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm text-center animate-pulse">
+                        <i class="fas fa-exclamation-triangle mr-1"></i> <%= error %>
+                    </div>
+                <% } %>
+
+                <button type="submit" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold py-3.5 rounded-xl transition-all transform hover:scale-[1.02] shadow-lg shadow-indigo-600/30">
+                    Login Dashboard
+                </button>
+            </form>
+
+            <div class="mt-8 pt-6 border-t border-slate-700/50 text-center">
+                <a href="/" class="inline-block text-xs text-slate-500 hover:text-white transition-colors">
+                    <i class="fas fa-arrow-left mr-1"></i> Back to Main Site
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Logic Toggle Password
+        const toggleBtn = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('passwordInput');
+        const icon = toggleBtn.querySelector('i');
+
+        toggleBtn.addEventListener('click', () => {
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+
+        // Logic Fullscreen
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch((err) => {
+                    console.error(`Error attempting to enable fullscreen mode: ${err.message} (${err.name})`);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+    </script>
 </body>
 </html>
