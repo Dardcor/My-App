@@ -10,7 +10,7 @@
     <meta name="theme-color" content="#0f172a">
     <link rel="manifest" href="/manifest.json">
 
-    <title>Dardcor</title>
+    <title>Dardcor - Admin Login</title>
     <link rel="icon" href="/logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -57,10 +57,6 @@
             left: 0;
             opacity: 0.7;
         }
-
-        /* CSS Khusus Tombol Fullscreen */
-        #fullscreenBtn svg { transition: transform 0.3s ease; }
-        :fullscreen #fullscreenBtn svg { transform: scale(0.8); }
     </style>
 </head>
 <body class="relative flex items-center justify-center min-h-screen p-4">
@@ -69,12 +65,6 @@
         <img src="/header.jpg" alt="Background" class="w-full h-full object-cover opacity-40">
         <div class="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-[#0f172a]/80 to-transparent"></div>
     </div>
-
-    <button id="fullscreenBtn" onclick="toggleFullscreen()" class="fixed top-4 right-4 z-50 p-3 bg-slate-800/50 backdrop-blur-md border border-slate-600/50 rounded-full text-slate-300 hover:text-white hover:bg-indigo-600/50 transition-all duration-300 shadow-lg group">
-        <svg class="w-6 h-6 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
-        </svg>
-    </button>
 
     <main class="relative z-10 w-full max-w-md">
         <div class="admin-card p-8 rounded-2xl relative overflow-hidden">
@@ -148,19 +138,6 @@
                 icon.classList.add('fa-eye');
             }
         });
-
-        // Logic Fullscreen
-        function toggleFullscreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch((err) => {
-                    console.error(`Error attempting to enable fullscreen mode: ${err.message} (${err.name})`);
-                });
-            } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                }
-            }
-        }
     </script>
 </body>
 </html>

@@ -3,20 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#1a1a2e">
     <link rel="manifest" href="/manifest.json">
-    
+
     <title>Dardcor - Jadwal Kuliah</title>
     <link rel="icon" href="/logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
         html { scroll-behavior: smooth; }
         body { 
-            background-color: #1a1a2e; 
+            background-color: #1a1a2e;
             min-height: 100vh; 
             font-family: 'Poppins', sans-serif; 
             overflow-x: hidden; 
@@ -49,40 +52,48 @@
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
             border-color: #cbd5e1;
         }
-        
+
+        /* Table Styles */
         .table-container {
             background: linear-gradient(145deg, #1e293b, #0f172a);
             box-shadow: 0 10px 25px rgba(0,0,0,0.3);
             border: 1px solid #334155;
             animation: fadeIn 0.6s ease-out;
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
         .schedule-table th, .schedule-table td {
             border-color: #334155;
-            padding: 0.75rem;
+            padding: 1rem;
         }
-        .schedule-table th { background-color: #1e293b; }
+        .schedule-table th { background-color: #1e293b; color: #94a3b8; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; }
         .schedule-table .day-cell {
             background-color: #1e293b;
             font-weight: 600;
             white-space: nowrap;
+            color: #60a5fa;
         }
         .schedule-table .class-cell {
             background-color: #3b82f6;
             color: white;
             border-radius: 0.5rem;
+            transition: transform 0.2s;
+        }
+        .schedule-table .class-cell:hover {
+            transform: translateY(-2px);
         }
         .mobile-class-card {
-            background-color: #3b82f6;
+            background: linear-gradient(145deg, #3b82f6, #2563eb);
             color: white;
-            border-radius: 0.5rem;
-            margin-bottom: 0.75rem;
+            border-radius: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
         }
+        
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body class="relative">
@@ -128,7 +139,6 @@
                     </li>
                 </ul>
             </nav>
-
             <div class="mt-auto flex-shrink-0 px-6 pb-6"> 
                 <a href="/user-logout" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors bg-red-600/20 text-red-300 hover:bg-red-600 hover:text-white whitespace-nowrap">
                     <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"></path></svg>
@@ -149,10 +159,6 @@
                     </div>
                     
                     <div class="flex items-center gap-3">
-                        <button onclick="toggleFullscreen()" class="p-2 text-gray-600 hover:bg-gray-100 rounded-full transition-colors" title="Layar Penuh">
-                            <i id="fullscreenIcon" class="fa-solid fa-expand text-lg"></i>
-                        </button>
-
                         <a href="/user/profile" class="profile-link flex items-center gap-2 hover:bg-gray-100 rounded-full pr-3 pl-1 py-1 transition-colors">
                             <img src="<%= user.profile_image || 'https://ui-avatars.com/api/?name=' + (user.username || 'User') + '&background=random&color=fff' %>" alt="Profile" class="w-8 h-8 rounded-full object-cover">
                         </a>
@@ -162,130 +168,169 @@
 
             <main class="relative min-h-screen pt-24 md:pt-28">
                 <div class="w-full max-w-6xl mx-auto px-4">
-                    <div class="table-container text-white p-6 md:p-8 rounded-2xl w-full">
-                        <h1 class="text-2xl md:text-3xl font-extrabold mb-6 md:mb-8 text-center">Jadwal Kuliah</h1>
-                        <div class="hidden lg:block overflow-x-auto">
+                    
+                    <div class="table-container text-white p-6 md:p-8 rounded-2xl w-full mb-8">
+                        <h1 class="text-2xl md:text-3xl font-extrabold mb-6 md:mb-8 text-center text-white">Jadwal Kuliah</h1>
+                        
+                        <div class="hidden lg:block overflow-x-auto rounded-xl border border-slate-700">
                             <table class="schedule-table w-full min-w-[700px] border-collapse text-left">
                                 <thead>
                                     <tr>
                                         <th class="w-1/6">Hari</th>
-                                        <th class="w-1/6">Slot</th>
+                                        <th class="w-1/6 text-center">Slot</th>
                                         <th class="w-4/6">Mata Kuliah & Detail</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-700">
                                     <tr>
                                         <td class="day-cell align-top" rowspan="1">Senin</td>
-                                        <td class="text-center align-top">1</td>
+                                        <td class="text-center align-top text-slate-400 font-mono">1</td>
                                         <td>
-                                            <div class="class-cell p-3">
-                                                <strong class="text-lg">Basis Data Lanjut</strong>
-                                                <p class="text-sm">Tessy Badriyah - 09:40 sd 11:20</p>
-                                                <p class="text-sm font-medium mt-1">B 301</p>
+                                            <div class="class-cell p-4 shadow-lg">
+                                                <strong class="text-lg block mb-1">Basis Data Lanjut</strong>
+                                                <div class="flex justify-between items-center text-blue-100 text-sm">
+                                                    <span><i class="fa-solid fa-user-tie mr-2"></i>Tessy Badriyah</span>
+                                                    <span class="bg-white/20 px-2 py-0.5 rounded text-xs font-mono">09:40 - 11:20</span>
+                                                </div>
+                                                <p class="text-sm font-medium mt-2 flex items-center"><i class="fa-solid fa-location-dot mr-2"></i>B 301</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    
+                                    <tr>
+                                        <td class="day-cell align-top border-t border-slate-700" rowspan="4">Selasa</td>
+                                        <td class="text-center align-top text-slate-400 font-mono">1</td>
+                                        <td>
+                                            <div class="class-cell p-4 shadow-lg">
+                                                <strong class="text-lg block mb-1">Statistik dan Probabilitas</strong>
+                                                <div class="flex justify-between items-center text-blue-100 text-sm">
+                                                    <span><i class="fa-solid fa-user-tie mr-2"></i>Weny Mistarika R.</span>
+                                                    <span class="bg-white/20 px-2 py-0.5 rounded text-xs font-mono">08:00 - 09:40</span>
+                                                </div>
+                                                <p class="text-sm font-medium mt-2 flex items-center"><i class="fa-solid fa-location-dot mr-2"></i>B 304</p>
                                             </div>
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td class="day-cell align-top" rowspan="4">Selasa</td>
-                                        <td class="text-center align-top">1</td>
+                                        <td class="text-center align-top text-slate-400 font-mono">2</td>
                                         <td>
-                                            <div class="class-cell p-3">
-                                                <strong class="text-lg">Statistik dan Probabilitas</strong>
-                                                <p class="text-sm">Weny Mistarika Rahmawati - 08:00 sd 09:40</p>
-                                                <p class="text-sm font-medium mt-1">B 304</p>
+                                            <div class="class-cell p-4 shadow-lg">
+                                                <strong class="text-lg block mb-1">Metodologi Agile</strong>
+                                                <div class="flex justify-between items-center text-blue-100 text-sm">
+                                                    <span><i class="fa-solid fa-users mr-2"></i>Desy Intan / Adam Shidqul</span>
+                                                    <span class="bg-white/20 px-2 py-0.5 rounded text-xs font-mono">09:40 - 11:20</span>
+                                                </div>
+                                                <p class="text-sm font-medium mt-2 flex items-center"><i class="fa-solid fa-location-dot mr-2"></i>B 204</p>
                                             </div>
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td class="text-center align-top">2</td>
+                                        <td class="text-center align-top text-slate-400 font-mono">3</td>
                                         <td>
-                                            <div class="class-cell p-3">
-                                                <strong class="text-lg">Metodologi Agile</strong>
-                                                <p class="text-sm">Desy Intan Permatasari/Adam Shidqul Aziz - 09:40 sd 11:20</p>
-                                                <p class="text-sm font-medium mt-1">B 204</p>
+                                            <div class="class-cell p-4 shadow-lg">
+                                                <strong class="text-lg block mb-1">Praktek Konsep Jaringan</strong>
+                                                <div class="flex justify-between items-center text-blue-100 text-sm">
+                                                    <span><i class="fa-solid fa-user-tie mr-2"></i>Fitri Setyorini</span>
+                                                    <span class="bg-white/20 px-2 py-0.5 rounded text-xs font-mono">11:20 - 13:50</span>
+                                                </div>
+                                                <p class="text-sm font-medium mt-2 flex items-center"><i class="fa-solid fa-location-dot mr-2"></i>C 307</p>
                                             </div>
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td class="text-center align-top">3</td>
+                                        <td class="text-center align-top text-slate-400 font-mono">4</td>
                                         <td>
-                                            <div class="class-cell p-3">
-                                                <strong class="text-lg">Praktek Konsep Jaringan</strong>
-                                                <p class="text-sm">Fitri Setyorini - 11:20 sd 13:50</p>
-                                                <p class="text-sm font-medium mt-1">C 307</p>
+                                            <div class="class-cell p-4 shadow-lg">
+                                                <strong class="text-lg block mb-1">Workshop Aplikasi Web</strong>
+                                                <div class="flex justify-between items-center text-blue-100 text-sm">
+                                                    <span><i class="fa-solid fa-user-tie mr-2"></i>Mu'arifin</span>
+                                                    <span class="bg-white/20 px-2 py-0.5 rounded text-xs font-mono">13:50 - 16:20</span>
+                                                </div>
+                                                <p class="text-sm font-medium mt-2 flex items-center"><i class="fa-solid fa-location-dot mr-2"></i>C 203</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="day-cell align-top border-t border-slate-700" rowspan="2">Rabu</td>
+                                        <td class="text-center align-top text-slate-400 font-mono">1</td>
+                                        <td>
+                                            <div class="class-cell p-4 shadow-lg">
+                                                <strong class="text-lg block mb-1">PBO (Teori)</strong>
+                                                <div class="flex justify-between items-center text-blue-100 text-sm">
+                                                    <span><i class="fa-solid fa-users mr-2"></i>Yuliana / Andhik</span>
+                                                    <span class="bg-white/20 px-2 py-0.5 rounded text-xs font-mono">08:50 - 10:30</span>
+                                                </div>
+                                                <p class="text-sm font-medium mt-2 flex items-center"><i class="fa-solid fa-location-dot mr-2"></i>B 205</p>
                                             </div>
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td class="text-center align-top">4</td>
+                                        <td class="text-center align-top text-slate-400 font-mono">2</td>
                                         <td>
-                                            <div class="class-cell p-3">
-                                                <strong class="text-lg">Workshop Aplikasi Berbasis Web</strong>
-                                                <p class="text-sm">Mu'arifin - 13:50 sd 16:20</p>
-                                                <p class="text-sm font-medium mt-1">C 203</p>
+                                            <div class="class-cell p-4 shadow-lg">
+                                                <strong class="text-lg block mb-1">Praktek PBO</strong>
+                                                <div class="flex justify-between items-center text-blue-100 text-sm">
+                                                    <span><i class="fa-solid fa-users mr-2"></i>Yuliana / Andhik</span>
+                                                    <span class="bg-white/20 px-2 py-0.5 rounded text-xs font-mono">11:20 - 15:30</span>
+                                                </div>
+                                                <p class="text-sm font-medium mt-2 flex items-center"><i class="fa-solid fa-location-dot mr-2"></i>C 102</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="day-cell align-top border-t border-slate-700" rowspan="3">Kamis</td>
+                                        <td class="text-center align-top text-slate-400 font-mono">1</td>
+                                        <td>
+                                            <div class="class-cell p-4 shadow-lg">
+                                                <strong class="text-lg block mb-1">K3L & Standar Int.</strong>
+                                                <div class="flex justify-between items-center text-blue-100 text-sm">
+                                                    <span><i class="fa-solid fa-user-tie mr-2"></i>Reni Soelistijorini</span>
+                                                    <span class="bg-white/20 px-2 py-0.5 rounded text-xs font-mono">08:00 - 09:40</span>
+                                                </div>
+                                                <p class="text-sm font-medium mt-2 flex items-center"><i class="fa-solid fa-location-dot mr-2"></i>SAW-07.08</p>
                                             </div>
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td class="day-cell align-top" rowspan="2">Rabu</td>
-                                        <td class="text-center align-top">1</td>
+                                        <td class="text-center align-top text-slate-400 font-mono">2</td>
                                         <td>
-                                            <div class="class-cell p-3">
-                                                <strong class="text-lg">Pemrograman Berorientasi Obyek</strong>
-                                                <p class="text-sm">Yuliana Setiowati/Andhik Ampuh Yunanto - 08:50 sd 10:30</p>
-                                                <p class="text-sm font-medium mt-1">B 205</p>
+                                            <div class="class-cell p-4 shadow-lg">
+                                                <strong class="text-lg block mb-1">Konsep Jaringan</strong>
+                                                <div class="flex justify-between items-center text-blue-100 text-sm">
+                                                    <span><i class="fa-solid fa-user-tie mr-2"></i>Fitri Setyorini</span>
+                                                    <span class="bg-white/20 px-2 py-0.5 rounded text-xs font-mono">11:20 - 13:50</span>
+                                                </div>
+                                                <p class="text-sm font-medium mt-2 flex items-center"><i class="fa-solid fa-location-dot mr-2"></i>SAW-06.06</p>
                                             </div>
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td class="text-center align-top">2</td>
+                                        <td class="text-center align-top text-slate-400 font-mono">3</td>
                                         <td>
-                                            <div class="class-cell p-3">
-                                                <strong class="text-lg">Praktek Pemrograman Berorientasi Obyek</strong>
-                                                <p class="text-sm">Yuliana Setiowati/Andhik Ampuh Yunanto - 11:20 sd 15:30</p>
-                                                <p class="text-sm font-medium mt-1">C 102</p>
+                                            <div class="class-cell p-4 shadow-lg">
+                                                <strong class="text-lg block mb-1">Praktek Basis Data Lanjut</strong>
+                                                <div class="flex justify-between items-center text-blue-100 text-sm">
+                                                    <span><i class="fa-solid fa-user-tie mr-2"></i>Tessy Badriyah</span>
+                                                    <span class="bg-white/20 px-2 py-0.5 rounded text-xs font-mono">13:50 - 15:30</span>
+                                                </div>
+                                                <p class="text-sm font-medium mt-2 flex items-center"><i class="fa-solid fa-location-dot mr-2"></i>C.106</p>
                                             </div>
                                         </td>
                                     </tr>
+
                                     <tr>
-                                        <td class="day-cell align-top" rowspan="3">Kamis</td>
-                                        <td class="text-center align-top">1</td>
+                                        <td class="day-cell align-top border-t border-slate-700" rowspan="1">Jumat</td>
+                                        <td class="text-center align-top text-slate-400 font-mono">1</td>
                                         <td>
-                                            <div class="class-cell p-3">
-                                                <strong class="text-lg">K3L dan Standar Internasional</strong>
-                                                <p class="text-sm">Reni Soelistijorini - 08:00 sd 09:40</p>
-                                                <p class="text-sm font-medium mt-1">SAW-07.08</p>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-center align-top">2</td>
-                                        <td>
-                                            <div class="class-cell p-3">
-                                                <strong class="text-lg">Konsep Jaringan</strong>
-                                                <p class="text-sm">Fitri Setyorini - 11:20 sd 13:50</p>
-                                                <p class="text-sm font-medium mt-1">SAW-06.06</p>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-center align-top">3</td>
-                                        <td>
-                                            <div class="class-cell p-3">
-                                                <strong class="text-lg">Praktek Basis Data Lanjut</strong>
-                                                <p class="text-sm">Tessy Badriyah - 13:50 sd 15:30</p>
-                                                <p class="text-sm font-medium mt-1">C.106</p>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="day-cell align-top" rowspan="1">Jumat</td>
-                                        <td class="text-center align-top">1</td>
-                                        <td>
-                                            <div class="class-cell p-3">
-                                                <strong class="text-lg">Sistem Pendukung Keputusan</strong>
-                                                <p class="text-sm">Arna Fariza/Tri Hadiah Muliawati - 11:20 sd 13:50</p>
-                                                <p class="text-sm font-medium mt-1">A 303</p>
+                                            <div class="class-cell p-4 shadow-lg">
+                                                <strong class="text-lg block mb-1">SPK (Sistem Pendukung Keputusan)</strong>
+                                                <div class="flex justify-between items-center text-blue-100 text-sm">
+                                                    <span><i class="fa-solid fa-users mr-2"></i>Arna / Tri Hadiah</span>
+                                                    <span class="bg-white/20 px-2 py-0.5 rounded text-xs font-mono">11:20 - 13:50</span>
+                                                </div>
+                                                <p class="text-sm font-medium mt-2 flex items-center"><i class="fa-solid fa-location-dot mr-2"></i>A 303</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -293,147 +338,161 @@
                             </table>
                         </div>
 
-                        <div class="lg:hidden space-y-6">
+                        <div class="lg:hidden space-y-8">
+                            
                             <div>
-                                <h2 class="text-xl font-bold mb-3 text-blue-400">Senin</h2>
-                                <div class="mobile-class-card p-4">
-                                    <div class="flex justify-between items-start mb-2">
-                                        <strong class="text-base">Slot 1</strong>
-                                        <span class="text-xs bg-blue-800 px-2 py-1 rounded">09:40-11:20</span>
+                                <h2 class="text-xl font-bold mb-4 text-blue-400 flex items-center"><i class="fa-solid fa-calendar-day mr-2"></i>Senin</h2>
+                                <div class="mobile-class-card p-5">
+                                    <div class="flex justify-between items-start mb-3">
+                                        <span class="bg-white/20 px-2 py-1 rounded text-xs font-mono font-bold">09:40 - 11:20</span>
+                                        <span class="text-white/80 text-xs font-bold">Slot 1</span>
                                     </div>
-                                    <strong class="text-lg block mb-1">Basis Data Lanjut</strong>
-                                    <p class="text-sm mb-1">Tessy Badriyah</p>
-                                    <p class="text-sm font-medium">B 301</p>
+                                    <h3 class="text-xl font-bold mb-1">Basis Data Lanjut</h3>
+                                    <p class="text-sm text-blue-100 mb-2"><i class="fa-solid fa-user-tie mr-1"></i> Tessy Badriyah</p>
+                                    <div class="flex items-center text-sm font-medium bg-black/20 p-2 rounded w-fit">
+                                        <i class="fa-solid fa-location-dot mr-2"></i> B 301
+                                    </div>
                                 </div>
                             </div>
-                            <div>
-                                <h2 class="text-xl font-bold mb-3 text-blue-400">Selasa</h2>
-                                <div class="mobile-class-card p-4 mb-3">
-                                    <div class="flex justify-between items-start mb-2">
-                                        <strong class="text-base">Slot 1</strong>
-                                        <span class="text-xs bg-blue-800 px-2 py-1 rounded">08:00-09:40</span>
-                                    </div>
-                                    <strong class="text-lg block mb-1">Statistik dan Probabilitas</strong>
-                                    <p class="text-sm mb-1">Weny Mistarika Rahmawati</p>
-                                    <p class="text-sm font-medium">B 304</p>
-                                </div>
-                                <div class="mobile-class-card p-4 mb-3">
-                                    <div class="flex justify-between items-start mb-2">
-                                        <strong class="text-base">Slot 2</strong>
-                                        <span class="text-xs bg-blue-800 px-2 py-1 rounded">09:40-11:20</span>
-                                    </div>
-                                    <strong class="text-lg block mb-1">Metodologi Agile</strong>
-                                    <p class="text-sm mb-1">Desy Intan Permatasari/Adam Shidqul Aziz</p>
-                                    <p class="text-sm font-medium">B 204</p>
-                                </div>
-                                <div class="mobile-class-card p-4 mb-3">
-                                    <div class="flex justify-between items-start mb-2">
-                                        <strong class="text-base">Slot 3</strong>
-                                        <span class="text-xs bg-blue-800 px-2 py-1 rounded">11:20-13:50</span>
-                                    </div>
-                                    <strong class="text-lg block mb-1">Praktek Konsep Jaringan</strong>
-                                    <p class="text-sm mb-1">Fitri Setyorini</p>
-                                    <p class="text-sm font-medium">C 307</p>
-                                </div>
-                                <div class="mobile-class-card p-4">
-                                    <div class="flex justify-between items-start mb-2">
-                                        <strong class="text-base">Slot 4</strong>
-                                        <span class="text-xs bg-blue-800 px-2 py-1 rounded">13:50-16:20</span>
-                                    </div>
-                                    <strong class="text-lg block mb-1">Workshop Aplikasi Berbasis Web</strong>
-                                    <p class="text-sm mb-1">Mu'arifin</p>
-                                    <p class="text-sm font-medium">C 203</p>
-                                </div>
-                            </div>
-                            <div>
-                                <h2 class="text-xl font-bold mb-3 text-blue-400">Rabu</h2>
-                                <div class="mobile-class-card p-4 mb-3">
-                                    <div class="flex justify-between items-start mb-2">
-                                        <strong class="text-base">Slot 1</strong>
-                                        <span class="text-xs bg-blue-800 px-2 py-1 rounded">08:50-10:30</span>
-                                    </div>
-                                    <strong class="text-lg block mb-1">Pemrograman Berorientasi Obyek</strong>
-                                    <p class="text-sm mb-1">Yuliana Setiowati/Andhik Ampuh Yunanto</p>
-                                    <p class="text-sm font-medium">B 205</p>
-                                </div>
-                                <div class="mobile-class-card p-4">
-                                    <div class="flex justify-between items-start mb-2">
-                                        <strong class="text-base">Slot 2</strong>
-                                        <span class="text-xs bg-blue-800 px-2 py-1 rounded">11:20-15:30</span>
-                                    </div>
-                                    <strong class="text-lg block mb-1">Praktek Pemrograman Berorientasi Obyek</strong>
-                                    <p class="text-sm mb-1">Yuliana Setiowati/Andhik Ampuh Yunanto</p>
-                                    <p class="text-sm font-medium">C 102</p>
-                                </div>
-                            </div>
-                            <div>
-                                <h2 class="text-xl font-bold mb-3 text-blue-400">Kamis</h2>
-                                <div class="mobile-class-card p-4 mb-3">
-                                    <div class="flex justify-between items-start mb-2">
-                                        <strong class="text-base">Slot 1</strong>
-                                        <span class="text-xs bg-blue-800 px-2 py-1 rounded">08:00-09:40</span>
-                                    </div>
-                                    <strong class="text-lg block mb-1">K3L dan Standar Internasional</strong>
-                                    <p class="text-sm mb-1">Reni Soelistijorini</p>
-                                    <p class="text-sm font-medium">SAW-07.08</p>
-                                </div>
-                                <div class="mobile-class-card p-4 mb-3">
-                                    <div class="flex justify-between items-start mb-2">
-                                        <strong class="text-base">Slot 2</strong>
-                                        <span class="text-xs bg-blue-800 px-2 py-1 rounded">11:20-13:50</span>
-                                    </div>
-                                    <strong class="text-lg block mb-1">Konsep Jaringan</strong>
-                                    <p class="text-sm mb-1">Fitri Setyorini</p>
-                                    <p class="text-sm font-medium">SAW-06.06</p>
-                                </div>
-                                <div class="mobile-class-card p-4">
-                                    <div class="flex justify-between items-start mb-2">
-                                        <strong class="text-base">Slot 3</strong>
-                                        <span class="text-xs bg-blue-800 px-2 py-1 rounded">13:50-15:30</span>
-                                    </div>
-                                    <strong class="text-lg block mb-1">Praktek Basis Data Lanjut</strong>
-                                    <p class="text-sm mb-1">Tessy Badriyah</p>
-                                    <p class="text-sm font-medium">C.106</p>
-                                </div>
-                            </div>
-                            <div>
-                                <h2 class="text-xl font-bold mb-3 text-blue-400">Jumat</h2>
-                                <div class="mobile-class-card p-4">
-                                    <div class="flex justify-between items-start mb-2">
-                                        <strong class="text-base">Slot 1</strong>
-                                        <span class="text-xs bg-blue-800 px-2 py-1 rounded">11:20-13:50</span>
-                                    </div>
-                                    <strong class="text-lg block mb-1">Sistem Pendukung Keputusan</strong>
-                                    <p class="text-sm mb-1">Arna Fariza/Tri Hadiah Muliawati</p>
-                                    <p class="text-sm font-medium">A 303</p>
-                                </div>
-                            </div>
-                        </div>
 
-                        <footer class="relative z-20 text-center p-6 md:p-8 text-gray-500 text-sm md:text-base mt-8">
-                            © 2025 Dardcor. Semua hak cipta dilindungi.
-                        </footer>
+                            <div>
+                                <h2 class="text-xl font-bold mb-4 text-blue-400 flex items-center"><i class="fa-solid fa-calendar-day mr-2"></i>Selasa</h2>
+                                <div class="mobile-class-card p-5 mb-4">
+                                    <div class="flex justify-between items-start mb-3">
+                                        <span class="bg-white/20 px-2 py-1 rounded text-xs font-mono font-bold">08:00 - 09:40</span>
+                                        <span class="text-white/80 text-xs font-bold">Slot 1</span>
+                                    </div>
+                                    <h3 class="text-xl font-bold mb-1">Statistik & Probabilitas</h3>
+                                    <p class="text-sm text-blue-100 mb-2">Weny Mistarika Rahmawati</p>
+                                    <div class="flex items-center text-sm font-medium bg-black/20 p-2 rounded w-fit">
+                                        <i class="fa-solid fa-location-dot mr-2"></i> B 304
+                                    </div>
+                                </div>
+                                <div class="mobile-class-card p-5 mb-4">
+                                    <div class="flex justify-between items-start mb-3">
+                                        <span class="bg-white/20 px-2 py-1 rounded text-xs font-mono font-bold">09:40 - 11:20</span>
+                                        <span class="text-white/80 text-xs font-bold">Slot 2</span>
+                                    </div>
+                                    <h3 class="text-xl font-bold mb-1">Metodologi Agile</h3>
+                                    <p class="text-sm text-blue-100 mb-2">Desy Intan / Adam Shidqul</p>
+                                    <div class="flex items-center text-sm font-medium bg-black/20 p-2 rounded w-fit">
+                                        <i class="fa-solid fa-location-dot mr-2"></i> B 204
+                                    </div>
+                                </div>
+                                <div class="mobile-class-card p-5 mb-4">
+                                    <div class="flex justify-between items-start mb-3">
+                                        <span class="bg-white/20 px-2 py-1 rounded text-xs font-mono font-bold">11:20 - 13:50</span>
+                                        <span class="text-white/80 text-xs font-bold">Slot 3</span>
+                                    </div>
+                                    <h3 class="text-xl font-bold mb-1">Praktek Konsep Jaringan</h3>
+                                    <p class="text-sm text-blue-100 mb-2">Fitri Setyorini</p>
+                                    <div class="flex items-center text-sm font-medium bg-black/20 p-2 rounded w-fit">
+                                        <i class="fa-solid fa-location-dot mr-2"></i> C 307
+                                    </div>
+                                </div>
+                                <div class="mobile-class-card p-5">
+                                    <div class="flex justify-between items-start mb-3">
+                                        <span class="bg-white/20 px-2 py-1 rounded text-xs font-mono font-bold">13:50 - 16:20</span>
+                                        <span class="text-white/80 text-xs font-bold">Slot 4</span>
+                                    </div>
+                                    <h3 class="text-xl font-bold mb-1">Workshop Web</h3>
+                                    <p class="text-sm text-blue-100 mb-2">Mu'arifin</p>
+                                    <div class="flex items-center text-sm font-medium bg-black/20 p-2 rounded w-fit">
+                                        <i class="fa-solid fa-location-dot mr-2"></i> C 203
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h2 class="text-xl font-bold mb-4 text-blue-400 flex items-center"><i class="fa-solid fa-calendar-day mr-2"></i>Rabu</h2>
+                                <div class="mobile-class-card p-5 mb-4">
+                                    <div class="flex justify-between items-start mb-3">
+                                        <span class="bg-white/20 px-2 py-1 rounded text-xs font-mono font-bold">08:50 - 10:30</span>
+                                        <span class="text-white/80 text-xs font-bold">Slot 1</span>
+                                    </div>
+                                    <h3 class="text-xl font-bold mb-1">PBO (Teori)</h3>
+                                    <p class="text-sm text-blue-100 mb-2">Yuliana / Andhik</p>
+                                    <div class="flex items-center text-sm font-medium bg-black/20 p-2 rounded w-fit">
+                                        <i class="fa-solid fa-location-dot mr-2"></i> B 205
+                                    </div>
+                                </div>
+                                <div class="mobile-class-card p-5">
+                                    <div class="flex justify-between items-start mb-3">
+                                        <span class="bg-white/20 px-2 py-1 rounded text-xs font-mono font-bold">11:20 - 15:30</span>
+                                        <span class="text-white/80 text-xs font-bold">Slot 2</span>
+                                    </div>
+                                    <h3 class="text-xl font-bold mb-1">Praktek PBO</h3>
+                                    <p class="text-sm text-blue-100 mb-2">Yuliana / Andhik</p>
+                                    <div class="flex items-center text-sm font-medium bg-black/20 p-2 rounded w-fit">
+                                        <i class="fa-solid fa-location-dot mr-2"></i> C 102
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h2 class="text-xl font-bold mb-4 text-blue-400 flex items-center"><i class="fa-solid fa-calendar-day mr-2"></i>Kamis</h2>
+                                <div class="mobile-class-card p-5 mb-4">
+                                    <div class="flex justify-between items-start mb-3">
+                                        <span class="bg-white/20 px-2 py-1 rounded text-xs font-mono font-bold">08:00 - 09:40</span>
+                                        <span class="text-white/80 text-xs font-bold">Slot 1</span>
+                                    </div>
+                                    <h3 class="text-xl font-bold mb-1">K3L & Standar Int.</h3>
+                                    <p class="text-sm text-blue-100 mb-2">Reni Soelistijorini</p>
+                                    <div class="flex items-center text-sm font-medium bg-black/20 p-2 rounded w-fit">
+                                        <i class="fa-solid fa-location-dot mr-2"></i> SAW-07.08
+                                    </div>
+                                </div>
+                                <div class="mobile-class-card p-5 mb-4">
+                                    <div class="flex justify-between items-start mb-3">
+                                        <span class="bg-white/20 px-2 py-1 rounded text-xs font-mono font-bold">11:20 - 13:50</span>
+                                        <span class="text-white/80 text-xs font-bold">Slot 2</span>
+                                    </div>
+                                    <h3 class="text-xl font-bold mb-1">Konsep Jaringan</h3>
+                                    <p class="text-sm text-blue-100 mb-2">Fitri Setyorini</p>
+                                    <div class="flex items-center text-sm font-medium bg-black/20 p-2 rounded w-fit">
+                                        <i class="fa-solid fa-location-dot mr-2"></i> SAW-06.06
+                                    </div>
+                                </div>
+                                <div class="mobile-class-card p-5">
+                                    <div class="flex justify-between items-start mb-3">
+                                        <span class="bg-white/20 px-2 py-1 rounded text-xs font-mono font-bold">13:50 - 15:30</span>
+                                        <span class="text-white/80 text-xs font-bold">Slot 3</span>
+                                    </div>
+                                    <h3 class="text-xl font-bold mb-1">Praktek Basis Data Lanjut</h3>
+                                    <p class="text-sm text-blue-100 mb-2">Tessy Badriyah</p>
+                                    <div class="flex items-center text-sm font-medium bg-black/20 p-2 rounded w-fit">
+                                        <i class="fa-solid fa-location-dot mr-2"></i> C.106
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h2 class="text-xl font-bold mb-4 text-blue-400 flex items-center"><i class="fa-solid fa-calendar-day mr-2"></i>Jumat</h2>
+                                <div class="mobile-class-card p-5">
+                                    <div class="flex justify-between items-start mb-3">
+                                        <span class="bg-white/20 px-2 py-1 rounded text-xs font-mono font-bold">11:20 - 13:50</span>
+                                        <span class="text-white/80 text-xs font-bold">Slot 1</span>
+                                    </div>
+                                    <h3 class="text-xl font-bold mb-1">Sistem Pendukung Keputusan</h3>
+                                    <p class="text-sm text-blue-100 mb-2">Arna / Tri Hadiah</p>
+                                    <div class="flex items-center text-sm font-medium bg-black/20 p-2 rounded w-fit">
+                                        <i class="fa-solid fa-location-dot mr-2"></i> A 303
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
                     </div>
+
+                    <footer class="relative z-20 text-center p-6 md:p-8 text-gray-500 text-sm md:text-base mt-8">
+                        © 2025 Dardcor. Semua hak cipta dilindungi.
+                    </footer>
                 </div>
             </main>
         </div>
     </div> 
     
     <script>
-        function toggleFullscreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch((err) => {
-                    console.log(`Error attempting to enable fullscreen: ${err.message}`);
-                });
-                document.getElementById('fullscreenIcon').classList.replace('fa-expand', 'fa-compress');
-            } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                    document.getElementById('fullscreenIcon').classList.replace('fa-compress', 'fa-expand');
-                }
-            }
-        }
-
         document.addEventListener('DOMContentLoaded', () => {
             const toggleButton = document.getElementById('sidebarToggle');
             const sidebar = document.getElementById('sidebar');

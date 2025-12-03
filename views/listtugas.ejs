@@ -10,7 +10,7 @@
     <meta name="theme-color" content="#1a1a2e">
     <link rel="manifest" href="/manifest.json">
 
-    <title>Dardcor</title>
+    <title>Dardcor - List Tugas</title>
     <link rel="icon" href="/logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -55,10 +55,6 @@
         }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-        /* CSS Khusus Tombol Fullscreen */
-        #fullscreenBtn svg { transition: transform 0.3s ease; }
-        :fullscreen #fullscreenBtn svg { transform: scale(0.8); }
     </style>
 </head>
 <body class="relative">
@@ -124,10 +120,6 @@
                     </div>
 
                     <div class="flex items-center gap-2">
-                        <button id="fullscreenBtn" onclick="toggleFullscreen()" class="flex items-center justify-center text-gray-700 p-2 transition-colors hover:bg-gray-100 rounded-full" title="Toggle Fullscreen">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
-                        </button>
-
                         <a href="/admin" class="w-10 h-10 rounded-full flex items-center justify-center bg-gray-100 hover:bg-gray-200 transition-colors">
                             <img src="/logo.png" alt="Logo Admin" class="w-full h-full object-contain p-1 rounded-full">
                         </a>
@@ -196,19 +188,6 @@
     </div> 
     
     <script>
-        // FUNCTION FULLSCREEN
-        function toggleFullscreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch((err) => {
-                    console.error(`Error attempting to enable fullscreen mode: ${err.message} (${err.name})`);
-                });
-            } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                }
-            }
-        }
-
         document.addEventListener('DOMContentLoaded', () => {
             const toggleButton = document.getElementById('sidebarToggle');
             const sidebar = document.getElementById('sidebar');
@@ -296,7 +275,7 @@
                 closeSidebar();
             }
 
-            // Filter Logic (Tetap Dipertahankan)
+            // Filter Logic
             const weekFilter = document.getElementById('weekFilter');
             const taskCards = document.querySelectorAll('.task-card');
             const emptyMessage = document.getElementById('emptyFilterMessage');

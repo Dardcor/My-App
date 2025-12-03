@@ -3,20 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#1a1a2e">
     <link rel="manifest" href="/manifest.json">
-    
+
     <title>Dardcor - List Tugas</title>
     <link rel="icon" href="/logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
         html { scroll-behavior: smooth; }
         body { 
-            background-color: #1a1a2e; 
+            background-color: #1a1a2e;
             min-height: 100vh; 
             font-family: 'Poppins', sans-serif; 
             overflow-x: hidden; 
@@ -55,14 +58,16 @@
             border: 1px solid #334155;
             transition: all 0.3s ease;
             animation: fadeIn 0.5s ease-out;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
         .task-card:hover {
             transform: translateY(-5px);
             border-color: #3b82f6;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.15);
         }
         .badge-week { background-color: #3b82f6; color: white; }
         .badge-day { background-color: #0f172a; color: #94a3b8; border: 1px solid #334155; }
+        
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         @keyframes fadeIn {
@@ -114,7 +119,6 @@
                     </li>
                 </ul>
             </nav>
-
             <div class="mt-auto flex-shrink-0 px-6 pb-6"> 
                 <a href="/user-logout" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors bg-red-600/20 text-red-300 hover:bg-red-600 hover:text-white whitespace-nowrap">
                     <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"></path></svg>
@@ -135,10 +139,6 @@
                     </div>
                     
                     <div class="flex items-center gap-3">
-                        <button onclick="toggleFullscreen()" class="p-2 text-gray-600 hover:bg-gray-100 rounded-full transition-colors" title="Layar Penuh">
-                            <i id="fullscreenIcon" class="fa-solid fa-expand text-lg"></i>
-                        </button>
-
                         <a href="/user/profile" class="profile-link flex items-center gap-2 hover:bg-gray-100 rounded-full pr-3 pl-1 py-1 transition-colors">
                             <img src="<%= user.profile_image || 'https://ui-avatars.com/api/?name=' + (user.username || 'User') + '&background=random&color=fff' %>" alt="Profile" class="w-8 h-8 rounded-full object-cover">
                         </a>
@@ -155,7 +155,7 @@
                         </div>
                         <div class="w-full md:w-64">
                             <label for="weekFilter" class="block mb-2 text-sm font-medium text-gray-300">Filter Minggu:</label>
-                            <select id="weekFilter" class="bg-gray-800 border border-gray-600 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                            <select id="weekFilter" class="bg-slate-800 border border-slate-600 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
                                 <option value="all" selected>Tampilkan Semua</option>
                                 <% for(let i=1; i<=16; i++) { %>
                                     <option value="<%= i %>">Minggu <%= i %></option>
@@ -198,7 +198,7 @@
                         </div>
                     <% } %>
                     
-                    <footer class="relative z-20 text-center p-6 sm:p-8 text-gray-500 text-sm sm:text-base mt-12">
+                    <footer class="relative z-20 text-center p-6 md:p-8 text-gray-500 text-sm md:text-base mt-12">
                         © 2025 Dardcor. Semua hak cipta dilindungi.
                     </footer>
                 </div>
@@ -207,20 +207,6 @@
     </div> 
     
     <script>
-        function toggleFullscreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch((err) => {
-                    console.log(`Error attempting to enable fullscreen: ${err.message}`);
-                });
-                document.getElementById('fullscreenIcon').classList.replace('fa-expand', 'fa-compress');
-            } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                    document.getElementById('fullscreenIcon').classList.replace('fa-compress', 'fa-expand');
-                }
-            }
-        }
-
         document.addEventListener('DOMContentLoaded', () => {
             const toggleButton = document.getElementById('sidebarToggle');
             const sidebar = document.getElementById('sidebar');
@@ -302,6 +288,7 @@
                 });
             });
 
+            // Filter Logic
             const weekFilter = document.getElementById('weekFilter');
             const taskCards = document.querySelectorAll('.task-card');
             const emptyMessage = document.getElementById('emptyFilterMessage');

@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#1a1a2e">
@@ -128,10 +130,6 @@
                     </div>
                     
                     <div class="flex items-center gap-3">
-                        <button onclick="toggleFullscreen()" class="p-2 text-gray-600 hover:bg-gray-100 rounded-full transition-colors" title="Layar Penuh">
-                            <i id="fullscreenIcon" class="fa-solid fa-expand text-lg"></i>
-                        </button>
-
                         <a href="/user/profile" class="profile-link flex items-center gap-2 hover:bg-gray-100 rounded-full pr-3 pl-1 py-1 transition-colors">
                             <img src="<%= user.profile_image || 'https://ui-avatars.com/api/?name=' + (user.username || 'User') + '&background=random&color=fff' %>" alt="Profile" class="w-8 h-8 rounded-full object-cover">
                         </a>
@@ -272,20 +270,6 @@
     </div> 
     
     <script>
-        function toggleFullscreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch((err) => {
-                    console.log(`Error attempting to enable fullscreen: ${err.message}`);
-                });
-                document.getElementById('fullscreenIcon').classList.replace('fa-expand', 'fa-compress');
-            } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                    document.getElementById('fullscreenIcon').classList.replace('fa-compress', 'fa-expand');
-                }
-            }
-        }
-
         document.addEventListener('DOMContentLoaded', () => {
             const toggleButton = document.getElementById('sidebarToggle');
             const sidebar = document.getElementById('sidebar');

@@ -3,37 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Dardcor</title>
+    
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0f172a">
+    <link rel="manifest" href="/manifest.json">
+
+    <title>Dardcor - Upload AI</title> 
     <link rel="icon" href="/logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
-        html { scroll-behavior: smooth; }
         body { 
-            background-color: #1a1a2e;
+            background-color: #0f172a; 
             min-height: 100vh; 
             font-family: 'Poppins', sans-serif; 
             overflow-x: hidden; 
             color: #cbd5e1; 
         }
-        
-        .sidebar {
-            background-color: #16213e;
-            box-shadow: 5px 0 15px rgba(0,0,0,0.4);
+        /* Sidebar Styling */
+        .sidebar { 
+            background-color: #1e293b; 
+            box-shadow: 5px 0 20px rgba(0,0,0,0.4); 
+            border-right: 1px solid #334155; 
             z-index: 50;
+            width: 280px;
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        /* Content Wrapper Transition */
+        #mainContent {
+            transition: margin-left 0.3s ease-in-out;
         }
 
-        .navbar {
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
+        /* Navbar Styling */
+        .navbar { 
+            transition: all 0.3s ease; 
+            backdrop-filter: blur(10px); 
             z-index: 40;
         }
-        .navbar-scrolled {
-            background-color: rgba(255, 255, 255, 0.95);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        .navbar-scrolled { 
+            background-color: rgba(15, 23, 42, 0.95); 
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); 
+            border-bottom: 1px solid #334155; 
         }
         
+        /* Card Styling */
         .form-container, .list-container {
             background: linear-gradient(145deg, #1e293b, #0f172a);
             border: 1px solid #334155;
@@ -88,12 +106,12 @@
 
     <div class="relative min-h-screen flex">
 
-        <aside id="sidebar" class="sidebar fixed top-0 left-0 h-full w-64 p-0 text-white transform -translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
+        <aside id="sidebar" class="sidebar fixed top-0 left-0 h-full p-0 text-white transform -translate-x-full lg:translate-x-0 flex flex-col">
             
             <div class="flex items-center justify-between pb-4 border-b border-white/20 mb-4 flex-shrink-0 px-6 pt-6">
                 <h2 class="text-2xl font-bold whitespace-nowrap">Dashboard</h2>
-                <button id="sidebarCloseButton" class="p-1 rounded-full text-white/70 hover:bg-white/10 hover:text-white transition-colors">
-                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                <button id="sidebarCloseButton" class="lg:hidden p-1 rounded-full text-white/70 hover:bg-white/10 hover:text-white transition-colors">
+                      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
             
@@ -135,7 +153,7 @@
             </div>
         </aside>
 
-        <div id="mainContent" class="flex-1 min-w-0 flex flex-col min-h-screen transition-all duration-300">
+        <div id="mainContent" class="flex-1 min-w-0 flex flex-col min-h-screen lg:ml-[280px] transition-all duration-300 w-full">
             
             <div class="sticky top-0 z-30 p-4 md:p-6">
                 <nav id="navbar" class="w-full max-w-6xl mx-auto bg-white/90 backdrop-blur-sm rounded-full shadow-lg border border-gray-200/50 flex items-center justify-between px-4 py-3 navbar">
@@ -238,30 +256,41 @@
 
             let sidebarOpen = false;
 
+            // Function to handle opening sidebar
             function openSidebar() {
-                sidebar.classList.remove('-translate-x-full');
                 if (window.innerWidth < 1024) {
+                    // Mobile behavior: Translate from left
+                    sidebar.classList.remove('-translate-x-full');
                     backdrop.classList.remove('hidden');
                     setTimeout(() => backdrop.classList.remove('opacity-0'), 10);
                     document.body.style.overflow = 'hidden';
                 } else {
-                    mainContent.classList.add('lg:ml-64');
+                    // Desktop behavior: Expand sidebar and push content
+                    sidebar.classList.remove('-translate-x-full');
+                    mainContent.classList.add('lg:ml-[280px]');
+                    mainContent.classList.remove('lg:ml-0');
                 }
                 sidebarOpen = true;
             }
 
+            // Function to handle closing sidebar
             function closeSidebar() {
-                sidebar.classList.add('-translate-x-full');
                 if (window.innerWidth < 1024) {
+                    // Mobile behavior: Hide to left
+                    sidebar.classList.add('-translate-x-full');
                     backdrop.classList.add('opacity-0');
                     setTimeout(() => backdrop.classList.add('hidden'), 300);
                     document.body.style.overflow = '';
                 } else {
-                    mainContent.classList.remove('lg:ml-64');
+                    // Desktop behavior: Collapse sidebar and expand content
+                    sidebar.classList.add('-translate-x-full');
+                    mainContent.classList.remove('lg:ml-[280px]');
+                    mainContent.classList.add('lg:ml-0');
                 }
                 sidebarOpen = false;
             }
 
+            // Toggle function
             function toggleSidebar() {
                 if (sidebarOpen) {
                     closeSidebar();
@@ -270,16 +299,12 @@
                 }
             }
 
+            // Event Listeners
             if (toggleButton) toggleButton.addEventListener('click', toggleSidebar);
-            
-            if (closeButton) {
-                closeButton.addEventListener('click', closeSidebar);
-            }
-            
-            if (backdrop) {
-                backdrop.addEventListener('click', closeSidebar);
-            }
+            if (closeButton) closeButton.addEventListener('click', closeSidebar);
+            if (backdrop) backdrop.addEventListener('click', closeSidebar);
 
+            // Navbar Scroll Effect
             window.addEventListener('scroll', () => {
                 if (window.scrollY > 10) {
                     navbar.classList.add('navbar-scrolled');
@@ -288,41 +313,46 @@
                 }
             });
 
+            // Handle Resize Logic
             window.addEventListener('resize', () => {
                 if (window.innerWidth >= 1024) {
+                    // Reset mobile specific styles when moving to desktop
                     backdrop.classList.add('hidden');
                     backdrop.classList.add('opacity-0');
                     document.body.style.overflow = '';
                     
+                    // Ensure sidebar is open by default on desktop if logic requires, 
+                    // or respect current state but adjust layout classes
                     if (sidebarOpen) {
                         sidebar.classList.remove('-translate-x-full');
-                        mainContent.classList.add('lg:ml-64');
+                        mainContent.classList.add('lg:ml-[280px]');
+                        mainContent.classList.remove('lg:ml-0');
                     } else {
                         sidebar.classList.add('-translate-x-full');
-                        mainContent.classList.remove('lg:ml-64');
+                        mainContent.classList.remove('lg:ml-[280px]');
+                        mainContent.classList.add('lg:ml-0');
                     }
                 } else {
+                    // Reset desktop specific margins when moving to mobile
+                    mainContent.classList.remove('lg:ml-[280px]');
+                    mainContent.classList.remove('lg:ml-0');
+                    
                     if (sidebarOpen) {
-                        sidebar.classList.add('-translate-x-full');
-                        mainContent.classList.remove('lg:ml-64');
-                        backdrop.classList.add('hidden');
-                        backdrop.classList.add('opacity-0');
-                        document.body.style.overflow = '';
-                        sidebarOpen = false;
+                         sidebar.classList.remove('-translate-x-full');
+                         backdrop.classList.remove('hidden');
+                         backdrop.classList.remove('opacity-0');
+                    } else {
+                         sidebar.classList.add('-translate-x-full');
+                         backdrop.classList.add('hidden');
                     }
                 }
             });
 
-            document.querySelectorAll('nav a').forEach(link => {
-                link.addEventListener('click', () => {
-                    if (window.innerWidth < 1024) {
-                        closeSidebar();
-                    }
-                });
-            });
-
+            // Initialize state based on screen size
             if (window.innerWidth >= 1024) {
-                closeSidebar();
+                openSidebar(); // Default open on desktop
+            } else {
+                closeSidebar(); // Default closed on mobile
             }
         });
     </script>

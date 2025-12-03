@@ -3,7 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Dardcor</title>
+    
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#1a1a2e">
+    <link rel="manifest" href="/manifest.json">
+    
+    <title>Dardcor - Profil</title>
     <link rel="icon" href="/logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -30,12 +37,12 @@
 </head>
 <body class="min-h-screen flex flex-col">
 
-    <nav class="navbar sticky top-0 z-30 bg-white/90 border-b border-gray-200/50 px-4 py-3 shadow-sm">
+    <nav class="navbar sticky top-0 z-30 bg-slate-900/80 border-b border-slate-700/50 px-4 py-3 shadow-sm">
         <div class="max-w-6xl mx-auto flex justify-between items-center">
-            <a href="/user/home" class="flex items-center gap-2 text-gray-700 font-bold text-xl">
+            <a href="/user/home" class="flex items-center gap-2 text-white font-bold text-xl hover:text-blue-400 transition-colors">
                 <i class="fas fa-arrow-left"></i> Dardcor
             </a>
-            <span class="text-sm font-medium text-gray-600">Edit Profile</span>
+            <span class="text-sm font-medium text-slate-400">Edit Profile</span>
         </div>
     </nav>
 
@@ -60,54 +67,66 @@
                 
                 <div class="flex flex-col items-center sm:flex-row sm:items-start gap-6 mb-8">
                     <div class="relative group">
-                        <img src="<%= user.profile_image || 'https://ui-avatars.com/api/?name=' + user.username + '&background=random' %>" 
-                             alt="Profile" class="w-24 h-24 rounded-full object-cover border-4 border-slate-700 group-hover:border-blue-500 transition-colors">
-                        <div class="absolute bottom-0 right-0 bg-blue-600 text-white p-1.5 rounded-full border-2 border-[#1e293b]">
+                        <img src="<%= user.profile_image || 'https://ui-avatars.com/api/?name=' + (user.username || 'User') + '&background=random&color=fff' %>" 
+                             alt="Profile" class="w-24 h-24 rounded-full object-cover border-4 border-slate-700 group-hover:border-blue-500 transition-colors shadow-lg">
+                        <div class="absolute bottom-0 right-0 bg-blue-600 text-white p-1.5 rounded-full border-2 border-[#1e293b] shadow-md group-hover:bg-blue-500 transition-colors">
                             <i class="fas fa-camera text-xs"></i>
                         </div>
                         <input type="file" name="profile_image" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" title="Ubah Foto Profil">
                     </div>
-                    <div class="flex-1 text-center sm:text-left">
-                        <h3 class="text-lg font-semibold text-white"><%= user.username %></h3>
+                    <div class="flex-1 text-center sm:text-left pt-2">
+                        <h3 class="text-xl font-bold text-white"><%= user.username %></h3>
                         <p class="text-sm text-slate-400 mb-2"><%= user.email %></p>
-                        <p class="text-xs text-slate-500">Klik foto untuk mengubah avatar. Format: JPG, PNG. Maks 2MB.</p>
+                        <p class="text-xs text-slate-500 bg-slate-800/50 inline-block px-3 py-1 rounded-full border border-slate-700">Klik foto untuk mengubah avatar</p>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-sm font-medium text-slate-400 mb-2">Nama Lengkap</label>
-                        <input type="text" name="fullname" value="<%= user.full_name %>" class="w-full p-3 rounded-lg">
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-500 pointer-events-none">
+                                <i class="fas fa-id-card"></i>
+                            </span>
+                            <input type="text" name="fullname" value="<%= user.full_name %>" class="w-full p-3 pl-10 rounded-lg transition-all" placeholder="Nama Lengkap">
+                        </div>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-slate-400 mb-2">Username</label>
-                        <input type="text" name="username" value="<%= user.username %>" class="w-full p-3 rounded-lg">
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-500 pointer-events-none">
+                                <i class="fas fa-user"></i>
+                            </span>
+                            <input type="text" name="username" value="<%= user.username %>" class="w-full p-3 pl-10 rounded-lg transition-all" placeholder="Username">
+                        </div>
                     </div>
                 </div>
 
                 <div class="border-t border-slate-700 pt-6 mt-6">
-                    <h3 class="text-lg font-semibold text-white mb-4">Ganti Password</h3>
+                    <h3 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                        <i class="fas fa-lock text-blue-400"></i> Ganti Password
+                    </h3>
                     <div class="space-y-4">
                         <div>
-                            <label class="block text-sm font-medium text-slate-400 mb-2">Password Baru (Kosongkan jika tidak ingin ubah)</label>
+                            <label class="block text-sm font-medium text-slate-400 mb-2">Password Baru <span class="text-xs text-slate-500">(Kosongkan jika tidak ingin ubah)</span></label>
                             <div class="relative">
-                                <input type="password" id="newPassword" name="password" class="w-full p-3 rounded-lg pr-10" placeholder="••••••••">
-                                <button type="button" onclick="togglePass('newPassword')" class="absolute right-3 top-3.5 text-slate-500 hover:text-white"><i class="fas fa-eye"></i></button>
+                                <input type="password" id="newPassword" name="password" class="w-full p-3 rounded-lg pr-10 transition-all" placeholder="••••••••">
+                                <button type="button" onclick="togglePass('newPassword')" class="absolute right-3 top-3.5 text-slate-500 hover:text-white transition-colors"><i class="fas fa-eye"></i></button>
                             </div>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-slate-400 mb-2">Konfirmasi Password Baru</label>
                             <div class="relative">
-                                <input type="password" id="confirmPassword" name="confirm_password" class="w-full p-3 rounded-lg pr-10" placeholder="••••••••">
-                                <button type="button" onclick="togglePass('confirmPassword')" class="absolute right-3 top-3.5 text-slate-500 hover:text-white"><i class="fas fa-eye"></i></button>
+                                <input type="password" id="confirmPassword" name="confirm_password" class="w-full p-3 rounded-lg pr-10 transition-all" placeholder="••••••••">
+                                <button type="button" onclick="togglePass('confirmPassword')" class="absolute right-3 top-3.5 text-slate-500 hover:text-white transition-colors"><i class="fas fa-eye"></i></button>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="flex justify-end gap-3 pt-4">
-                    <a href="/user/home" class="px-6 py-2.5 rounded-lg border border-slate-600 text-slate-300 hover:bg-slate-800 transition-colors">Batal</a>
-                    <button type="submit" class="px-6 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-medium shadow-lg shadow-blue-600/20 transition-all transform hover:scale-[1.02]">Simpan Perubahan</button>
+                <div class="flex justify-end gap-3 pt-6 border-t border-slate-700 mt-6">
+                    <a href="/user/home" class="px-6 py-2.5 rounded-lg border border-slate-600 text-slate-300 hover:bg-slate-800 hover:text-white transition-all text-sm font-medium">Batal</a>
+                    <button type="submit" class="px-6 py-2.5 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-medium shadow-lg shadow-blue-600/20 transition-all transform hover:scale-[1.02] text-sm">Simpan Perubahan</button>
                 </div>
 
             </form>
@@ -117,7 +136,17 @@
     <script>
         function togglePass(id) {
             const input = document.getElementById(id);
-            input.type = input.type === 'password' ? 'text' : 'password';
+            const icon = input.nextElementSibling.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
         }
     </script>
 </body>

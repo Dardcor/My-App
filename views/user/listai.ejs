@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#1a1a2e">
@@ -13,6 +15,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
         html { scroll-behavior: smooth; }
         body { 
@@ -49,7 +52,8 @@
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
             border-color: #cbd5e1;
         }
-        
+
+        /* AI Grid Styles */
         .ai-grid-container {
             background: linear-gradient(145deg, #1e293b, #0f172a);
             box-shadow: 0 10px 25px rgba(0,0,0,0.3);
@@ -117,7 +121,6 @@
                     </li>
                 </ul>
             </nav>
-
             <div class="mt-auto flex-shrink-0 px-6 pb-6"> 
                 <a href="/user-logout" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors bg-red-600/20 text-red-300 hover:bg-red-600 hover:text-white whitespace-nowrap">
                     <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"></path></svg>
@@ -138,10 +141,6 @@
                     </div>
                     
                     <div class="flex items-center gap-3">
-                        <button onclick="toggleFullscreen()" class="p-2 text-gray-600 hover:bg-gray-100 rounded-full transition-colors" title="Layar Penuh">
-                            <i id="fullscreenIcon" class="fa-solid fa-expand text-lg"></i>
-                        </button>
-
                         <a href="/user/profile" class="profile-link flex items-center gap-2 hover:bg-gray-100 rounded-full pr-3 pl-1 py-1 transition-colors">
                             <img src="<%= user.profile_image || 'https://ui-avatars.com/api/?name=' + (user.username || 'User') + '&background=random&color=fff' %>" alt="Profile" class="w-8 h-8 rounded-full object-cover">
                         </a>
@@ -152,17 +151,17 @@
             <main class="relative min-h-screen pt-24 md:pt-28">
                 <div class="w-full max-w-6xl mx-auto px-4">
                     
-                    <div class="ai-grid-container text-white p-6 md:p-8 rounded-2xl w-full">
+                    <div class="ai-grid-container text-white p-6 md:p-8 rounded-2xl mb-8">
                         <h1 class="text-2xl md:text-3xl font-extrabold mb-6 md:mb-8 text-center">List AI</h1>
                         
                         <% if (typeof tools !== 'undefined' && tools.length > 0) { %>
                             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
                                 <% tools.forEach(tool => { %>
                                     <a href="<%= tool.website_link %>" target="_blank" rel="noopener noreferrer" 
-                                        class="ai-item flex flex-col items-center p-3 md:p-4 rounded-lg group">
-                                    <img src="<%= tool.image_url %>" alt="<%= tool.name %>" 
-                                        class="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full object-contain p-1 bg-white mb-2 md:mb-3 group-hover:scale-110 transition-transform duration-200">
-                                    <span class="text-xs sm:text-sm font-medium text-gray-300 text-center leading-tight group-hover:text-white transition-colors"><%= tool.name %></span>
+                                       class="ai-item flex flex-col items-center p-3 md:p-4 rounded-lg group">
+                                        <img src="<%= tool.image_url %>" alt="<%= tool.name %>" 
+                                             class="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full object-contain p-1 bg-white mb-2 md:mb-3 group-hover:scale-110 transition-transform duration-200">
+                                        <span class="text-xs sm:text-sm font-medium text-gray-300 text-center leading-tight group-hover:text-white transition-colors"><%= tool.name %></span>
                                     </a>
                                 <% }) %>
                             </div>
@@ -174,7 +173,7 @@
                         <% } %>
                     </div>
 
-                    <footer class="relative z-20 text-center p-6 sm:p-8 text-gray-500 text-sm sm:text-base mt-8">
+                    <footer class="relative z-20 text-center p-6 md:p-8 text-gray-500 text-sm md:text-base">
                         © 2025 Dardcor. Semua hak cipta dilindungi.
                     </footer>
 
@@ -184,20 +183,6 @@
     </div> 
     
     <script>
-        function toggleFullscreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch((err) => {
-                    console.log(`Error attempting to enable fullscreen: ${err.message}`);
-                });
-                document.getElementById('fullscreenIcon').classList.replace('fa-expand', 'fa-compress');
-            } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                    document.getElementById('fullscreenIcon').classList.replace('fa-compress', 'fa-expand');
-                }
-            }
-        }
-
         document.addEventListener('DOMContentLoaded', () => {
             const toggleButton = document.getElementById('sidebarToggle');
             const sidebar = document.getElementById('sidebar');
@@ -237,14 +222,8 @@
             }
 
             if (toggleButton) toggleButton.addEventListener('click', toggleSidebar);
-            
-            if (closeButton) {
-                closeButton.addEventListener('click', closeSidebar);
-            }
-            
-            if (backdrop) {
-                backdrop.addEventListener('click', closeSidebar);
-            }
+            if (closeButton) closeButton.addEventListener('click', closeSidebar);
+            if (backdrop) backdrop.addEventListener('click', closeSidebar);
 
             window.addEventListener('scroll', () => {
                 if (window.scrollY > 10) {
