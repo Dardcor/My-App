@@ -11,7 +11,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 const SESSION_SECRET = process.env.SESSION_SECRET;
 
 if (!SESSION_SECRET) {
-    throw new Error("SESSION_SECRET tidak ditemukan. Harap atur Environment Variable ini.");
+    throw new Error("SESSION_SECRET tidak ditemukan.");
 }
 
 app.set('isMaintenance', false);
@@ -40,13 +40,10 @@ app.use(session({
 
 app.use((req, res, next) => {
     const isMaintenance = req.app.get('isMaintenance');
-    
     const allowedPrefixes = ['/secret', '/admin', '/login', '/logout', '/secret-login', '/user-login'];
-    
     if (isMaintenance && !allowedPrefixes.some(prefix => req.path.startsWith(prefix))) {
         return res.render('maintenance');
     }
-    
     next();
 });
 

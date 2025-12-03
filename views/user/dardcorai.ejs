@@ -1,14 +1,3 @@
-<%
-function escapeHtml(text){
-    if(!text) return '';
-    return text
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
-%>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -40,7 +29,7 @@ function escapeHtml(text){
             color: #cbd5e1;
             overflow: hidden;
             height: 100vh;
-            height: 100dvh; 
+            height: 100dvh;
         }
         
         #sidebar {
@@ -98,40 +87,50 @@ function escapeHtml(text){
             border: 1px solid #334155;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
+        
+        .message-error {
+            background: #450a0a;
+            color: #fca5a5;
+            border-radius: 18px 18px 18px 4px;
+            border: 1px solid #7f1d1d;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
 
         .code-block-wrapper { 
-            margin: 12px 0; 
+            margin: 16px 0;
             border-radius: 8px; 
             overflow: hidden; 
             background: #0d1117;
             border: 1px solid #30363d; 
             position: relative;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         }
         
         .code-header { 
-            display: flex; 
+            display: flex;
             justify-content: space-between; 
             align-items: center;
             background: #161b22; 
             padding: 8px 12px; 
             border-bottom: 1px solid #30363d; 
             font-size: 0.75rem; 
-            color: #7d8590;
+            color: #c9d1d9;
             font-family: 'Fira Code', monospace;
+            font-weight: 500;
         }
 
         .copy-btn {
-            background: transparent;
+            background: #21262d;
             border: 1px solid #30363d;
             border-radius: 4px;
             color: #c9d1d9;
             cursor: pointer;
             font-size: 0.7rem;
-            padding: 3px 8px;
+            padding: 4px 10px;
             transition: all 0.2s;
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 6px;
         }
 
         .copy-btn:hover {
@@ -140,7 +139,15 @@ function escapeHtml(text){
             color: white;
         }
 
-        code.hljs { padding: 1rem !important; font-family: 'Fira Code', monospace; font-size: 0.85rem; line-height: 1.5; background: #0d1117 !important; }
+        code.hljs { 
+            padding: 1.2rem !important; 
+            font-family: 'Fira Code', monospace; 
+            font-size: 0.85rem; 
+            line-height: 1.6; 
+            background: #0d1117 !important; 
+            display: block;
+            overflow-x: auto;
+        }
         
         .typing-indicator span {
             display: inline-block;
@@ -156,6 +163,7 @@ function escapeHtml(text){
         .markdown-body li { margin-bottom: 0.25rem; }
         .markdown-body h1, .markdown-body h2, .markdown-body h3 { margin-top: 1rem; margin-bottom: 0.5rem; font-weight: 600; color: #fff; }
         .markdown-body a { color: #3b82f6; text-decoration: underline; }
+        .markdown-body strong { color: #fff; font-weight: 600; }
         
         .chat-options-menu {
             display: none;
@@ -181,10 +189,13 @@ function escapeHtml(text){
         .chat-input-container:focus-within { 
             background: #253045;
             box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1); 
-        } 
+        }
 
-        @media(max-width:640px){ .message-user,.message-bot{max-width:90%;font-size:14px;padding:12px;} }
-        @media(min-width:641px) and (max-width:1024px){ .message-user,.message-bot{max-width:80%;} }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+
+        @media(max-width:640px){ .message-user,.message-bot,.message-error{max-width:90%;font-size:14px;padding:12px;} }
+        @media(min-width:641px) and (max-width:1024px){ .message-user,.message-bot,.message-error{max-width:80%;} }
     </style>
 </head>
 
@@ -221,7 +232,7 @@ function escapeHtml(text){
                 Riwayat
             </div>
             
-            <div class="space-y-1 pb-4">
+            <div id="historyList" class="space-y-1 pb-4">
                 <% if (typeof fullHistory !== 'undefined' && fullHistory.length > 0) { 
                     const reversedHistory = fullHistory.slice().reverse();
                     for(let i = 0; i < reversedHistory.length; i++) {
@@ -231,9 +242,8 @@ function escapeHtml(text){
                         const title = safeMessage.substring(0, 35) + (safeMessage.length > 35 ? '...' : '');
                 %>
                     <div class="relative group/item">
-                        <a href="/user/dardcor-ai/<%= conv.conversation_id %>" 
+                        <a href="/user/dardcor-ai/<%= conv.conversation_id %>" onclick="handleChatClick(event, '<%= conv.conversation_id %>')"
                            class="flex items-center gap-3 px-3 py-3 rounded-lg text-sm transition-all duration-200 <%= isActive ? 'bg-slate-800/80 text-white border-l-2 border-blue-500' : 'text-gray-400 hover:bg-slate-800/50 hover:text-gray-200' %> pr-8">
-  
                             <i class="fas fa-message text-xs <%= isActive ? 'text-blue-400' : 'text-gray-600' %>"></i>
                             <div class="flex-1 min-w-0">
                                 <p class="truncate text-sm" id="title-<%= conv.conversation_id %>"><%= title %></p>
@@ -300,9 +310,8 @@ function escapeHtml(text){
             <% } else { %>
                 <% chatHistory.forEach((msg, index) => { 
                     const role = msg.role === 'user' ? 'user' : 'bot';
-                    let content = (msg.parts && msg.parts[0]?.text) ? msg.parts[0].text : (msg.message || '');
+                    const content = msg.message || '';
                     const file = msg.file_metadata;
-                    if(role === 'user' && !content && file) content = "Mengirim file.";
                 %>
                     <div class="flex w-full <%= role === 'user' ? 'justify-end' : 'justify-start' %> mb-6 group">
                         <div class="flex flex-col max-w-[85%] md:max-w-[75%] lg:max-w-[70%] gap-1.5">
@@ -317,8 +326,8 @@ function escapeHtml(text){
                                 
                                 <div class="p-3.5 md:p-5 <%= role === 'user' ? 'message-user' : 'message-bot' %> text-sm md:text-[15px] leading-relaxed shadow-md min-w-[60px]">
                                     <% if (role === 'bot') { %>
-                                        <div class="markdown-raw hidden"><%= content %></div>
-                                        <div class="markdown-body"></div> 
+                                        <div class="markdown-body"></div>
+                                        <script type="application/json" class="raw-content" style="display: none;"><%= JSON.stringify(content) %></script>
                                     <% } else { %>
                                         <div class="whitespace-pre-wrap"><%= content %></div>
                                     <% } %>
@@ -329,7 +338,7 @@ function escapeHtml(text){
                                                 <i class="fas fa-file"></i>
                                             </div>
                                             <div class="flex-1 min-w-0">
-                                                <p class="text-xs font-medium text-white truncate"><%= file.name %></p>
+                                                <p class="text-xs font-medium text-white truncate"><%= file.filename %></p>
                                                 <p class="text-[10px] text-gray-300"><%= (file.size/1024).toFixed(1) %> KB</p>
                                             </div>
                                         </div>
@@ -344,7 +353,7 @@ function escapeHtml(text){
             <div id="loadingIndicator" class="hidden w-full mb-6">
                 <div class="flex gap-3 items-end">
                     <div class="w-8 h-8 rounded-full bg-[#1e293b] flex items-center justify-center flex-shrink-0 border border-white/10 overflow-hidden p-0.5">
-                        <img src="/logo.png" class="w-full h-full object-cover animate-pulse">
+                        <img src="/logo.png" class="w-full h-full object-cover animate-spin">
                     </div>
                     <div class="bg-[#1e293b] px-4 py-3 rounded-2xl rounded-bl-none border border-gray-700/50 shadow-md">
                         <div class="typing-indicator flex gap-1.5"><span></span><span></span><span></span></div>
@@ -396,10 +405,8 @@ function escapeHtml(text){
         const sendBtn = document.getElementById('sendBtn');
         const chatContainer = document.getElementById('chatContainer');
         const fileInput = document.getElementById('fileInput');
-        const mainContent = document.getElementById('mainContent');
         let attachedFile = null;
         let isProcessing = false;
-        let isSidebarOpen = false;
 
         function toggleSidebar() {
             if (window.innerWidth >= 1024) {
@@ -421,68 +428,118 @@ function escapeHtml(text){
             }
         });
 
-        const highlight = hljs;
-        const renderer = new marked.Renderer();
+        marked.setOptions({
+            breaks: true,
+            gfm: true,
+            highlight: function(code, lang) {
+                const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+                return hljs.highlight(code, { language }).value;
+            }
+        });
 
+        const renderer = new marked.Renderer();
+        
         renderer.code = function(code, language) {
-            const validLang = !!(language && highlight.getLanguage(language)) ? language : 'plaintext';
-            const highlighted = highlight.highlight(code, { language: validLang }).value;
+            const validLang = (language && hljs.getLanguage(language)) ? language : 'plaintext';
+            const highlighted = hljs.highlight(code, { language: validLang }).value;
+            const safeCode = code.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
             
             return `
-            <div class="code-block-wrapper">
-                <div class="code-header">
-                    <span class="lang-label">${validLang}</span>
-                    <button class="copy-btn" onclick="copyCode(this)">
+            <div class="code-block-wrapper my-4 rounded-lg overflow-hidden border border-gray-700 bg-[#0d1117]">
+                <div class="code-header flex justify-between items-center bg-[#161b22] px-3 py-2 border-b border-gray-700">
+                    <span class="text-xs text-gray-400 font-mono font-bold">${validLang.toUpperCase()}</span>
+                    <button class="copy-btn flex items-center gap-1.5 text-xs text-gray-400 hover:text-white transition-colors" onclick="copyCode(this)">
                         <i class="fas fa-copy"></i> Copy
                     </button>
                 </div>
-                <pre><code class="hljs language-${validLang}">${highlighted}</code><textarea style="display:none;" class="raw-code">${escapeHtml(code)}</textarea></pre>
+                <div class="relative group">
+                    <pre class="m-0 p-0"><code class="hljs language-${validLang} block p-4 overflow-x-auto text-sm font-mono leading-relaxed">${highlighted}</code></pre>
+                    <textarea class="raw-code hidden">${safeCode}</textarea>
+                </div>
             </div>`;
         };
 
-        marked.setOptions({
-            renderer: renderer,
-            breaks: true,
-            gfm: true
-        });
+        // INI BAGIAN PENTING: Memaksa HTML mentah (yang tidak di-backtick) agar di-escape.
+        // Ini mencegah browser merender <div class="bg-blue-500"> sebagai kotak biru.
+        renderer.html = function(html) {
+            return html.replace(/&/g, "&amp;")
+                       .replace(/</g, "&lt;")
+                       .replace(/>/g, "&gt;")
+                       .replace(/"/g, "&quot;")
+                       .replace(/'/g, "&#039;");
+        };
+
+        marked.use({ renderer });
+
+        function renderMarkdown(text) {
+            try {
+                if (!text) return '';
+                const fixedText = text.replace(/```(\w+)(?!\n)/g, '```$1\n');
+                return marked.parse(fixedText);
+            } catch (e) {
+                console.error("Markdown parse error:", e);
+                return text;
+            }
+        }
 
         document.addEventListener('DOMContentLoaded', () => {
-            const messages = document.querySelectorAll('.message-bot');
-            messages.forEach(msg => {
-                const rawDiv = msg.querySelector('.markdown-raw');
-                const targetDiv = msg.querySelector('.markdown-body');
-                
-                if (rawDiv && targetDiv) {
-                    const rawText = rawDiv.innerText || rawDiv.textContent;
-                    targetDiv.innerHTML = marked.parse(rawText);
+            const messages = document.querySelectorAll('.message-bot .markdown-body');
+            messages.forEach(targetDiv => {
+                if (!targetDiv.querySelector('p') && !targetDiv.querySelector('div')) {
+                    const rawScript = targetDiv.parentElement.querySelector('.raw-content');
+                    if (rawScript) {
+                        try {
+                            const rawText = JSON.parse(rawScript.textContent);
+                            targetDiv.innerHTML = renderMarkdown(rawText);
+                        } catch(e) {
+                             targetDiv.innerHTML = renderMarkdown(targetDiv.textContent);
+                        }
+                    } else {
+                        targetDiv.innerHTML = renderMarkdown(targetDiv.innerText);
+                    }
                 }
             });
             scrollToBottom();
         });
 
+        function handleChatClick(e, id) {
+            if (e.button === 0 && !e.ctrlKey && !e.metaKey) { 
+                e.preventDefault();
+                const url = `/user/dardcor-ai/${id}`;
+                window.location.href = url;
+            }
+        }
+
         function copyCode(btn) {
             const wrapper = btn.closest('.code-block-wrapper');
-            const codeText = wrapper.querySelector('.raw-code').value;
+            const textArea = wrapper.querySelector('.raw-code');
+            let codeText = "";
+            
+            if(textArea) {
+                const parser = new DOMParser();
+                codeText = parser.parseFromString(`<!doctype html><body>${textArea.value}`, 'text/html').body.textContent;
+            } else {
+                codeText = wrapper.querySelector('code').innerText;
+            }
 
             navigator.clipboard.writeText(codeText).then(() => {
                 const originalContent = btn.innerHTML;
-                btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
-                btn.style.borderColor = '#238636';
-                btn.style.color = '#238636';
+                btn.innerHTML = '<i class="fas fa-check text-green-400"></i> <span class="text-green-400">Copied!</span>';
                 
                 setTimeout(() => {
                     btn.innerHTML = originalContent;
-                    btn.style.borderColor = '#30363d';
-                    btn.style.color = '#c9d1d9';
                 }, 2000);
             }).catch(err => {
                 console.error('Gagal menyalin:', err);
-                alert('Gagal menyalin kode.');
+                alert("Gagal menyalin kode.");
             });
         }
 
         function scrollToBottom() {
-            chatContainer.scrollTop = chatContainer.scrollHeight;
+            chatContainer.scrollTo({
+                top: chatContainer.scrollHeight,
+                behavior: 'smooth'
+            });
         }
 
         chatInput.addEventListener('input', function() {
@@ -498,11 +555,6 @@ function escapeHtml(text){
             }
         }
 
-        function fillInput(text) {
-            chatInput.value = text;
-            chatInput.focus();
-        }
-
         function escapeHtml(text) {
             if (!text) return '';
             return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
@@ -511,6 +563,12 @@ function escapeHtml(text){
         function handleFileSelect(e) {
             const file = e.target.files[0];
             if (file) {
+                if(file.size > 5 * 1024 * 1024) {
+                    alert("Ukuran file terlalu besar (Maks 5MB)");
+                    this.value = '';
+                    return;
+                }
+
                 attachedFile = file;
                 document.getElementById('filePreview').classList.remove('hidden');
                 document.getElementById('previewName').textContent = file.name;
@@ -539,12 +597,31 @@ function escapeHtml(text){
             document.getElementById('filePreview').classList.add('hidden');
         }
 
+        function appendErrorMessage(message) {
+            const errorHtml = `
+                <div class="flex w-full justify-start mb-6 group animate-fade-in">
+                    <div class="flex flex-col max-w-[85%] md:max-w-[75%] gap-1.5">
+                        <div class="flex items-end gap-3">
+                            <div class="w-8 h-8 rounded-full bg-[#450a0a] flex items-center justify-center flex-shrink-0 border border-red-900 shadow-sm overflow-hidden p-1.5">
+                                <i class="fas fa-exclamation-triangle text-red-400 text-xs"></i>
+                            </div>
+                            <div class="p-3.5 md:p-5 message-error text-sm md:text-[15px] leading-relaxed shadow-md w-full">
+                                <div class="markdown-body text-red-200">${message}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            chatContainer.insertAdjacentHTML('beforeend', errorHtml);
+            scrollToBottom();
+        }
+
         async function sendMessage() {
             const text = chatInput.value.trim();
             if ((!text && !attachedFile) || isProcessing) return;
 
             isProcessing = true;
             sendBtn.disabled = true;
+            sendBtn.classList.add('opacity-50', 'cursor-not-allowed');
             
             const welcome = document.getElementById('welcomeScreen');
             if (welcome) welcome.remove();
@@ -553,12 +630,15 @@ function escapeHtml(text){
                 <div class="flex w-full justify-end mb-6 group animate-fade-in">
                     <div class="flex flex-col max-w-[85%] md:max-w-[75%] lg:max-w-[70%] gap-1.5">
                         <div class="flex items-end gap-3 flex-row-reverse">
-                            <div class="w-8 h-8 rounded-full bg-blue-600 flex-shrink-0 overflow-hidden border border-white/10 shadow-sm">
+                             <div class="w-8 h-8 rounded-full bg-blue-600 flex-shrink-0 overflow-hidden border border-white/10 shadow-sm">
                                 <img src="<%= user.profile_image || 'https://ui-avatars.com/api/?name=' + user.username %>" class="w-full h-full object-cover">
                             </div>
                             <div class="p-3.5 md:p-5 message-user text-sm md:text-[15px] leading-relaxed shadow-md w-full">
                                 <div class="whitespace-pre-wrap">${escapeHtml(text)}</div>
-                                ${attachedFile ? `<div class="mt-3 flex items-center gap-2 p-2.5 bg-black/20 rounded-lg border border-white/10 text-xs"><i class="fas fa-file"></i> ${attachedFile.name}</div>` : ''}
+                                ${attachedFile ? 
+                                `<div class="mt-3 flex items-center gap-2 p-2.5 bg-black/20 rounded-lg border border-white/10 text-xs">
+                                    <i class="fas fa-file"></i> ${escapeHtml(attachedFile.name)}
+                                 </div>` : ''}
                             </div>
                         </div>
                     </div>
@@ -567,8 +647,9 @@ function escapeHtml(text){
             chatContainer.insertAdjacentHTML('beforeend', userHtml);
             scrollToBottom();
 
-            document.getElementById('loadingIndicator').classList.remove('hidden');
-            chatContainer.appendChild(document.getElementById('loadingIndicator'));
+            const loadingEl = document.getElementById('loadingIndicator');
+            loadingEl.classList.remove('hidden');
+            chatContainer.appendChild(loadingEl);
             scrollToBottom();
 
             const formData = new FormData();
@@ -577,16 +658,18 @@ function escapeHtml(text){
             
             const currentUrl = window.location.pathname;
             const urlParts = currentUrl.split('/');
-            const currentConvId = urlParts.length > 3 ? urlParts[3] : '';
+            const currentConvId = (urlParts.length > 3 && urlParts[2] === 'dardcor-ai') ? urlParts[3] : '';
+            
             if(currentConvId) formData.append('conversationId', currentConvId);
 
             chatInput.value = '';
             chatInput.style.height = 'auto';
+            const tempFile = attachedFile; 
             clearFile();
 
             try {
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 600000); 
+                const timeoutId = setTimeout(() => controller.abort(), 600000);
 
                 const res = await fetch('/user/ai/chat', {
                     method: 'POST',
@@ -596,9 +679,14 @@ function escapeHtml(text){
                 clearTimeout(timeoutId);
 
                 const data = await res.json();
-                document.getElementById('loadingIndicator').classList.add('hidden');
+                
+                loadingEl.classList.add('hidden');
 
                 if (data.success) {
+                    if (!currentConvId && data.conversationId) {
+                         history.pushState({}, '', `/user/dardcor-ai/${data.conversationId}`);
+                    }
+
                     const botHtml = `
                         <div class="flex w-full justify-start mb-6 group animate-fade-in">
                             <div class="flex flex-col max-w-[85%] md:max-w-[75%] gap-1.5">
@@ -607,39 +695,47 @@ function escapeHtml(text){
                                         <img src="/logo.png" class="w-full h-full object-cover">
                                     </div>
                                     <div class="p-3.5 md:p-5 message-bot text-sm md:text-[15px] leading-relaxed shadow-md w-full">
-                                        <div class="markdown-body">${marked.parse(data.response)}</div>
+                                        <div class="markdown-body">${renderMarkdown(data.response)}</div>
                                     </div>
                                 </div>
                             </div>
                         </div>`;
-                    chatContainer.insertAdjacentHTML('beforeend', botHtml);
                     
-                    if (data.isNewConversation) {
-                        window.history.pushState({}, '', `/user/dardcor-ai/${data.conversationId}`);
-                    }
-
+                    chatContainer.insertAdjacentHTML('beforeend', botHtml);
                 } else {
-                    alert('Error: ' + data.response);
+                    appendErrorMessage(data.response || "Terjadi kesalahan yang tidak diketahui.");
+                    chatInput.value = text;
+                    if(tempFile) {
+                        alert("Silakan upload ulang file Anda.");
+                    }
                 }
             } catch (e) {
-                document.getElementById('loadingIndicator').classList.add('hidden');
+                loadingEl.classList.add('hidden');
+                console.error(e);
+                
                 if (e.name === 'AbortError') {
-                    alert('Waktu respons habis. Silakan refresh halaman untuk melihat jawaban di riwayat.');
+                    appendErrorMessage('Waktu permintaan habis. Server sedang sibuk memproses jawaban yang panjang.');
                 } else {
-                    alert('Gagal terhubung ke server.');
+                    appendErrorMessage('Gagal terhubung ke server. Periksa koneksi internet Anda.');
                 }
+                chatInput.value = text;
             }
 
             isProcessing = false;
             sendBtn.disabled = false;
+            sendBtn.classList.remove('opacity-50', 'cursor-not-allowed');
             scrollToBottom();
         }
 
         function toggleChatMenu(event, id) {
             event.preventDefault();
             event.stopPropagation();
-            document.querySelectorAll('.chat-options-menu').forEach(m => { if(m.id !== 'menu-'+id) m.classList.remove('show'); });
-            document.getElementById('menu-'+id).classList.toggle('show');
+            document.querySelectorAll('.chat-options-menu').forEach(m => { 
+                if(m.id !== 'menu-'+id) m.classList.remove('show'); 
+            });
+            
+            const menu = document.getElementById('menu-'+id);
+            if(menu) menu.classList.toggle('show');
         }
 
         function renameChat(id, currentTitle){
@@ -650,7 +746,8 @@ function escapeHtml(text){
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({conversationId: id, newTitle: newTitle})
                 }).then(() => {
-                    document.getElementById('title-' + id).innerText = newTitle;
+                    const titleEl = document.getElementById('title-' + id);
+                    if(titleEl) titleEl.innerText = newTitle;
                 });
             }
         }
@@ -661,7 +758,9 @@ function escapeHtml(text){
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({conversationId: id})
-                }).then(() => location.reload());
+                }).then(res => {
+                    if(res.ok) window.location.href = '/user/dardcor-ai';
+                });
             }
         }
 
@@ -675,45 +774,6 @@ function escapeHtml(text){
                 const data = await res.json();
                 if (data.success) window.location.href = data.redirectUrl;
             } catch (e) { console.error(e); }
-        });
-
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-            .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
-        `;
-        document.head.appendChild(style);
-
-        scrollToBottom();
-
-        document.querySelectorAll('.markdown-body pre code').forEach((block) => {
-            const wrapper = document.createElement('div');
-            wrapper.className = 'code-block-wrapper';
-            
-            const header = document.createElement('div');
-            header.className = 'code-header';
-            
-            const langClass = Array.from(block.classList).find(c => c.startsWith('language-'));
-            const lang = langClass ? langClass.replace('language-', '') : 'plaintext';
-            
-            header.innerHTML = `
-                <span class="lang-label">${lang}</span>
-                <button class="copy-btn" onclick="copyCode(this)">
-                    <i class="fas fa-copy"></i> Copy
-                </button>
-            `;
-            
-            const rawTextArea = document.createElement('textarea');
-            rawTextArea.style.display = 'none';
-            rawTextArea.className = 'raw-code';
-            rawTextArea.value = block.textContent; 
-
-            block.parentNode.parentNode.insertBefore(wrapper, block.parentNode);
-            wrapper.appendChild(header);
-            wrapper.appendChild(block.parentNode);
-            block.parentNode.appendChild(rawTextArea);
-            
-            hljs.highlightElement(block);
         });
     </script>
 </body>

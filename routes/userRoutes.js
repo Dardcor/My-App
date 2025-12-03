@@ -3,16 +3,23 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const multer = require('multer');
 const supabase = require('../config/supabase');
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+const { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } = require("@google/generative-ai");
 const { v4: uuidv4 } = require('uuid');
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY; 
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 if (!GEMINI_API_KEY) {
     throw new Error("GEMINI_API_KEY tidak ditemukan.");
 }
 
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+
+const safetySettings = [
+    { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+    { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
+    { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
+    { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+];
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
@@ -39,17 +46,17 @@ function fileToGenerativePart(buffer, mimeType) {
     };
 }
 
-const uploadMiddleware = upload.single('file_attachment'); 
+const uploadMiddleware = upload.single('file_attachment');
 
 router.get('/user', (req, res) => { if (req.session.userAccount) return res.redirect('/user/home'); res.render('user', { error: null }); });
 
-router.post('/user-login', async (req, res) => { 
+router.post('/user-login', async (req, res) => {
     const { username, password } = req.body;
     try {
         const { data, error } = await supabase.from('public_users').select('*').eq('username', username).single();
         if (error || !data) return res.render('user', { error: 'Username tidak ditemukan!' });
         const match = await bcrypt.compare(password, data.password);
-        if (match) { req.session.cookie.maxAge = 24 * 60 * 60 * 1000; req.session.userAccount = data; res.redirect('/user/home'); } 
+        if (match) { req.session.cookie.maxAge = 24 * 60 * 60 * 1000; req.session.userAccount = data; res.redirect('/user/home'); }
         else { res.render('user', { error: 'Password salah!' }); }
     } catch (err) { console.error(err); res.render('user', { error: 'Terjadi kesalahan server.' }); }
 });
@@ -58,7 +65,7 @@ router.get('/user-logout', (req, res) => { req.session.userAccount = null; req.s
 
 router.get('/register', (req, res) => { res.render('register', { error: null }); });
 
-router.post('/register', async (req, res) => { 
+router.post('/register', async (req, res) => {
     const { fullname, username, email, password } = req.body;
     try {
         const { data: userCheck } = await supabase.from('public_users').select('username').eq('username', username).single();
@@ -113,131 +120,229 @@ router.post('/user/ai/new-chat', checkUserAuth, (req, res) => {
     res.json({ success: true, redirectUrl: `/user/dardcor-ai/${newConversationId}` });
 });
 
+router.post('/user/ai/rename-chat', checkUserAuth, async (req, res) => {
+    const { conversationId, newTitle } = req.body;
+    const userId = req.session.userAccount.id;
+    try {
+        const { error } = await supabase
+            .from('chat_history')
+            .update({ message: newTitle })
+            .eq('conversation_id', conversationId)
+            .eq('user_id', userId)
+            .eq('role', 'user')
+            .order('created_at', { ascending: true })
+            .limit(1);
+        if (error) throw error;
+        res.json({ success: true });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Gagal mengubah nama chat' });
+    }
+});
+
+router.post('/user/ai/delete-chat-history', checkUserAuth, async (req, res) => {
+    const { conversationId } = req.body;
+    const userId = req.session.userAccount.id;
+    try {
+        const { error } = await supabase
+            .from('chat_history')
+            .delete()
+            .eq('conversation_id', conversationId)
+            .eq('user_id', userId);
+        if (error) throw error;
+        res.json({ success: true });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Gagal menghapus chat' });
+    }
+});
+
 router.get('/user/dardcor-ai/:conversationId', checkUserAuth, loadChatHandler);
 router.get('/user/dardcor-ai', checkUserAuth, loadChatHandler);
 
 async function loadChatHandler(req, res) {
     const userId = req.session.userAccount.id;
     const requestedConversationId = req.params.conversationId;
+    
     try {
         const { data: dbHistory, error } = await supabase
             .from('chat_history')
-            .select('conversation_id, role, message, created_at')
+            .select('conversation_id, role, message, created_at, file_metadata')
             .eq('user_id', userId)
-            .order('created_at', { ascending: true }); 
+            .order('created_at', { ascending: true });
 
         if (error) throw error;
-        
+
         let activeConversationId = req.session.currentConversationId;
+        
         if (requestedConversationId) {
             activeConversationId = requestedConversationId;
             req.session.currentConversationId = activeConversationId;
         } else if (!activeConversationId && dbHistory.length > 0) {
-            const uniqueConversations = dbHistory.filter((v, i, s) => s.findIndex(t => t.conversation_id === v.conversation_id) === i)
-                .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-            if (uniqueConversations.length > 0) {
-                activeConversationId = uniqueConversations[0].conversation_id;
-                req.session.currentConversationId = activeConversationId;
+            const sortedHistory = [...dbHistory].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            activeConversationId = sortedHistory[0].conversation_id;
+            req.session.currentConversationId = activeConversationId;
+        }
+
+        let activeChatHistory = [];
+        if (activeConversationId && dbHistory) {
+            activeChatHistory = dbHistory.filter(item => item.conversation_id === activeConversationId);
+        }
+
+        const uniqueConversationsMap = new Map();
+        if (dbHistory) {
+            const reversedDbHistory = [...dbHistory].reverse(); 
+            for (const item of reversedDbHistory) {
+                if (!uniqueConversationsMap.has(item.conversation_id)) {
+                    uniqueConversationsMap.set(item.conversation_id, item);
+                }
             }
         }
-        let activeChatHistory = [];
-        if (activeConversationId) activeChatHistory = dbHistory.filter(item => item.conversation_id === activeConversationId);
-        
-        const uniqueConversationsMap = new Map();
-        for (const item of dbHistory) if (!uniqueConversationsMap.has(item.conversation_id)) uniqueConversationsMap.set(item.conversation_id, item);
-        
-        res.render('user/dardcorai', { 
+
+        res.render('user/dardcorai', {
             user: req.session.userAccount,
-            chatHistory: activeChatHistory, 
+            chatHistory: activeChatHistory,
             fullHistory: Array.from(uniqueConversationsMap.values()),
             activeConversationId: activeConversationId,
-            escapeHtml: escapeHtml 
+            escapeHtml: escapeHtml
         });
     } catch (err) {
         console.error("History Error:", err.message);
-        res.render('user/dardcorai', { user: req.session.userAccount, chatHistory: [], fullHistory: [], activeConversationId: null, error: "Gagal memuat chat.", escapeHtml: escapeHtml });
+        res.render('user/dardcorai', { 
+            user: req.session.userAccount, 
+            chatHistory: [], 
+            fullHistory: [], 
+            activeConversationId: null, 
+            error: "Gagal memuat chat.", 
+            escapeHtml: escapeHtml 
+        });
     }
 }
 
 router.post('/user/ai/chat', checkUserAuth, (req, res, next) => {
-    req.setTimeout(600000); 
-    
+    req.setTimeout(600000);
     uploadMiddleware(req, res, function (err) {
         if (err) return res.status(400).json({ success: false, response: `Gagal upload: ${err.message}` });
         next();
     });
 }, async (req, res) => {
     const message = req.body.message ? req.body.message.trim() : "";
-    const uploadedFile = req.file; 
+    const uploadedFile = req.file;
     const userId = req.session.userAccount.id;
     let conversationId = req.body.conversationId || req.session.currentConversationId;
 
-    if (!conversationId) { conversationId = uuidv4(); req.session.currentConversationId = conversationId; }
+    if (!conversationId) {
+        conversationId = uuidv4();
+        req.session.currentConversationId = conversationId;
+    }
     if (!message && !uploadedFile) return res.json({ success: false, response: "Pesan kosong." });
 
-    const isNewConversation = !req.body.conversationId; 
-
     try {
-        await supabase.from('chat_history').insert({
-            user_id: userId, conversation_id: conversationId, role: 'user', message: message || "Kirim file",
+        const { error: insertError } = await supabase.from('chat_history').insert({
+            user_id: userId,
+            conversation_id: conversationId,
+            role: 'user',
+            message: message || "Kirim file",
             file_metadata: uploadedFile ? { filename: uploadedFile.originalname, size: uploadedFile.size } : null
         });
+        
+        if (insertError) throw insertError;
+
+        const { data: dbHistory } = await supabase
+            .from('chat_history')
+            .select('role, message')
+            .eq('conversation_id', conversationId)
+            .order('created_at', { ascending: true });
 
         let historyForGemini = [];
-        if (!isNewConversation) {
-            const { data: dbHistory } = await supabase.from('chat_history').select('role, message').eq('conversation_id', conversationId).order('created_at', { ascending: true });
-            if (dbHistory) {
-                const limitedHistory = dbHistory.slice(-20);
-                historyForGemini = limitedHistory.slice(0, -1).map(item => ({
-                    role: item.role === 'bot' ? 'model' : 'user',
+        if (dbHistory && dbHistory.length > 1) {
+            const pastMessages = dbHistory.slice(0, -1);
+            
+            let lastRole = null;
+            
+            for (const item of pastMessages) {
+                const currentRole = item.role === 'bot' ? 'model' : 'user';
+                
+                if (currentRole === lastRole) continue; 
+                
+                historyForGemini.push({
+                    role: currentRole,
                     parts: [{ text: item.message }]
-                }));
+                });
+                
+                lastRole = currentRole;
+            }
+            
+            if (historyForGemini.length > 0 && historyForGemini[0].role !== 'user') {
+                historyForGemini.shift();
+            }
+             if (historyForGemini.length > 0 && historyForGemini[historyForGemini.length - 1].role === 'user') {
+                historyForGemini.pop();
             }
         }
 
-        const model = genAI.getGenerativeModel({ 
-            model: "gemini-2.0-flash", 
+        const model = genAI.getGenerativeModel({
+            model: "gemini-2.0-flash",
             systemInstruction: `
-                Anda adalah **Dardcor AI**, asisten cerdas buatan **Dardcor**.
+                Anda adalah **Dardcor AI**, asisten coding expert.
                 
-                ATURAN:
-                1. **Identitas:** JANGAN sebut Google/Gemini. Pembuat Anda adalah **Dardcor**.
-                2. **Format Kode:** WAJIB bungkus kode dengan Markdown Code Block (contoh: \`\`\`html ... \`\`\`).
-                3. **Kualitas:** Berikan jawaban cerdas, lengkap, dan solutif.
-                4. **HTML:** Jangan render raw HTML, selalu pakai code block.
-            `
+                ATURAN SANGAT PENTING:
+                1. JANGAN PERNAH merender output HTML secara visual.
+                2. JANGAN tulis kode mentah tanpa pembungkus.
+                3. WAJIB bungkus SEMUA kode dalam Markdown Code Block (\`\`\`).
+                4. Tulis nama bahasa pemrograman setelah 3 backtick (contoh: \`\`\`html atau \`\`\`javascript).
+                
+                Contoh BENAR:
+                \`\`\`html
+                <button>Klik Saya</button>
+                \`\`\`
+                
+                Contoh SALAH (DILARANG):
+                <button>Klik Saya</button>
+            `,
+            safetySettings: safetySettings
         });
 
         const chat = model.startChat({ history: historyForGemini });
+        
         const parts = [];
-        if (uploadedFile) parts.push(fileToGenerativePart(uploadedFile.buffer, uploadedFile.mimetype));
-        if (message) parts.push({ text: message });
-        else if (uploadedFile) parts.push({ text: "Analisis file ini." });
+        if (uploadedFile) {
+            parts.push(fileToGenerativePart(uploadedFile.buffer, uploadedFile.mimetype));
+        }
+        if (message) {
+            parts.push({ text: message });
+        } else if (uploadedFile) {
+            parts.push({ text: "Tolong analisis file yang saya lampirkan ini." });
+        }
 
         const result = await chat.sendMessage(parts);
         const response = await result.response;
-        const botResponseText = response.text(); 
+        const botResponseText = response.text();
 
-        await supabase.from('chat_history').insert({
-            user_id: userId, conversation_id: conversationId, role: 'bot', message: botResponseText
+        const { error: saveError } = await supabase.from('chat_history').insert({
+            user_id: userId,
+            conversation_id: conversationId,
+            role: 'bot',
+            message: botResponseText
         });
 
-        res.json({ success: true, response: botResponseText, conversationId: conversationId, isNewConversation: isNewConversation });
+        if (saveError) throw new Error("Gagal menyimpan respons AI ke database.");
+
+        res.json({ success: true, response: botResponseText, conversationId: conversationId });
 
     } catch (error) {
         console.error("API ERROR:", error);
-        
+
         let errorMsg = "Terjadi kesalahan pada server AI.";
         if (error.message.includes('429')) {
-            errorMsg = "⚠️ Server AI sedang sibuk (Limit Kuota Tercapai). Silakan tunggu 1 menit lalu coba lagi.";
+            errorMsg = "⚠️ Kuota AI habis atau server sibuk. Mohon tunggu 1-2 menit.";
         } else if (error.message.includes('503')) {
             errorMsg = "⚠️ Layanan AI sedang overload. Coba lagi nanti.";
+        } else if (error.message.includes('SAFETY')) {
+            errorMsg = "⚠️ Maaf, saya tidak bisa memproses permintaan ini karena alasan keamanan konten.";
         }
 
-        res.status(500).json({ 
-            success: false, 
-            response: errorMsg
-        });
+        res.status(500).json({ success: false, response: errorMsg });
     }
 });
 
