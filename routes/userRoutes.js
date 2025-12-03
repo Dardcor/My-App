@@ -24,11 +24,6 @@ const safetySettings = [
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-function escapeHtml(text) {
-    if (!text) return '';
-    return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-}
-
 function checkUserAuth(req, res, next) {
     if (req.session.userAccount) {
         next();
@@ -44,6 +39,11 @@ function fileToGenerativePart(buffer, mimeType) {
             mimeType
         },
     };
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
 }
 
 const uploadMiddleware = upload.single('file_attachment');
@@ -124,37 +124,20 @@ router.post('/user/ai/rename-chat', checkUserAuth, async (req, res) => {
     const { conversationId, newTitle } = req.body;
     const userId = req.session.userAccount.id;
     try {
-        const { error } = await supabase
-            .from('chat_history')
-            .update({ message: newTitle })
-            .eq('conversation_id', conversationId)
-            .eq('user_id', userId)
-            .eq('role', 'user')
-            .order('created_at', { ascending: true })
-            .limit(1);
+        const { error } = await supabase.from('chat_history').update({ message: newTitle }).eq('conversation_id', conversationId).eq('user_id', userId).eq('role', 'user').order('created_at', { ascending: true }).limit(1);
         if (error) throw error;
         res.json({ success: true });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ success: false, message: 'Gagal mengubah nama chat' });
-    }
+    } catch (error) { res.status(500).json({ success: false, message: 'Gagal mengubah nama chat' }); }
 });
 
 router.post('/user/ai/delete-chat-history', checkUserAuth, async (req, res) => {
     const { conversationId } = req.body;
     const userId = req.session.userAccount.id;
     try {
-        const { error } = await supabase
-            .from('chat_history')
-            .delete()
-            .eq('conversation_id', conversationId)
-            .eq('user_id', userId);
+        const { error } = await supabase.from('chat_history').delete().eq('conversation_id', conversationId).eq('user_id', userId);
         if (error) throw error;
         res.json({ success: true });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ success: false, message: 'Gagal menghapus chat' });
-    }
+    } catch (error) { res.status(500).json({ success: false, message: 'Gagal menghapus chat' }); }
 });
 
 router.get('/user/dardcor-ai/:conversationId', checkUserAuth, loadChatHandler);
@@ -165,12 +148,7 @@ async function loadChatHandler(req, res) {
     const requestedConversationId = req.params.conversationId;
     
     try {
-        const { data: dbHistory, error } = await supabase
-            .from('chat_history')
-            .select('conversation_id, role, message, created_at, file_metadata')
-            .eq('user_id', userId)
-            .order('created_at', { ascending: true });
-
+        const { data: dbHistory, error } = await supabase.from('chat_history').select('conversation_id, role, message, created_at, file_metadata').eq('user_id', userId).order('created_at', { ascending: true });
         if (error) throw error;
 
         let activeConversationId = req.session.currentConversationId;
@@ -178,7 +156,7 @@ async function loadChatHandler(req, res) {
         if (requestedConversationId) {
             activeConversationId = requestedConversationId;
             req.session.currentConversationId = activeConversationId;
-        } else if (!activeConversationId && dbHistory.length > 0) {
+        } else if (!activeConversationId && dbHistory && dbHistory.length > 0) {
             const sortedHistory = [...dbHistory].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
             activeConversationId = sortedHistory[0].conversation_id;
             req.session.currentConversationId = activeConversationId;
@@ -242,63 +220,40 @@ router.post('/user/ai/chat', checkUserAuth, (req, res, next) => {
             user_id: userId,
             conversation_id: conversationId,
             role: 'user',
-            message: message || "Kirim file",
+            message: message || "File terlampir",
             file_metadata: uploadedFile ? { filename: uploadedFile.originalname, size: uploadedFile.size } : null
         });
         
         if (insertError) throw insertError;
 
-        const { data: dbHistory } = await supabase
-            .from('chat_history')
-            .select('role, message')
-            .eq('conversation_id', conversationId)
-            .order('created_at', { ascending: true });
+        const { data: dbHistory } = await supabase.from('chat_history').select('role, message').eq('conversation_id', conversationId).order('created_at', { ascending: true });
 
         let historyForGemini = [];
-        if (dbHistory && dbHistory.length > 1) {
-            const pastMessages = dbHistory.slice(0, -1);
+        if (dbHistory && dbHistory.length > 0) {
+            const previousMessages = dbHistory.slice(0, -1);
+            let mergedMessages = [];
             
-            let lastRole = null;
-            
-            for (const item of pastMessages) {
-                const currentRole = item.role === 'bot' ? 'model' : 'user';
-                
-                if (currentRole === lastRole) continue; 
-                
-                historyForGemini.push({
-                    role: currentRole,
-                    parts: [{ text: item.message }]
-                });
-                
-                lastRole = currentRole;
+            for (const msg of previousMessages) {
+                const role = msg.role === 'bot' ? 'model' : 'user';
+                if (mergedMessages.length > 0 && mergedMessages[mergedMessages.length - 1].role === role) {
+                    mergedMessages[mergedMessages.length - 1].parts[0].text += "\n" + msg.message;
+                } else {
+                    mergedMessages.push({ role: role, parts: [{ text: msg.message }] });
+                }
             }
-            
-            if (historyForGemini.length > 0 && historyForGemini[0].role !== 'user') {
-                historyForGemini.shift();
-            }
-             if (historyForGemini.length > 0 && historyForGemini[historyForGemini.length - 1].role === 'user') {
-                historyForGemini.pop();
-            }
+            historyForGemini = mergedMessages;
         }
 
         const model = genAI.getGenerativeModel({
             model: "gemini-2.0-flash",
             systemInstruction: `
-                Anda adalah **Dardcor AI**, asisten coding expert.
+                Kamu adalah Dardcor AI, asisten coding expert.
                 
-                ATURAN SANGAT PENTING:
-                1. JANGAN PERNAH merender output HTML secara visual.
-                2. JANGAN tulis kode mentah tanpa pembungkus.
-                3. WAJIB bungkus SEMUA kode dalam Markdown Code Block (\`\`\`).
-                4. Tulis nama bahasa pemrograman setelah 3 backtick (contoh: \`\`\`html atau \`\`\`javascript).
-                
-                Contoh BENAR:
-                \`\`\`html
-                <button>Klik Saya</button>
-                \`\`\`
-                
-                Contoh SALAH (DILARANG):
-                <button>Klik Saya</button>
+                INSTRUKSI:
+                1. Jika user meminta kode (HTML, CSS, JS, Python, dll), JANGAN PERNAH merender outputnya secara visual.
+                2. Kamu WAJIB membungkus SEMUA kode di dalam Markdown Code Block (\`\`\`bahasa ... \`\`\`).
+                3. Pastikan kamu selalu memberikan baris baru sebelum membuka blok kode.
+                4. Jangan pernah menulis tag HTML seperti <div> atau <h1> di luar blok kode.
             `,
             safetySettings: safetySettings
         });
@@ -312,7 +267,7 @@ router.post('/user/ai/chat', checkUserAuth, (req, res, next) => {
         if (message) {
             parts.push({ text: message });
         } else if (uploadedFile) {
-            parts.push({ text: "Tolong analisis file yang saya lampirkan ini." });
+            parts.push({ text: "Analisis file ini." });
         }
 
         const result = await chat.sendMessage(parts);
@@ -326,22 +281,16 @@ router.post('/user/ai/chat', checkUserAuth, (req, res, next) => {
             message: botResponseText
         });
 
-        if (saveError) throw new Error("Gagal menyimpan respons AI ke database.");
+        if (saveError) throw new Error("Gagal menyimpan respons AI.");
 
         res.json({ success: true, response: botResponseText, conversationId: conversationId });
 
     } catch (error) {
         console.error("API ERROR:", error);
-
         let errorMsg = "Terjadi kesalahan pada server AI.";
-        if (error.message.includes('429')) {
-            errorMsg = "⚠️ Kuota AI habis atau server sibuk. Mohon tunggu 1-2 menit.";
-        } else if (error.message.includes('503')) {
-            errorMsg = "⚠️ Layanan AI sedang overload. Coba lagi nanti.";
-        } else if (error.message.includes('SAFETY')) {
-            errorMsg = "⚠️ Maaf, saya tidak bisa memproses permintaan ini karena alasan keamanan konten.";
-        }
-
+        if (error.message.includes('429')) errorMsg = "⚠️ Kuota AI habis. Tunggu sebentar.";
+        else if (error.message.includes('503')) errorMsg = "⚠️ Server overload.";
+        else if (error.message.includes('SAFETY')) errorMsg = "⚠️ Konten diblokir oleh filter keamanan.";
         res.status(500).json({ success: false, response: errorMsg });
     }
 });
