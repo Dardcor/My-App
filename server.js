@@ -59,6 +59,10 @@ app.use((req, res, next) => {
     res.status(404).render('404', { title: 'Halaman Tidak Ditemukan' });
 });
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
     console.log(`Server berjalan di http://localhost:${port}`);
 });
+
+server.keepAliveTimeout = 600000;
+server.headersTimeout = 610000;
+server.timeout = 600000;

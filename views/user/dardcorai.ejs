@@ -1,11 +1,25 @@
+<%
+function escapeHtml(text){
+    if(!text) return '';
+    return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+%>
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#1a1a2e">
+  
     <link rel="manifest" href="/manifest.json">
     
     <title>Dardcor AI</title>
@@ -19,120 +33,192 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <style>
-        /* ... (Style sama seperti sebelumnya, hanya perbaikan Sidebar di bawah) ... */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: 'Poppins', sans-serif;
             background-color: #1a1a2e;
             color: #cbd5e1;
-            overflow: hidden; /* Penting untuk layout chat */
+            overflow: hidden;
             height: 100vh;
+            height: 100dvh; 
         }
         
-        /* Sidebar Transition */
         #sidebar {
-            transition: transform 0.3s ease-in-out, width 0.3s ease-in-out;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 50;
-        }
-        
-        /* Sidebar State Classes */
-        .sidebar-open-desktop { width: 280px; transform: translateX(0); }
-        .sidebar-closed-desktop { width: 0; transform: translateX(0); overflow: hidden; }
-        
-        .sidebar-open-mobile { transform: translateX(0); }
-        .sidebar-closed-mobile { transform: translateX(-100%); }
-
-        /* Overlay for mobile */
-        #overlay {
-            transition: opacity 0.3s ease-in-out;
-            z-index: 40;
-        }
-        
-        /* Main Content Adjustment */
-        #mainContent {
-            transition: margin-left 0.3s ease-in-out;
+            flex-shrink: 0;
         }
 
-        /* Custom Scrollbar */
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #0f172a; border-radius: 10px; }
+        @media (min-width: 1024px) {
+            #sidebar {
+                position: relative;
+                transform: translateX(0);
+                width: 280px;
+            }
+            #sidebar.collapsed {
+                width: 0;
+                overflow: hidden;
+                padding: 0;
+                border: none;
+            }
+            #overlay { display: none !important; }
+        }
+
+        @media (max-width: 1023px) {
+            #sidebar {
+                position: fixed;
+                top: 0; bottom: 0; left: 0;
+                width: 280px;
+                transform: translateX(-100%);
+            }
+            #sidebar.mobile-open {
+                transform: translateX(0);
+            }
+            #overlay {
+                transition: opacity 0.3s ease;
+                z-index: 45;
+            }
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #475569; }
 
-        /* Chat Bubbles */
         .message-user {
             background: linear-gradient(135deg, #3b82f6, #1d4ed8);
             color: white;
             border-radius: 18px 18px 4px 18px;
-            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2);
         }
         .message-bot {
             background: #1e293b;
             color: #e2e8f0;
             border-radius: 18px 18px 18px 4px;
             border: 1px solid #334155;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
 
-        /* Code Blocks */
-        .code-block-wrapper { margin: 12px 0; border-radius: 8px; overflow: hidden; background: #0d1117; border: 1px solid #30363d; }
-        .code-header { display: flex; justify-content: space-between; align-items: center; background: #161b22; padding: 8px 12px; border-bottom: 1px solid #30363d; font-size: 0.75rem; color: #7d8590; }
-        pre { margin: 0 !important; padding: 0 !important; background: transparent !important; }
-        code.hljs { padding: 16px !important; font-family: 'Fira Code', monospace; font-size: 0.85rem; line-height: 1.5; background: #0d1117 !important; }
+        .code-block-wrapper { 
+            margin: 12px 0; 
+            border-radius: 8px; 
+            overflow: hidden; 
+            background: #0d1117;
+            border: 1px solid #30363d; 
+            position: relative;
+        }
         
-        /* Chat Input */
-        .chat-input { background: #1e293b; border: 1px solid #334155; border-radius: 1.5rem; transition: all 0.2s; }
-        .chat-input:focus-within { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1); }
+        .code-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            background: #161b22; 
+            padding: 8px 12px; 
+            border-bottom: 1px solid #30363d; 
+            font-size: 0.75rem; 
+            color: #7d8590;
+            font-family: 'Fira Code', monospace;
+        }
 
-        /* Typing Indicator */
+        .copy-btn {
+            background: transparent;
+            border: 1px solid #30363d;
+            border-radius: 4px;
+            color: #c9d1d9;
+            cursor: pointer;
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .copy-btn:hover {
+            background: #30363d;
+            border-color: #8b949e;
+            color: white;
+        }
+
+        code.hljs { padding: 1rem !important; font-family: 'Fira Code', monospace; font-size: 0.85rem; line-height: 1.5; background: #0d1117 !important; }
+        
         .typing-indicator span {
-            display: inline-block; width: 6px; height: 6px; background-color: #94a3b8; border-radius: 50%;
+            display: inline-block;
+            width: 6px; height: 6px; background-color: #94a3b8; border-radius: 50%;
             animation: typing 1.4s infinite ease-in-out both; margin: 0 1px;
         }
         .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
         .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
         @keyframes typing { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
 
-        /* Markdown */
-        .markdown-body { line-height: 1.6; }
         .markdown-body p { margin-bottom: 0.75rem; }
-        .markdown-body ul, .markdown-body ol { padding-left: 1.5rem; margin-bottom: 0.75rem; }
+        .markdown-body ul, .markdown-body ol { padding-left: 1.5rem; margin-bottom: 0.75rem; list-style: disc; }
         .markdown-body li { margin-bottom: 0.25rem; }
-        .markdown-body h1, .markdown-body h2, .markdown-body h3 { margin-top: 1rem; margin-bottom: 0.5rem; font-weight: 600; }
+        .markdown-body h1, .markdown-body h2, .markdown-body h3 { margin-top: 1rem; margin-bottom: 0.5rem; font-weight: 600; color: #fff; }
+        .markdown-body a { color: #3b82f6; text-decoration: underline; }
+        
+        .chat-options-menu {
+            display: none;
+            position: absolute; right: 10px; top: 30px;
+            background: #1e293b; border: 1px solid #334155; border-radius: 0.5rem;
+            z-index: 60; width: 120px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .chat-options-menu.show { display: block; }
+
+        .chat-input-container { 
+            background: #1e293b;
+            border-radius: 1.5rem; 
+            transition: all 0.2s; 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border: none; 
+            width: 100%;
+            display: flex;
+            align-items: flex-end;
+            padding: 0.5rem;
+            gap: 0.5rem;
+        }
+        .chat-input-container:focus-within { 
+            background: #253045;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1); 
+        } 
+
+        @media(max-width:640px){ .message-user,.message-bot{max-width:90%;font-size:14px;padding:12px;} }
+        @media(min-width:641px) and (max-width:1024px){ .message-user,.message-bot{max-width:80%;} }
     </style>
 </head>
 
-<body class="flex h-screen overflow-hidden bg-[#1a1a2e]">
+<body class="flex bg-[#1a1a2e]">
 
-    <div id="overlay" class="fixed inset-0 bg-black/50 hidden lg:hidden" onclick="toggleSidebar()"></div>
+    <div id="overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden" onclick="toggleSidebar()"></div>
 
-    <aside id="sidebar" class="flex flex-col h-full fixed lg:relative w-64 lg:w-72 bg-[#131b2e] border-r border-gray-800 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
+    <aside id="sidebar" class="flex flex-col h-full bg-[#131b2e] border-r border-gray-800">
         
-        <div class="p-4 flex items-center justify-between border-b border-gray-800 bg-[#131b2e]">
-            <a href="/user/home" class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center text-white shadow-lg">
-                    <i class="fas fa-robot text-lg"></i>
+        <div class="p-4 flex items-center justify-between border-b border-gray-800 h-16 flex-shrink-0">
+            <a href="/user/home" class="flex items-center gap-3 group">
+                <div class="w-9 h-9 rounded-xl overflow-hidden shadow-lg group-hover:scale-105 transition-transform bg-[#1e293b]">
+                    <img src="/logo.png" class="w-full h-full object-cover">
                 </div>
                 <div>
-                    <h1 class="text-lg font-bold text-white">Dardcor AI</h1>
-                    <p class="text-xs text-gray-400">Asisten Cerdas</p>
+                    <h1 class="text-base font-bold text-white leading-tight">Dardcor AI</h1>
+                    <p class="text-[10px] text-gray-400">Virtual Assistant</p>
                 </div>
             </a>
-            <button onclick="toggleSidebar()" class="lg:hidden text-gray-400 hover:text-white p-2 rounded-lg hover:bg-gray-800">
+            <button onclick="toggleSidebar()" class="lg:hidden text-gray-400 hover:text-white p-2">
                 <i class="fas fa-times text-xl"></i>
             </button>
         </div>
 
-        <div class="p-4">
-            <button id="newChatBtn" class="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white py-3 px-4 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-blue-900/30 font-medium transition-all duration-200 active:scale-95">
+        <div class="p-4 flex-shrink-0">
+            <button id="newChatBtn" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-3 px-4 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-blue-900/30 font-medium transition-all active:scale-95 border border-blue-500/30">
                 <i class="fas fa-plus"></i>
                 <span>Chat Baru</span>
             </button>
         </div>
 
         <div class="flex-1 overflow-y-auto px-3 custom-scrollbar">
-            <div class="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider sticky top-0 bg-[#131b2e] z-10 mb-2">
-                Riwayat Percakapan
+            <div class="text-center px-2 py-2 text-xs font-bold text-gray-500 uppercase tracking-wider mb-1 sticky top-0 bg-[#131b2e] z-10">
+                Riwayat
             </div>
             
             <div class="space-y-1 pb-4">
@@ -141,35 +227,52 @@
                     for(let i = 0; i < reversedHistory.length; i++) {
                         const conv = reversedHistory[i];
                         const isActive = conv.conversation_id === activeConversationId;
-                        const title = (conv.message || 'Percakapan Baru').substring(0, 30) + (conv.message?.length > 30 ? '...' : '');
+                        const safeMessage = conv.message || 'Percakapan Baru';
+                        const title = safeMessage.substring(0, 35) + (safeMessage.length > 35 ? '...' : '');
                 %>
-                    <a href="/user/dardcor-ai/<%= conv.conversation_id %>" 
-                       class="flex items-center gap-3 px-3 py-3 rounded-lg text-sm transition-all duration-200 <%= isActive ? 'bg-gradient-to-r from-blue-900/30 to-blue-800/20 text-white border-l-4 border-blue-500' : 'text-gray-400 hover:bg-gray-800/50 hover:text-gray-200' %>">
-                        <i class="fas fa-comment text-xs <%= isActive ? 'text-blue-400' : 'text-gray-600' %>"></i>
-                        <span class="truncate flex-1"><%= title %></span>
-                        <span class="text-xs text-gray-600"><%= new Date(conv.timestamp || Date.now()).toLocaleDateString('id-ID', {month: 'short', day: 'numeric'}) %></span>
-                    </a>
-                <% }} else { %>
-                    <div class="text-center py-10 px-4 opacity-50">
-                        <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-800 flex items-center justify-center">
-                            <i class="fas fa-comment-slash text-2xl text-gray-600"></i>
+                    <div class="relative group/item">
+                        <a href="/user/dardcor-ai/<%= conv.conversation_id %>" 
+                           class="flex items-center gap-3 px-3 py-3 rounded-lg text-sm transition-all duration-200 <%= isActive ? 'bg-slate-800/80 text-white border-l-2 border-blue-500' : 'text-gray-400 hover:bg-slate-800/50 hover:text-gray-200' %> pr-8">
+  
+                            <i class="fas fa-message text-xs <%= isActive ? 'text-blue-400' : 'text-gray-600' %>"></i>
+                            <div class="flex-1 min-w-0">
+                                <p class="truncate text-sm" id="title-<%= conv.conversation_id %>"><%= title %></p>
+                            </div>
+                        </a>
+                        
+                        <button onclick="toggleChatMenu(event, '<%= conv.conversation_id %>')" 
+                                class="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-500 hover:text-white rounded transition-colors opacity-0 group-hover/item:opacity-100 <%= isActive ? 'opacity-100' : '' %>">
+                            <i class="fas fa-ellipsis-v text-xs"></i>
+                        </button>
+                        
+                        <div id="menu-<%= conv.conversation_id %>" class="chat-options-menu">
+                            <button onclick="renameChat('<%= conv.conversation_id %>', '<%= title %>')" class="w-full text-left px-3 py-2 text-xs text-gray-300 hover:bg-slate-700 hover:text-white flex items-center gap-2 rounded-t-md">
+                                <i class="fas fa-pen"></i> Rename
+                            </button>
+                            <button onclick="deleteChat('<%= conv.conversation_id %>')" class="w-full text-left px-3 py-2 text-xs text-red-400 hover:bg-slate-700 hover:text-red-300 flex items-center gap-2 rounded-b-md">
+                                <i class="fas fa-trash"></i> Hapus
+                            </button>
                         </div>
-                        <p class="text-gray-600 text-sm">Belum ada percakapan</p>
+                    </div>
+                <% }} else { %>
+                    <div class="text-center py-12 px-4 opacity-60">
+                        <i class="fas fa-comments text-4xl text-gray-700 mb-3"></i>
+                        <p class="text-gray-500 text-xs">Belum ada riwayat percakapan.</p>
                     </div>
                 <% } %>
             </div>
         </div>
 
-        <div class="p-4 border-t border-gray-800 bg-[#131b2e]">
-            <a href="/user/profile" class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-800 transition-all duration-200">
+        <div class="p-4 border-t border-gray-800 bg-[#131b2e] flex-shrink-0">
+            <a href="/user/home" class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-800/50 transition-colors group">
                 <div class="relative">
                     <img src="<%= user.profile_image || 'https://ui-avatars.com/api/?name=' + (user.username || 'User') + '&background=random&color=fff' %>" 
-                         class="w-10 h-10 rounded-full object-cover border-2 border-gray-700">
-                    <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-[#131b2e]"></div>
+                         class="w-9 h-9 rounded-full object-cover border border-gray-600 group-hover:border-gray-400 transition-colors">
+                    <div class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-[#131b2e]"></div>
                 </div>
                 <div class="flex-1 min-w-0">
                     <p class="text-sm font-medium text-white truncate"><%= user.full_name || user.username %></p>
-                    <p class="text-xs text-gray-500 truncate">@<%= user.username %></p>
+                    <p class="text-[10px] text-gray-500 truncate">Back To Home</p>
                 </div>
             </a>
         </div>
@@ -177,94 +280,61 @@
 
     <main id="mainContent" class="flex-1 flex flex-col h-full w-full bg-[#1a1a2e] transition-all duration-300 relative">
         
-        <header class="h-16 flex items-center justify-between px-4 md:px-6 border-b border-gray-800 bg-[#1a1a2e] sticky top-0 z-40 shadow-sm">
-            <div class="flex items-center gap-4">
-                <button onclick="toggleSidebar()" class="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-all duration-200">
-                    <i class="fas fa-bars text-xl"></i>
-                </button>
-                
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600/20 to-purple-600/20 flex items-center justify-center border border-white/5 hidden sm:flex">
-                        <i class="fas fa-robot text-blue-400"></i>
-                    </div>
-                    <div>
-                        <h2 class="font-semibold text-white text-sm md:text-base">Asisten Dardcor AI</h2>
-                        <p class="text-xs text-green-400 flex items-center gap-1">
-                            <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span> 
-                            Online
-                        </p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="flex items-center gap-2">
-                <button onclick="toggleFullscreen()" class="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-gray-800 transition-all duration-200 hidden sm:block" title="Fullscreen">
-                    <i id="fullscreenIcon" class="fas fa-expand"></i>
-                </button>
-                <button onclick="clearChat()" class="p-2 text-gray-400 hover:text-red-400 rounded-lg hover:bg-gray-800 transition-all duration-200" title="Hapus Chat">
-                    <i class="fas fa-trash-alt"></i>
+        <header class="h-16 flex items-center justify-between px-4 md:px-6 border-b border-gray-800 bg-[#1a1a2e]/95 backdrop-blur-sm sticky top-0 z-40 shrink-0">
+            <div class="flex items-center gap-3">
+                <button onclick="toggleSidebar()" class="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-all">
+                    <i class="fas fa-bars text-lg"></i>
                 </button>
             </div>
         </header>
 
-        <div id="chatContainer" class="flex-1 overflow-y-auto p-3 md:p-6 custom-scrollbar">
+        <div id="chatContainer" class="flex-1 overflow-y-auto p-4 md:p-6 custom-scrollbar scroll-smooth relative z-0">
             <% if (!chatHistory || chatHistory.length === 0) { %>
-                <div id="welcomeScreen" class="h-full flex flex-col items-center justify-center text-center p-4 md:p-6">
-                    <div class="w-24 h-24 md:w-32 md:h-32 bg-gradient-to-br from-blue-600/20 to-purple-600/20 rounded-3xl flex items-center justify-center mb-6 md:mb-8 border border-white/10 shadow-2xl animate-pulse">
-                        <i class="fas fa-robot text-5xl md:text-6xl text-blue-400"></i>
+                <div id="welcomeScreen" class="h-full flex flex-col items-center justify-center text-center pb-10 animate-fade-in">
+                    <div class="w-24 h-24 rounded-full flex items-center justify-center mb-6 border border-white/5 shadow-2xl overflow-hidden bg-[#1e293b]">
+                        <img src="/logo.png" class="w-full h-full object-cover">
                     </div>
-                    <h2 class="text-2xl md:text-3xl font-bold text-white mb-3 md:mb-4">Halo, <%= user.username %>! 👋</h2>
-                    <p class="text-gray-400 max-w-md text-sm md:text-base leading-relaxed mb-8">
-                        Saya Dardcor AI, asisten cerdas Anda. Saya siap membantu tugas kuliah, coding, atau sekedar diskusi ringan.
-                    </p>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-2xl w-full">
-                        <button onclick="fillInput('Buatkan kode HTML sederhana')" class="p-4 bg-gray-800/50 rounded-xl border border-gray-700 hover:bg-gray-700 transition-colors text-left">
-                            <i class="fas fa-code text-blue-400 text-xl mb-2 block"></i>
-                            <span class="text-sm font-medium text-white block">Contoh Coding</span>
-                            <span class="text-xs text-gray-400 block mt-1">HTML/CSS/JS Dasar</span>
-                        </button>
-                        <button onclick="fillInput('Jelaskan tentang Machine Learning')" class="p-4 bg-gray-800/50 rounded-xl border border-gray-700 hover:bg-gray-700 transition-colors text-left">
-                            <i class="fas fa-brain text-purple-400 text-xl mb-2 block"></i>
-                            <span class="text-sm font-medium text-white block">Penjelasan Konsep</span>
-                            <span class="text-xs text-gray-400 block mt-1">Machine Learning</span>
-                        </button>
-                        <button onclick="fillInput('Ide proyek web untuk pemula')" class="p-4 bg-gray-800/50 rounded-xl border border-gray-700 hover:bg-gray-700 transition-colors text-left">
-                            <i class="fas fa-lightbulb text-yellow-400 text-xl mb-2 block"></i>
-                            <span class="text-sm font-medium text-white block">Ide Proyek</span>
-                            <span class="text-xs text-gray-400 block mt-1">Inspirasi Web App</span>
-                        </button>
-                    </div>
+                    <h2 class="text-2xl md:text-3xl font-bold text-white mb-3">Halo, <%= user.username %>!</h2>
+                    <p class="text-gray-400 max-w-md text-sm mb-8">Apa yang bisa saya bantu hari ini?</p>
                 </div>
             <% } else { %>
-                <% chatHistory.forEach((msg) => { 
+                <% chatHistory.forEach((msg, index) => { 
                     const role = msg.role === 'user' ? 'user' : 'bot';
                     let content = (msg.parts && msg.parts[0]?.text) ? msg.parts[0].text : (msg.message || '');
                     const file = msg.file_metadata;
-                    if(role === 'user' && !content && file) content = "Mengirim file untuk dianalisis.";
+                    if(role === 'user' && !content && file) content = "Mengirim file.";
                 %>
-                    <div class="flex w-full <%= role === 'user' ? 'justify-end' : 'justify-start' %> mb-4 md:mb-6 group">
-                        <div class="flex flex-col max-w-[90%] md:max-w-[80%] lg:max-w-[70%] gap-1">
-                            <div class="flex items-end gap-2 <%= role === 'user' ? 'flex-row-reverse' : 'flex-row' %>">
-                                <div class="avatar w-8 h-8 rounded-full flex-shrink-0 overflow-hidden border border-white/10 <%= role === 'user' ? 'bg-blue-600' : 'bg-indigo-600' %>">
+                    <div class="flex w-full <%= role === 'user' ? 'justify-end' : 'justify-start' %> mb-6 group">
+                        <div class="flex flex-col max-w-[85%] md:max-w-[75%] lg:max-w-[70%] gap-1.5">
+                            <div class="flex items-end gap-3 <%= role === 'user' ? 'flex-row-reverse' : 'flex-row' %>">
+                                <div class="w-8 h-8 rounded-full flex-shrink-0 overflow-hidden border border-white/10 shadow-sm flex items-center justify-center <%= role === 'user' ? 'bg-blue-600' : 'bg-[#1e293b]' %>">
                                     <% if(role === 'user') { %>
-                                        <img src="<%= user.profile_image || 'https://ui-avatars.com/api/?name=' + user.username + '&background=random' %>" class="w-full h-full object-cover">
+                                        <img src="<%= user.profile_image || 'https://ui-avatars.com/api/?name=' + user.username %>" class="w-full h-full object-cover">
                                     <% } else { %>
-                                        <div class="w-full h-full flex items-center justify-center"><i class="fas fa-robot text-white text-xs"></i></div>
+                                        <img src="/logo.png" class="w-full h-full object-cover">
                                     <% } %>
                                 </div>
                                 
-                                <div class="p-3 md:p-4 <%= role === 'user' ? 'message-user' : 'message-bot' %> shadow-md">
-                                    <div class="markdown-body text-sm md:text-base break-words"><%- role === 'bot' ? content : escapeHtml(content) %></div>
+                                <div class="p-3.5 md:p-5 <%= role === 'user' ? 'message-user' : 'message-bot' %> text-sm md:text-[15px] leading-relaxed shadow-md min-w-[60px]">
+                                    <% if (role === 'bot') { %>
+                                        <div class="markdown-raw hidden"><%= content %></div>
+                                        <div class="markdown-body"></div> 
+                                    <% } else { %>
+                                        <div class="whitespace-pre-wrap"><%= content %></div>
+                                    <% } %>
+
                                     <% if(file) { %>
-                                        <div class="mt-2 flex items-center gap-2 p-2 bg-black/20 rounded-lg border border-white/5 text-xs">
-                                            <i class="fas fa-file text-blue-300"></i>
-                                            <span class="truncate max-w-[150px]"><%= file.name %></span>
+                                        <div class="mt-3 flex items-center gap-3 p-2.5 bg-black/20 rounded-lg border border-white/10">
+                                            <div class="w-8 h-8 bg-white/10 rounded flex items-center justify-center text-white">
+                                                <i class="fas fa-file"></i>
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <p class="text-xs font-medium text-white truncate"><%= file.name %></p>
+                                                <p class="text-[10px] text-gray-300"><%= (file.size/1024).toFixed(1) %> KB</p>
+                                            </div>
                                         </div>
                                     <% } %>
                                 </div>
-                            </div>
-                            <div class="text-[10px] text-gray-500 px-1 <%= role === 'user' ? 'text-right' : 'text-left' %> opacity-0 group-hover:opacity-100 transition-opacity">
-                                <%= new Date(msg.timestamp || Date.now()).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) %>
                             </div>
                         </div>
                     </div>
@@ -272,43 +342,47 @@
             <% } %>
 
             <div id="loadingIndicator" class="hidden w-full mb-6">
-                <div class="flex gap-2 items-start max-w-[75%]">
-                    <div class="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center flex-shrink-0">
-                        <i class="fas fa-robot text-white text-xs"></i>
+                <div class="flex gap-3 items-end">
+                    <div class="w-8 h-8 rounded-full bg-[#1e293b] flex items-center justify-center flex-shrink-0 border border-white/10 overflow-hidden p-0.5">
+                        <img src="/logo.png" class="w-full h-full object-cover animate-pulse">
                     </div>
-                    <div class="bg-[#1e293b] p-4 rounded-2xl rounded-tl-sm border border-gray-700/50">
-                        <div class="typing-indicator flex gap-1"><span></span><span></span><span></span></div>
+                    <div class="bg-[#1e293b] px-4 py-3 rounded-2xl rounded-bl-none border border-gray-700/50 shadow-md">
+                        <div class="typing-indicator flex gap-1.5"><span></span><span></span><span></span></div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="p-3 md:p-4 bg-[#1a1a2e] border-t border-gray-800">
-            <div class="max-w-4xl mx-auto w-full relative">
-                <div id="filePreview" class="hidden absolute bottom-full left-0 mb-2 p-3 bg-[#1e293b] border border-gray-700 rounded-xl flex items-center gap-3 shadow-2xl z-50 w-full md:w-auto animate-fade-in">
+        <div class="p-4 md:p-6 bg-[#1a1a2e]/95 backdrop-blur-sm shrink-0 relative z-50">
+            <div class="max-w-4xl mx-auto relative">
+                
+                <div id="filePreview" class="hidden absolute bottom-full left-0 mb-3 p-3 bg-[#1e293b] border border-gray-700 rounded-xl flex items-center gap-3 shadow-2xl animate-fade-in z-20 w-full md:w-auto">
                     <div class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center overflow-hidden border border-gray-600">
                         <img id="previewImg" class="w-full h-full object-cover hidden">
                         <i id="previewIcon" class="fas fa-file text-blue-400"></i>
                     </div>
-                    <div class="flex flex-col flex-1 min-w-0">
-                        <span class="text-[10px] text-gray-400 uppercase font-bold">Lampiran</span>
-                        <span id="previewName" class="text-sm text-white truncate font-medium"></span>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-[10px] text-blue-400 uppercase font-bold tracking-wide">Terlampir</p>
+                        <p id="previewName" class="text-sm text-white truncate"></p>
                     </div>
-                    <button onclick="clearFile()" class="p-1 text-gray-400 hover:text-red-400 transition-colors"><i class="fas fa-times"></i></button>
+                    <button onclick="clearFile()" class="p-1.5 bg-red-500/20 text-red-400 rounded-full hover:bg-red-500 hover:text-white transition-all"><i class="fas fa-times text-xs"></i></button>
                 </div>
 
-                <div class="chat-input flex items-end p-1 md:p-2 gap-2 bg-[#1e293b] border border-[#334155] rounded-2xl shadow-lg focus-within:ring-2 focus-within:ring-blue-500/50 transition-shadow">
-                    <button onclick="document.getElementById('fileInput').click()" class="p-2 md:p-3 text-gray-400 hover:text-blue-400 hover:bg-gray-800 rounded-xl transition-all" title="Upload File">
+                <div class="chat-input-container">
+                    <button onclick="document.getElementById('fileInput').click()" class="p-3 text-gray-400 hover:text-blue-400 hover:bg-gray-800 rounded-xl transition-all flex-shrink-0" title="Upload File">
                         <i class="fas fa-paperclip text-lg"></i>
                     </button>
                     
-                    <textarea id="chatInput" rows="1" class="flex-1 bg-transparent text-white border-none focus:ring-0 p-2 md:p-3 max-h-32 resize-none text-sm md:text-base placeholder-gray-500 focus:outline-none" placeholder="Tulis pesan..." onkeydown="handleKeydown(event)"></textarea>
+                    <textarea id="chatInput" rows="1" class="flex-1 bg-transparent text-white border-none focus:ring-0 py-3 px-2 max-h-32 resize-none text-sm md:text-base placeholder-gray-500 focus:outline-none leading-relaxed w-full min-h-[44px]" placeholder="Ketik pesan Anda..." onkeydown="handleKeydown(event)"></textarea>
                     
-                    <button id="sendBtn" onclick="sendMessage()" class="p-2 md:p-3 bg-blue-600 text-white rounded-xl hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-blue-600/20">
+                    <button id="sendBtn" type="button" onclick="sendMessage()" class="p-3 bg-blue-600 text-white rounded-xl hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-blue-600/20 flex-shrink-0 transform active:scale-95">
                         <i class="fas fa-paper-plane"></i>
                     </button>
                 </div>
-                <p class="text-center text-[10px] text-gray-600 mt-2">AI dapat membuat kesalahan. Cek info penting.</p>
+                
+                <p class="text-center text-[10px] text-gray-600 mt-3">
+                    AI dapat membuat kesalahan. Selalu verifikasi informasi penting.
+                </p>
             </div>
         </div>
     </main>
@@ -316,7 +390,6 @@
     <input type="file" id="fileInput" class="hidden" onchange="handleFileSelect(event)">
 
     <script>
-        // === VARS & DOM ELEMENTS ===
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('overlay');
         const chatInput = document.getElementById('chatInput');
@@ -328,84 +401,90 @@
         let isProcessing = false;
         let isSidebarOpen = false;
 
-        // === SIDEBAR LOGIC (FIXED FOR DESKTOP/MOBILE) ===
         function toggleSidebar() {
             if (window.innerWidth >= 1024) {
-                // Desktop Mode: Toggle margin main content & translate sidebar
-                isSidebarOpen = !isSidebarOpen;
-                if (isSidebarOpen) {
-                    // Close Sidebar Desktop
-                    sidebar.classList.add('-translate-x-full'); 
-                    mainContent.style.marginLeft = "0"; // Expand content
-                    sidebar.style.width = "0"; // Hide width to remove blank space
-                    sidebar.style.overflow = "hidden";
-                } else {
-                    // Open Sidebar Desktop
-                    sidebar.classList.remove('-translate-x-full');
-                    sidebar.style.width = ""; // Reset width to class default
-                    sidebar.style.overflow = "";
-                }
+                sidebar.classList.toggle('collapsed');
             } else {
-                // Mobile Mode: Use Overlay
-                sidebar.classList.toggle('-translate-x-full');
-                const isClosed = sidebar.classList.contains('-translate-x-full');
-                
-                if (!isClosed) {
+                sidebar.classList.toggle('mobile-open');
+                if (sidebar.classList.contains('mobile-open')) {
                     overlay.classList.remove('hidden');
                 } else {
                     overlay.classList.add('hidden');
                 }
             }
         }
-        
-        // Close sidebar when clicking overlay (Mobile only)
-        overlay.addEventListener('click', () => {
-            sidebar.classList.add('-translate-x-full');
-            overlay.classList.add('hidden');
-        });
 
-        // Handle Resize Reset
         window.addEventListener('resize', () => {
             if (window.innerWidth >= 1024) {
                 overlay.classList.add('hidden');
-                sidebar.classList.remove('-translate-x-full');
-                sidebar.style.width = "";
-            } else {
-                sidebar.classList.add('-translate-x-full');
+                sidebar.classList.remove('mobile-open');
             }
         });
 
-        // === FULLSCREEN LOGIC ===
-        function toggleFullscreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(e => console.log(e));
-                document.getElementById('fullscreenIcon').classList.replace('fa-expand', 'fa-compress');
-            } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                    document.getElementById('fullscreenIcon').classList.replace('fa-compress', 'fa-expand');
-                }
-            }
-        }
-
-        // === MARKDOWN CONFIG ===
         const highlight = hljs;
+        const renderer = new marked.Renderer();
+
+        renderer.code = function(code, language) {
+            const validLang = !!(language && highlight.getLanguage(language)) ? language : 'plaintext';
+            const highlighted = highlight.highlight(code, { language: validLang }).value;
+            
+            return `
+            <div class="code-block-wrapper">
+                <div class="code-header">
+                    <span class="lang-label">${validLang}</span>
+                    <button class="copy-btn" onclick="copyCode(this)">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
+                </div>
+                <pre><code class="hljs language-${validLang}">${highlighted}</code><textarea style="display:none;" class="raw-code">${escapeHtml(code)}</textarea></pre>
+            </div>`;
+        };
+
         marked.setOptions({
-            highlight: (code, lang) => {
-                const language = highlight.getLanguage(lang) ? lang : 'plaintext';
-                return highlight.highlight(code, { language }).value;
-            },
-            langPrefix: 'hljs language-',
+            renderer: renderer,
             breaks: true,
             gfm: true
         });
 
-        // === CHAT FUNCTIONS ===
+        document.addEventListener('DOMContentLoaded', () => {
+            const messages = document.querySelectorAll('.message-bot');
+            messages.forEach(msg => {
+                const rawDiv = msg.querySelector('.markdown-raw');
+                const targetDiv = msg.querySelector('.markdown-body');
+                
+                if (rawDiv && targetDiv) {
+                    const rawText = rawDiv.innerText || rawDiv.textContent;
+                    targetDiv.innerHTML = marked.parse(rawText);
+                }
+            });
+            scrollToBottom();
+        });
+
+        function copyCode(btn) {
+            const wrapper = btn.closest('.code-block-wrapper');
+            const codeText = wrapper.querySelector('.raw-code').value;
+
+            navigator.clipboard.writeText(codeText).then(() => {
+                const originalContent = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                btn.style.borderColor = '#238636';
+                btn.style.color = '#238636';
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalContent;
+                    btn.style.borderColor = '#30363d';
+                    btn.style.color = '#c9d1d9';
+                }, 2000);
+            }).catch(err => {
+                console.error('Gagal menyalin:', err);
+                alert('Gagal menyalin kode.');
+            });
+        }
+
         function scrollToBottom() {
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
 
-        // Auto resize textarea
         chatInput.addEventListener('input', function() {
             this.style.height = 'auto';
             this.style.height = (this.scrollHeight) + 'px';
@@ -429,7 +508,6 @@
             return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
         }
 
-        // === FILE HANDLING ===
         function handleFileSelect(e) {
             const file = e.target.files[0];
             if (file) {
@@ -461,7 +539,6 @@
             document.getElementById('filePreview').classList.add('hidden');
         }
 
-        // === SEND MESSAGE ===
         async function sendMessage() {
             const text = chatInput.value.trim();
             if ((!text && !attachedFile) || isProcessing) return;
@@ -469,21 +546,19 @@
             isProcessing = true;
             sendBtn.disabled = true;
             
-            // Hapus Welcome Screen jika ada
             const welcome = document.getElementById('welcomeScreen');
             if (welcome) welcome.remove();
 
-            // Tampilkan Chat User
             const userHtml = `
-                <div class="flex w-full justify-end mb-4 md:mb-6 group animate-fade-in">
-                    <div class="flex flex-col max-w-[90%] md:max-w-[80%] gap-1">
-                        <div class="flex items-end gap-2 flex-row-reverse">
-                            <div class="avatar w-8 h-8 rounded-full bg-blue-600 overflow-hidden border border-white/10">
+                <div class="flex w-full justify-end mb-6 group animate-fade-in">
+                    <div class="flex flex-col max-w-[85%] md:max-w-[75%] lg:max-w-[70%] gap-1.5">
+                        <div class="flex items-end gap-3 flex-row-reverse">
+                            <div class="w-8 h-8 rounded-full bg-blue-600 flex-shrink-0 overflow-hidden border border-white/10 shadow-sm">
                                 <img src="<%= user.profile_image || 'https://ui-avatars.com/api/?name=' + user.username %>" class="w-full h-full object-cover">
                             </div>
-                            <div class="p-3 md:p-4 message-user shadow-md">
-                                <div class="whitespace-pre-wrap text-sm md:text-base">${escapeHtml(text)}</div>
-                                ${attachedFile ? `<div class="mt-2 text-xs bg-black/20 p-2 rounded flex items-center gap-2"><i class="fas fa-file"></i> ${attachedFile.name}</div>` : ''}
+                            <div class="p-3.5 md:p-5 message-user text-sm md:text-[15px] leading-relaxed shadow-md w-full">
+                                <div class="whitespace-pre-wrap">${escapeHtml(text)}</div>
+                                ${attachedFile ? `<div class="mt-3 flex items-center gap-2 p-2.5 bg-black/20 rounded-lg border border-white/10 text-xs"><i class="fas fa-file"></i> ${attachedFile.name}</div>` : ''}
                             </div>
                         </div>
                     </div>
@@ -492,55 +567,55 @@
             chatContainer.insertAdjacentHTML('beforeend', userHtml);
             scrollToBottom();
 
-            // Tampilkan Loading
             document.getElementById('loadingIndicator').classList.remove('hidden');
+            chatContainer.appendChild(document.getElementById('loadingIndicator'));
             scrollToBottom();
 
-            // Kirim ke Server
             const formData = new FormData();
             formData.append('message', text);
             if (attachedFile) formData.append('file_attachment', attachedFile);
+            
+            const currentUrl = window.location.pathname;
+            const urlParts = currentUrl.split('/');
+            const currentConvId = urlParts.length > 3 ? urlParts[3] : '';
+            if(currentConvId) formData.append('conversationId', currentConvId);
 
-            // Reset Input
             chatInput.value = '';
             chatInput.style.height = 'auto';
             clearFile();
 
             try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 600000); 
+
                 const res = await fetch('/user/ai/chat', {
                     method: 'POST',
-                    body: formData
+                    body: formData,
+                    signal: controller.signal
                 });
-                const data = await res.json();
+                clearTimeout(timeoutId);
 
+                const data = await res.json();
                 document.getElementById('loadingIndicator').classList.add('hidden');
 
                 if (data.success) {
                     const botHtml = `
-                        <div class="flex w-full justify-start mb-4 md:mb-6 group animate-fade-in">
-                            <div class="flex flex-col max-w-[90%] md:max-w-[80%] gap-1">
-                                <div class="flex items-end gap-2">
-                                    <div class="avatar w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center border border-white/10">
-                                        <i class="fas fa-robot text-white text-xs"></i>
+                        <div class="flex w-full justify-start mb-6 group animate-fade-in">
+                            <div class="flex flex-col max-w-[85%] md:max-w-[75%] gap-1.5">
+                                <div class="flex items-end gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-[#1e293b] flex items-center justify-center flex-shrink-0 border border-white/10 shadow-sm overflow-hidden p-1.5">
+                                        <img src="/logo.png" class="w-full h-full object-cover">
                                     </div>
-                                    <div class="p-3 md:p-4 message-bot shadow-md">
-                                        <div class="markdown-body text-sm md:text-base">${marked.parse(data.response)}</div>
+                                    <div class="p-3.5 md:p-5 message-bot text-sm md:text-[15px] leading-relaxed shadow-md w-full">
+                                        <div class="markdown-body">${marked.parse(data.response)}</div>
                                     </div>
                                 </div>
                             </div>
                         </div>`;
-                    
                     chatContainer.insertAdjacentHTML('beforeend', botHtml);
                     
-                    // Highlight Code
-                    document.querySelectorAll('pre code').forEach((block) => {
-                        hljs.highlightElement(block);
-                    });
-                    
-                    // Jika chat baru, reload URL agar history tersimpan di sidebar
                     if (data.isNewConversation) {
                         window.history.pushState({}, '', `/user/dardcor-ai/${data.conversationId}`);
-                        // Optional: Refresh sidebar list via AJAX instead of full reload for better UX
                     }
 
                 } else {
@@ -548,7 +623,11 @@
                 }
             } catch (e) {
                 document.getElementById('loadingIndicator').classList.add('hidden');
-                alert('Gagal terhubung ke server.');
+                if (e.name === 'AbortError') {
+                    alert('Waktu respons habis. Silakan refresh halaman untuk melihat jawaban di riwayat.');
+                } else {
+                    alert('Gagal terhubung ke server.');
+                }
             }
 
             isProcessing = false;
@@ -556,26 +635,85 @@
             scrollToBottom();
         }
 
-        function clearChat() {
-            if (confirm('Hapus percakapan ini?')) {
-                fetch('/user/ai/clear-chat', {
+        function toggleChatMenu(event, id) {
+            event.preventDefault();
+            event.stopPropagation();
+            document.querySelectorAll('.chat-options-menu').forEach(m => { if(m.id !== 'menu-'+id) m.classList.remove('show'); });
+            document.getElementById('menu-'+id).classList.toggle('show');
+        }
+
+        function renameChat(id, currentTitle){
+            const newTitle = prompt("Masukkan nama baru untuk chat ini:", currentTitle);
+            if(newTitle && newTitle !== currentTitle){
+                fetch('/user/ai/rename-chat', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ conversationId: '<%= activeConversationId %>' })
-                }).then(() => window.location.href = '/user/dardcor-ai');
+                    body: JSON.stringify({conversationId: id, newTitle: newTitle})
+                }).then(() => {
+                    document.getElementById('title-' + id).innerText = newTitle;
+                });
             }
         }
 
-        // Initial Scroll
-        scrollToBottom();
+        function deleteChat(id){
+            if(confirm('Hapus chat ini dari riwayat?')){
+                fetch('/user/ai/delete-chat-history', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({conversationId: id})
+                }).then(() => location.reload());
+            }
+        }
 
-        // Init New Chat Button
+        window.addEventListener('click', () => {
+            document.querySelectorAll('.chat-options-menu').forEach(m => m.classList.remove('show'));
+        });
+
         document.getElementById('newChatBtn').addEventListener('click', async () => {
              try {
                 const res = await fetch('/user/ai/new-chat', { method: 'POST' });
                 const data = await res.json();
                 if (data.success) window.location.href = data.redirectUrl;
             } catch (e) { console.error(e); }
+        });
+
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+            .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+        `;
+        document.head.appendChild(style);
+
+        scrollToBottom();
+
+        document.querySelectorAll('.markdown-body pre code').forEach((block) => {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'code-block-wrapper';
+            
+            const header = document.createElement('div');
+            header.className = 'code-header';
+            
+            const langClass = Array.from(block.classList).find(c => c.startsWith('language-'));
+            const lang = langClass ? langClass.replace('language-', '') : 'plaintext';
+            
+            header.innerHTML = `
+                <span class="lang-label">${lang}</span>
+                <button class="copy-btn" onclick="copyCode(this)">
+                    <i class="fas fa-copy"></i> Copy
+                </button>
+            `;
+            
+            const rawTextArea = document.createElement('textarea');
+            rawTextArea.style.display = 'none';
+            rawTextArea.className = 'raw-code';
+            rawTextArea.value = block.textContent; 
+
+            block.parentNode.parentNode.insertBefore(wrapper, block.parentNode);
+            wrapper.appendChild(header);
+            wrapper.appendChild(block.parentNode);
+            block.parentNode.appendChild(rawTextArea);
+            
+            hljs.highlightElement(block);
         });
     </script>
 </body>
