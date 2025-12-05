@@ -3,14 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#1a1a2e">
-    <link rel="manifest" href="/manifest.json">
-
-    <title>Dardcor</title>
+    <title>Dardcor AI</title>
     <link rel="icon" href="/logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -81,6 +74,7 @@
         <div class="p-4 flex items-center justify-between border-b border-gray-800 h-16 min-h-[4rem]">
             <span class="font-bold text-lg tracking-wider text-blue-500">Dardcor <span class="text-white">AI</span></span>
             <div class="flex items-center gap-2">
+                <button onclick="createNewChat()" class="text-gray-400 hover:text-white p-2 rounded-full hover:bg-gray-800 transition"><i class="fas fa-pen-to-square"></i></button>
                 <button onclick="toggleSidebar()" class="md:hidden text-gray-400 hover:text-white p-2"><i class="fas fa-times"></i></button>
             </div>
         </div>
@@ -96,6 +90,7 @@
             <% const currentChatExists = fullHistory.some(chat => chat.conversation_id === activeConversationId); %>
             <% if (!currentChatExists) { %>
                 <div id="active-new-chat" class="group relative flex items-center p-2.5 rounded-lg bg-gray-800 border-l-4 border-blue-500 cursor-pointer transition">
+                    <i class="fas fa-message text-gray-500 mr-3 text-xs"></i>
                     <span class="text-sm truncate flex-1 text-gray-300 font-medium">Percakapan Baru</span>
                 </div>
             <% } %>
@@ -103,6 +98,7 @@
             <% fullHistory.forEach(chat => { %>
                 <div class="group relative flex items-center p-2 rounded-lg hover:bg-[#202336] transition-colors duration-200 cursor-pointer <%= chat.conversation_id === activeConversationId ? 'bg-[#202336] border-l-4 border-blue-500' : 'border-l-4 border-transparent' %>">
                     <div class="flex-1 min-w-0 pr-2 py-1 flex items-center" onclick="window.location.href='/user/dardcor-ai/<%= chat.conversation_id %>'">
+                        <i class="fas fa-message text-gray-500 mr-3 text-xs flex-shrink-0"></i>
                         <span class="text-sm text-gray-300 truncate"><%= chat.message ? chat.message.substring(0, 22) : 'Percakapan' %>...</span>
                     </div>
                     
@@ -112,12 +108,12 @@
                         </button>
 
                         <div id="menu-<%= chat.conversation_id %>" class="dropdown-menu hidden absolute right-0 top-8 w-32 bg-[#2a2d3d] border border-gray-700 rounded-lg shadow-xl z-50 py-1 overflow-hidden">
-<button 
-    onclick="openRenameModal('<%= chat.conversation_id %>', this.getAttribute('data-title'))" 
-    data-title="<%= chat.message %>"
-    class="w-full text-left px-3 py-2 text-xs text-gray-300 hover:bg-blue-600 hover:text-white flex items-center gap-2 transition">
-    <i class="fas fa-pen fa-fw"></i> Rename
-</button>
+                            <button 
+                                onclick="openRenameModal('<%= chat.conversation_id %>', this.getAttribute('data-title'))" 
+                                data-title="<%= chat.message %>"
+                                class="w-full text-left px-3 py-2 text-xs text-gray-300 hover:bg-blue-600 hover:text-white flex items-center gap-2 transition">
+                                <i class="fas fa-pen fa-fw"></i> Rename
+                            </button>
                             <button onclick="openDeleteModal('<%= chat.conversation_id %>')" class="w-full text-left px-3 py-2 text-xs text-red-400 hover:bg-red-600 hover:text-white flex items-center gap-2 transition">
                                 <i class="fas fa-trash fa-fw"></i> Delete
                             </button>
@@ -142,11 +138,16 @@
         <header class="h-16 flex items-center justify-between px-4 border-b border-gray-800 bg-[#0f111a] z-30 shrink-0">
             <div class="flex items-center gap-3">
                 <button onclick="toggleSidebar()" class="text-gray-400 p-2 rounded hover:bg-gray-800 transition"><i class="fas fa-bars"></i></button>
+                <h2 class="text-base font-semibold text-gray-200 flex items-center gap-2">
+                    <span class="text-blue-500"><i class="fas fa-bolt"></i></span>
+                    <span class="hidden sm:inline">Dardcor Model 2.0 Flash</span>
+                    <span class="sm:hidden">Dardcor 2.0</span>
+                </h2>
             </div>
         </header>
 
         <div id="chat-container" class="flex-1 overflow-y-auto w-full scrollbar-hide pt-4 md:pt-6">
-            <div id="message-list" class="max-w-4xl mx-auto px-4 space-y-6 pb-4">
+            <div id="message-list" class="max-w-4xl mx-auto px-4 space-y-6 pb-6">
                 <% if (chatHistory.length === 0) { %>
                     <div id="empty-state" class="flex flex-col items-center justify-center text-gray-500 opacity-60 min-h-[50vh]">
                         <div class="w-24 h-24 bg-gray-800/50 rounded-full flex items-center justify-center mb-6 overflow-hidden border border-gray-700 shadow-xl bg-black">
@@ -195,11 +196,9 @@
                     </div>
                 </div>
             </div>
-            
-            <div class="h-36 md:h-48 w-full shrink-0"></div>
         </div>
 
-        <div class="absolute bottom-0 left-0 right-0 z-50 px-2 pb-2 md:px-4 md:pb-6 bg-gradient-to-t from-[#0f111a] via-[#0f111a]/90 to-transparent pt-10">
+        <div class="shrink-0 w-full z-30 bg-[#0f111a] border-t border-gray-800/50 px-2 pb-2 pt-3 md:px-4 md:pb-6">
             <div class="max-w-3xl mx-auto w-full">
                 <div class="relative group">
                     <form id="chat-form" onsubmit="return false;" class="bg-[#1a1c29] border border-gray-700 rounded-2xl flex items-end shadow-2xl p-2 transition focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500/50 w-full relative z-10">
@@ -255,16 +254,12 @@
             }
         }
 
-        // Dropdown Logic Improved
         function toggleMenu(e, menuId) {
             e.stopPropagation(); 
             e.preventDefault();
-            
-            // Tutup menu lain
             document.querySelectorAll('.dropdown-menu').forEach(el => {
                 if (el.id !== menuId) el.classList.add('hidden');
             });
-            
             const menu = document.getElementById(menuId);
             menu.classList.toggle('hidden');
         }
@@ -273,7 +268,6 @@
             document.querySelectorAll('.dropdown-menu').forEach(el => el.classList.add('hidden'));
         });
 
-        // Modal Logic
         function openRenameModal(id, currentName) {
             targetChatId = id;
             document.getElementById('rename-input').value = currentName;
@@ -326,7 +320,6 @@
             } catch (e) { alert('Error.'); }
         }
 
-        // Chat Logic
         function scrollToBottom() {
             setTimeout(() => { chatContainer.scrollTop = chatContainer.scrollHeight; }, 50);
         }
@@ -428,8 +421,8 @@
                     if(newChatLabel) {
                         newChatLabel.querySelector('span').innerText = currentMessage.substring(0, 22) + '...';
                         newChatLabel.id = '';
-                        newChatLabel.classList.remove('bg-gray-800', 'border-l-4', 'border-blue-500'); // Remove active style temporarily
-                        window.location.reload(); // Refresh to update sidebar sort
+                        newChatLabel.classList.remove('bg-gray-800', 'border-l-4', 'border-blue-500', 'text-white');
+                        window.location.reload(); 
                     }
                 } else appendErrorMessage(data.response || "Terjadi kesalahan.");
             } catch (err) {
