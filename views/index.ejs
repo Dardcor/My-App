@@ -14,452 +14,419 @@
     <link rel="icon" href="/logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.15.1/devicon.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         html { scroll-behavior: smooth; }
         body { 
             background-color: #1a1a2e;
             min-height: 100vh; 
-            font-family: sans-serif; 
+            font-family: 'Inter', sans-serif; 
             overflow-x: hidden; 
             color: #cbd5e1;
         }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1a1a2e; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        .hero-section {
+            background-image: linear-gradient(to bottom, rgba(26,26,46,0.95), #1a1a2e), url('/header.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        .navbar-fixed {
+            background-color: #111827;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
         .sidebar {
-            background-color: #16213e;
-            box-shadow: 5px 0 15px rgba(0,0,0,0.4);
-            z-index: 50;
+            background-color: #0f172a;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 1000;
         }
-        .hero-container, .section-card, .project-card, .tech-card {
-            background-color: #16213e;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-            animation: fadeIn 0.6s ease-out;
+
+        .project-card, .tech-card, .section-card {
+            background-color: #1e293b;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
+
+        .project-card:hover, .tech-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+            border-color: rgba(59, 130, 246, 0.5);
+        }
+
         .hero-image-container {
              background: linear-gradient(145deg, #1e293b, #0f172a);
-             border: 2px solid #334155;
+             border: 2px solid rgba(59, 130, 246, 0.3);
+             box-shadow: 0 0 40px rgba(59, 130, 246, 0.2);
         }
+
+        .logo-img {
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .project-card {
-            background-color: #1e293b;
-            border: 1px solid #334155;
-            transition: all 0.2s ease-in-out;
-        }
-        .project-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
-        }
-        .tech-card {
-            border: 1px solid #334155;
-            transition: all 0.2s ease-in-out;
-        }
-        .tech-card:hover {
-            transform: translateY(-5px);
-            background-color: #1e293b;
-        }
-        .tech-card i {
-            font-size: 3rem;
-            transition: color 0.2s ease-in-out;
-        }
-        .tech-card:hover i {
-            color: #3b82f6;
-        }
-        .hero-section {
-            background-image: url('/header.jpg');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-        }
+        .animate-fade-in { animation: fadeIn 0.8s ease-out forwards; }
+        
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .navbar {
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-            z-index: 40;
+
+        #mobileNavbarMenu {
+            transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
         }
-        .navbar-scrolled {
-            background-color: rgba(255, 255, 255, 0.95);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        #mobileNavbarMenu.open {
+            max-height: 300px; 
+            opacity: 1;
         }
-        @media (max-width: 768px) {
-            .tech-card i { font-size: 2.5rem; }
-            .hero-image-container { width: 280px; height: 280px; }
-            .hero-section { background-attachment: scroll; }
-        }
-        @media (max-width: 640px) {
-            .tech-card i { font-size: 2rem; }
-            .hero-image-container { width: 240px; height: 240px; }
-            .section-padding { padding-left: 1rem; padding-right: 1rem; }
-        }
-        .logo-img {
-            image-rendering: -webkit-optimize-contrast;
-            image-rendering: crisp-edges;
+        .rotate-icon {
+            transform: rotate(180deg);
         }
     </style>
 </head>
 <body class="relative">
 
-    <div id="sidebarBackdrop" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden transition-opacity duration-300 opacity-0"></div>
+    <div id="sidebarBackdrop" class="fixed inset-0 bg-black/70 z-[900] hidden transition-opacity duration-300 opacity-0 backdrop-blur-sm"></div>
 
-    <div class="relative min-h-screen">
+    <div class="relative min-h-screen flex flex-col">
 
-        <aside id="sidebar" class="sidebar fixed top-0 left-0 h-full w-64 p-0 text-white transform -translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
-            
-            <div class="flex items-center justify-between pb-4 border-b border-white/20 mb-4 flex-shrink-0 px-6 pt-6">
-                <h2 class="text-2xl font-bold whitespace-nowrap">My App</h2>
-                <button id="sidebarCloseButton" class="p-1 rounded-full text-white/70 hover:bg-white/10 hover:text-white transition-colors">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        <aside id="sidebar" class="sidebar fixed top-0 left-0 h-full w-72 transform -translate-x-full transition-transform duration-300 ease-in-out flex flex-col shadow-2xl">
+            <div class="p-5 border-b border-white/10 flex items-center justify-between bg-[#111827]">
+                <div class="flex items-center gap-3">
+                    <img src="/logo.png" class="w-8 h-8 rounded-full border border-gray-600" alt="Logo">
+                    <h2 class="text-xl font-bold text-white tracking-wide">Menu</h2>
+                </div>
+                <button id="sidebarCloseButton" class="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors">
+                    <i class="fas fa-times text-xl"></i>
                 </button>
             </div>
             
-            <nav class="flex-grow px-6 overflow-y-auto no-scrollbar"> 
-                <ul class="space-y-3">
+            <nav class="flex-grow py-6 px-4 overflow-y-auto bg-[#0f172a]"> 
+                <ul class="space-y-2">
                     <li>
-                        <a href="/" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors bg-blue-600 text-white whitespace-nowrap">
-                            <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6-4a1 1 0 001-1v-1a1 1 0 10-2 0v1a1 1 0 001 1z"></path></svg>
-                            <span>Home</span>
+                        <a href="/" class="flex items-center gap-4 px-4 py-3 rounded-lg text-gray-300 hover:bg-blue-600 hover:text-white transition-all group">
+                            <i class="fas fa-home w-6 text-center"></i>
+                            <span class="font-medium">Home</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/list-ai" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors hover:bg-blue-600 text-gray-300 hover:text-white whitespace-nowrap">
-                            <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M12 5V3m0 18v-2M7.05 7.05l-1.414-1.414M18.364 18.364l-1.414-1.414M7.05 18.364l-1.414 1.414M18.364 7.05l-1.414 1.414M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                            <span>List AI</span>
+                        <a href="/list-ai" class="flex items-center gap-4 px-4 py-3 rounded-lg text-gray-300 hover:bg-blue-600 hover:text-white transition-all group">
+                            <i class="fas fa-robot w-6 text-center"></i>
+                            <span class="font-medium">List AI</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/jadwal-kuliah" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors hover:bg-blue-600 text-gray-300 hover:text-white whitespace-nowrap">
-                            <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                            <span>Jadwal Kuliah</span>
+                        <a href="/jadwal-kuliah" class="flex items-center gap-4 px-4 py-3 rounded-lg text-gray-300 hover:bg-blue-600 hover:text-white transition-all group">
+                            <i class="fas fa-calendar-alt w-6 text-center"></i>
+                            <span class="font-medium">Jadwal Kuliah</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/list-tugas" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors hover:bg-blue-600 text-gray-300 hover:text-white whitespace-nowrap">
-                            <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
-                            <span>List Tugas</span>
+                        <a href="/list-tugas" class="flex items-center gap-4 px-4 py-3 rounded-lg text-gray-300 hover:bg-blue-600 hover:text-white transition-all group">
+                            <i class="fas fa-tasks w-6 text-center"></i>
+                            <span class="font-medium">List Tugas</span>
                         </a>
                     </li>
                 </ul>
             </nav>
-            <div class="mt-auto flex-shrink-0 px-6 pb-6"> 
-                <a href="/user" class="flex items-center gap-3 text-lg font-medium p-3 rounded-lg transition-colors hover:bg-blue-600 text-gray-300 hover:text-white whitespace-nowrap">
-                    <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm-2.92 7.06a11.91 11.91 0 00-2.16 0A11.97 11.97 0 005 21h14a11.97 11.97 0 00-4.08-3.94z"></path></svg>
-                    <span>Login</span>
+
+            <div class="p-4 border-t border-white/10 bg-[#111827]"> 
+                <a href="/user" class="flex items-center justify-center gap-2 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition-all shadow-lg shadow-blue-900/20">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span>Login Area</span>
                 </a>
             </div>
         </aside>
 
-        <div class="min-h-screen">
-            
-            <div class="fixed top-0 left-0 w-full p-4 md:p-6 flex justify-center z-30">
-                <nav id="navbar" class="w-full max-w-6xl bg-white/90 backdrop-blur-sm rounded-full shadow-lg border border-gray-200/50 flex items-center justify-between px-4 py-3 navbar">
-                    <div class="flex items-center gap-1 md:gap-3">
-                        <button id="sidebarToggle" class="text-gray-700 p-2 transition-colors hover:bg-gray-100 rounded-full">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+        <nav id="navbar" class="navbar-fixed fixed top-0 left-0 w-full z-50 transition-all duration-300 shadow-lg">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-16">
+                    
+                    <div class="flex items-center gap-4">
+                        <button id="sidebarToggle" class="text-gray-300 hover:text-white p-2 rounded-lg hover:bg-white/10 transition-colors focus:outline-none">
+                            <i class="fas fa-bars text-xl"></i>
                         </button>
-                        <span class="text-xl font-bold text-gray-800">Dardcor</span>
-                    </div>
-                    <div class="hidden lg:flex items-center gap-6">
-                        <a href="#home" class="text-sm font-medium text-gray-700 hover:text-black transition-colors">Home</a>
-                        <a href="#about" class="text-sm font-medium text-gray-700 hover:text-black transition-colors">About</a>
-                        <a href="#works" class="text-sm font-medium text-gray-700 hover:text-black transition-colors">Works</a>
-                        <a href="#contact" class="text-sm font-medium text-gray-700 hover:text-black transition-colors">Contact</a>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <div class="lg:hidden relative">
-                            <button id="mobileDropdownToggle" class="flex items-center text-gray-700 p-2 transition-colors hover:bg-gray-100 rounded-full">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                            </button>
-                            <div id="mobileDropdownMenu" class="absolute top-12 right-0 bg-white/95 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200/50 z-40 hidden mobile-dropdown min-w-[140px]">
-                                <div class="flex flex-col p-2 space-y-1">
-                                    <a href="#home" class="text-sm font-medium text-gray-700 hover:text-black transition-colors px-3 py-2 rounded-lg hover:bg-gray-100">Home</a>
-                                    <a href="#about" class="text-sm font-medium text-gray-700 hover:text-black transition-colors px-3 py-2 rounded-lg hover:bg-gray-100">About</a>
-                                    <a href="#works" class="text-sm font-medium text-gray-700 hover:text-black transition-colors px-3 py-2 rounded-lg hover:bg-gray-100">Works</a>
-                                    <a href="#contact" class="text-sm font-medium text-gray-700 hover:text-black transition-colors px-3 py-2 rounded-lg hover:bg-gray-100">Contact</a>
-                                </div>
-                            </div>
-                        </div>
-                        <a href="/admin" class="w-10 h-10 rounded-full flex items-center justify-center bg-gray-100 hover:bg-gray-200 transition-colors" aria-label="Admin Login">
-                            <img src="/logo.png" alt="Logo Admin" class="w-full h-full object-contain p-1 rounded-full logo-img">
+
+                        <a href="/admin" class="flex items-center gap-3 group">
+                            <img src="/logo.png" alt="Logo" class="w-8 h-8 rounded-full border border-gray-600 group-hover:rotate-12 transition-transform">
+                            <span class="text-xl font-bold text-white tracking-wide">Dardcor</span>
                         </a>
                     </div>
-                </nav>
+
+                    <div class="hidden lg:flex items-center space-x-8">
+                        <a href="#home" class="text-sm font-medium text-gray-300 hover:text-white hover:text-blue-400 transition-colors">Home</a>
+                        <a href="#about" class="text-sm font-medium text-gray-300 hover:text-white hover:text-blue-400 transition-colors">About</a>
+                        <a href="#works" class="text-sm font-medium text-gray-300 hover:text-white hover:text-blue-400 transition-colors">Works</a>
+                        <a href="#contact" class="text-sm font-medium text-gray-300 hover:text-white hover:text-blue-400 transition-colors">Contact</a>
+                    </div>
+
+                    <div class="flex items-center gap-3 lg:hidden">
+                        <button id="mobileMenuBtn" class="text-gray-300 hover:text-white p-2 rounded-lg hover:bg-white/10 transition-all duration-300 focus:outline-none">
+                            <i id="mobileMenuIcon" class="fas fa-chevron-down text-lg transition-transform duration-300"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
 
-            <main class="relative min-h-screen">
-                
-                <section id="home" class="hero-section relative flex items-center justify-center w-full min-h-screen">
-                    <div class="absolute inset-0 bg-black/60 z-10"></div>
-                    <div class="relative z-20 w-full max-w-6xl mx-auto px-4 sm:px-6 py-20 pt-32 md:pt-40">
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
-                            <div class="text-white text-center lg:text-left">
-                                <a href="/secret/home" class="text-lg sm:text-xl font-medium cursor-pointer hover:text-blue-500 transition-colors">
-                                    Hi, I'm
-                                </a>
-                                <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold my-4">Dardcor</h1>
-                                <p class="text-base sm:text-lg text-gray-300 mb-6 sm:mb-8 max-w-lg mx-auto lg:mx-0">
-                                    I'm a Web Developer based in Indonesia. I have a passion for building modern web applications, exploring new technologies, and solving problems with code.
-                                </p>
-                                <div class="flex items-center justify-center lg:justify-start gap-4 sm:gap-6 mb-6 sm:mb-8">
-                                    <a href="https://github.com/Dardcor" target="_blank" rel="noopener noreferrer" title="GitHub" class="text-gray-400 hover:text-white transition-colors">
-                                        <svg class="w-6 h-6 sm:w-7 sm:h-7" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.009-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.026 2.747-1.026.546 1.379.202 2.398.1 2.65.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd" /></svg>
-                                    </a>
-                                </div>
-                                <div class="flex justify-center lg:justify-start">
-                                    <a href="#contact" class="glass-effect inline-block bg-gray-900 hover:bg-gray-900 text-white font-bold py-3 px-6 rounded-lg transition-colors text-base sm:text-lg">
-                                        Contact Me
-                                    </a>
-                                </div>
+            <div id="mobileNavbarMenu" class="lg:hidden bg-[#111827] border-t border-white/10 absolute w-full left-0 top-16 shadow-xl">
+                <div class="px-4 py-3 space-y-2">
+                    <a href="#home" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-colors mobile-link">Home</a>
+                    <a href="#about" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-colors mobile-link">About</a>
+                    <a href="#works" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-colors mobile-link">Works</a>
+                    <a href="#contact" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-colors mobile-link">Contact</a>
+                </div>
+            </div>
+        </nav>
+
+        <main class="flex-grow pt-16"> 
+            
+            <section id="home" class="hero-section min-h-screen flex items-center justify-center relative">
+                <div class="container mx-auto px-4 sm:px-6 py-12 relative z-10">
+                    <div class="flex flex-col-reverse lg:flex-row items-center justify-center gap-12 lg:gap-20">
+                        
+                        <div class="flex-1 text-center lg:text-left animate-fade-in w-full">
+                            <div class="inline-block px-4 py-1.5 mb-4 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-medium">
+                                👋 Welcome to my portfolio
                             </div>
-                            <div class="relative flex justify-center items-center order-first lg:order-last">
-                                <div class="hero-image-container w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 rounded-full flex justify-center items-center">
-                                    <img src="/logo.png" alt="Dardcor" class="w-full h-full object-cover rounded-full logo-img p-4">
-                                </div>
-                                <div class="absolute w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 bg-blue-500/20 rounded-full blur-3xl z-[-1]"></div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-                
-                <section id="about" class="py-16 sm:py-20 section-padding">
-                    <div class="w-full max-w-4xl mx-auto px-4">
-                        <div class="section-card relative z-20 text-white p-6 sm:p-8 md:p-10 lg:p-12 rounded-2xl">
-                            <h2 class="text-2xl sm:text-3xl font-extrabold mb-6 text-center">Tentang Saya</h2>
-                            <p class="text-base sm:text-lg text-gray-300 text-center max-w-2xl mx-auto">
-                                Saya adalah seorang pengembang perangkat lunak yang bersemangat dalam membangun aplikasi web modern yang fungsional dan aplikasi desktop. Dengan pengalaman di berbagai teknologi, saya selalu antusias untuk belajar hal baru dan memecahkan masalah yang menantang.
+                            <h1 class="text-4xl sm:text-5xl lg:text-7xl font-extrabold text-white mb-6 leading-tight">
+                                Hi, I'm <span class="text-blue-500">Dardcor</span>
+                                <br>Web Developer
+                            </h1>
+                            <p class="text-lg text-gray-400 mb-8 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
+                                Membangun solusi digital modern dengan teknologi terkini. Fokus pada performa, desain responsif, dan pengalaman pengguna yang intuitif.
                             </p>
-                        </div>
-                    </div>
-                </section>
-
-                <section id="works" class="py-16 sm:py-20 bg-black/10 section-padding relative group">
-                    <div class="w-full max-w-[90rem] mx-auto px-4">
-                        <div class="flex justify-between items-end mb-8 px-2">
-                            <div>
-                                <h2 class="text-2xl sm:text-3xl font-extrabold text-white">Proyek Saya</h2>
-                                <p class="text-gray-400 text-sm mt-2">Geser untuk melihat lebih banyak</p>
-                            </div>
                             
-                            <div class="hidden md:flex gap-2">
-                                <button onclick="scrollProjects('left')" class="bg-gray-800 hover:bg-gray-700 text-white p-3 rounded-full transition-colors shadow-lg border border-gray-700">
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-                                </button>
-                                <button onclick="scrollProjects('right')" class="bg-gray-800 hover:bg-gray-700 text-white p-3 rounded-full transition-colors shadow-lg border border-gray-700">
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                            <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 w-full">
+                                <a href="#contact" class="w-full sm:w-auto px-8 py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg transition-all shadow-lg shadow-blue-600/25 flex items-center justify-center gap-2">
+                                    <span>Contact Me</span>
+                                    <i class="fas fa-arrow-right text-sm"></i>
+                                </a>
+                                
+                                <button id="heroInstallBtn" class="flex w-full sm:w-auto px-8 py-3.5 bg-green-600 hover:bg-green-500 text-white font-bold rounded-lg transition-all shadow-lg shadow-green-600/25 items-center justify-center gap-2">
+                                    <i class="fas fa-download text-lg"></i>
+                                    <span>Download App</span>
                                 </button>
                             </div>
                         </div>
 
-                        <div id="projectsContainer" class="flex overflow-x-auto space-x-6 pb-8 px-2 snap-x snap-mandatory no-scrollbar scroll-smooth">
-                            <div class="min-w-[300px] md:min-w-[350px] flex-shrink-0 snap-center project-card rounded-2xl overflow-hidden">
-                                <img src="https://placehold.co/600x400/1e293b/9ca3af?text=Hotel+App" alt="Hotel App" class="w-full h-48 object-cover">
-                                <div class="p-6">
-                                    <h3 class="text-xl font-bold mb-2 text-white">Aplikasi Hotel</h3>
-                                    <p class="text-gray-400 mb-4 text-sm">Sistem reservasi dan check-in hotel desktop.</p>
-                                    <span class="text-xs font-semibold bg-blue-600 text-white px-3 py-1 rounded-full">JavaFX</span>
-                                </div>
-                            </div>
-                            <div class="min-w-[300px] md:min-w-[350px] flex-shrink-0 snap-center project-card rounded-2xl overflow-hidden">
-                                <img src="https://placehold.co/600x400/1e293b/9ca3af?text=HR+System" alt="HR System" class="w-full h-48 object-cover">
-                                <div class="p-6">
-                                    <h3 class="text-xl font-bold mb-2 text-white">Sistem Karyawan</h3>
-                                    <p class="text-gray-400 mb-4 text-sm">Manajemen data karyawan dan penggajian.</p>
-                                    <span class="text-xs font-semibold bg-red-500 text-white px-3 py-1 rounded-full">Laravel</span>
-                                </div>
-                            </div>
-                            <div class="min-w-[300px] md:min-w-[350px] flex-shrink-0 snap-center project-card rounded-2xl overflow-hidden">
-                                <img src="https://placehold.co/600x400/1e293b/9ca3af?text=Dashboard" alt="Dashboard" class="w-full h-48 object-cover">
-                                <div class="p-6">
-                                    <h3 class="text-xl font-bold mb-2 text-white">Admin Dashboard</h3>
-                                    <p class="text-gray-400 mb-4 text-sm">Visualisasi data real-time untuk admin.</p>
-                                    <span class="text-xs font-semibold bg-cyan-500 text-white px-3 py-1 rounded-full">React</span>
-                                    <span class="text-xs font-semibold bg-green-600 text-white px-3 py-1 rounded-full ml-1">Node</span>
-                                </div>
-                            </div>
-                            <div class="min-w-[300px] md:min-w-[350px] flex-shrink-0 snap-center project-card rounded-2xl overflow-hidden">
-                                <img src="https://placehold.co/600x400/1e293b/9ca3af?text=E-Commerce" alt="E-Commerce" class="w-full h-48 object-cover">
-                                <div class="p-6">
-                                    <h3 class="text-xl font-bold mb-2 text-white">Toko Online</h3>
-                                    <p class="text-gray-400 mb-4 text-sm">Platform belanja online dengan payment gateway.</p>
-                                    <span class="text-xs font-semibold bg-purple-600 text-white px-3 py-1 rounded-full">PHP Native</span>
+                        <div class="flex-1 flex justify-center lg:justify-end animate-fade-in w-full" style="animation-delay: 0.2s;">
+                            <div class="relative">
+                                <div class="absolute inset-0 bg-blue-500/20 blur-3xl rounded-full"></div>
+                                <div class="hero-image-container w-64 h-64 sm:w-80 sm:h-80 lg:w-[450px] lg:h-[450px] rounded-full overflow-hidden relative z-10">
+                                    <img src="/logo.png" alt="Dardcor" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500">
                                 </div>
                             </div>
                         </div>
                     </div>
-                </section>
+                </div>
+            </section>
 
-                <section id="skills" class="py-16 sm:py-20 section-padding">
-                    <div class="w-full max-w-4xl mx-auto px-4">
-                        <div class="section-card relative z-20 text-white p-6 sm:p-8 md:p-10 lg:p-12 rounded-2xl">
-                            <h2 class="text-2xl sm:text-3xl font-extrabold mb-8 sm:mb-10 text-center">Teknologi</h2>
-                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 sm:gap-6 md:gap-8">
-                                <div class="tech-card flex flex-col items-center justify-center p-3 sm:p-4 rounded-lg">
-                                    <i class="devicon-laravel-plain text-gray-400"></i>
-                                    <span class="mt-2 sm:mt-4 font-medium text-sm sm:text-base">Laravel</span>
-                                </div>
-                                <div class="tech-card flex flex-col items-center justify-center p-3 sm:p-4 rounded-lg">
-                                    <i class="devicon-react-original text-gray-400"></i>
-                                    <span class="mt-2 sm:mt-4 font-medium text-sm sm:text-base">React</span>
-                                </div>
-                                <div class="tech-card flex flex-col items-center justify-center p-3 sm:p-4 rounded-lg">
-                                    <i class="devicon-nodejs-plain text-gray-400"></i>
-                                    <span class="mt-2 sm:mt-4 font-medium text-sm sm:text-base">Node.js</span>
-                                </div>
-                                <div class="tech-card flex flex-col items-center justify-center p-3 sm:p-4 rounded-lg">
-                                    <i class="devicon-java-plain text-gray-400"></i>
-                                    <span class="mt-2 sm:mt-4 font-medium text-sm sm:text-base">JavaFX</span>
-                                </div>
-                                <div class="tech-card flex flex-col items-center justify-center p-3 sm:p-4 rounded-lg">
-                                    <i class="devicon-supabase-plain text-gray-400"></i>
-                                    <span class="mt-2 sm:mt-4 font-medium text-sm sm:text-base">Supabase</span>
-                                </div>
-                                <div class="tech-card flex flex-col items-center justify-center p-3 sm:p-4 rounded-lg">
-                                    <i class="devicon-tailwindcss-plain text-gray-400"></i>
-                                    <span class="mt-2 sm:mt-4 font-medium text-sm sm:text-base">Tailwind</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <section id="contact" class="py-16 sm:py-20 bg-black/10 section-padding">
-                    <div class="w-full max-w-4xl mx-auto px-4 text-center text-white">
-                        <h2 class="text-2xl sm:text-3xl font-extrabold mb-6">Hubungi Saya</h2>
-                        <p class="text-base sm:text-lg text-gray-300 mb-6 sm:mb-8 max-w-xl mx-auto">
-                            Tertarik untuk bekerja sama? Saya selalu terbuka untuk diskusi proyek baru atau peluang kolaborasi.
+            <section id="about" class="py-20 bg-[#111827]">
+                <div class="container mx-auto px-4">
+                    <div class="section-card p-8 md:p-12 rounded-3xl max-w-5xl mx-auto relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-64 h-64 bg-blue-600/10 blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+                        <h2 class="text-3xl md:text-4xl font-bold text-white mb-8 text-center relative z-10">Tentang Saya</h2>
+                        <p class="text-gray-300 text-center text-lg leading-relaxed relative z-10 max-w-3xl mx-auto">
+                            Saya adalah pengembang perangkat lunak yang berdedikasi dengan keahlian dalam membangun aplikasi web dan desktop. Saya menikmati tantangan mengubah ide kompleks menjadi produk digital yang elegan dan fungsional menggunakan teknologi seperti Laravel, Node.js, dan React.
                         </p>
-                        <a href="mailto:email@anda.com" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors text-base sm:text-lg">
-                            Kirim Email
-                        </a>
                     </div>
-                </section>
-                
-                <footer class="text-center p-6 sm:p-8 text-gray-500 text-sm sm:text-base">
-                    © 2025 Dardcor. Semua hak cipta dilindungi.
-                </footer>
-            </main>
-        </div>
-    </div> 
-    
+                </div>
+            </section>
+
+            <section id="works" class="py-20 bg-[#16213e]">
+                <div class="container mx-auto px-4">
+                    <div class="flex justify-between items-end mb-12">
+                        <div>
+                            <h2 class="text-3xl md:text-4xl font-bold text-white">Proyek Unggulan</h2>
+                            <p class="text-gray-400 mt-2">Geser untuk melihat karya terbaru</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="scrollProjects('left')" class="w-10 h-10 rounded-full bg-gray-800 hover:bg-gray-700 text-white flex items-center justify-center border border-gray-700 transition-colors">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button onclick="scrollProjects('right')" class="w-10 h-10 rounded-full bg-gray-800 hover:bg-gray-700 text-white flex items-center justify-center border border-gray-700 transition-colors">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="projectsContainer" class="flex overflow-x-auto gap-6 pb-8 snap-x snap-mandatory no-scrollbar">
+                        <div class="min-w-[300px] md:min-w-[380px] snap-center project-card rounded-2xl overflow-hidden group cursor-pointer">
+                            <div class="h-48 overflow-hidden relative">
+                                <div class="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors z-10"></div>
+                                <img src="https://placehold.co/600x400/1e293b/9ca3af?text=Hotel+App" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                            </div>
+                            <div class="p-6">
+                                <h3 class="text-xl font-bold text-white mb-2 group-hover:text-blue-400 transition-colors">Aplikasi Hotel</h3>
+                                <p class="text-gray-400 text-sm mb-4">Sistem reservasi desktop komprehensif dengan manajemen kamar.</p>
+                                <div class="flex gap-2">
+                                    <span class="px-3 py-1 text-xs rounded-full bg-orange-500/10 text-orange-400 border border-orange-500/20">JavaFX</span>
+                                    <span class="px-3 py-1 text-xs rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">MySQL</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="min-w-[300px] md:min-w-[380px] snap-center project-card rounded-2xl overflow-hidden group cursor-pointer">
+                            <div class="h-48 overflow-hidden relative">
+                                <img src="https://placehold.co/600x400/1e293b/9ca3af?text=HR+System" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                            </div>
+                            <div class="p-6">
+                                <h3 class="text-xl font-bold text-white mb-2 group-hover:text-blue-400 transition-colors">Sistem HR</h3>
+                                <p class="text-gray-400 text-sm mb-4">Platform manajemen karyawan, absensi, dan penggajian.</p>
+                                <div class="flex gap-2">
+                                    <span class="px-3 py-1 text-xs rounded-full bg-red-500/10 text-red-400 border border-red-500/20">Laravel</span>
+                                    <span class="px-3 py-1 text-xs rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20">Bootstrap</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="min-w-[300px] md:min-w-[380px] snap-center project-card rounded-2xl overflow-hidden group cursor-pointer">
+                            <div class="h-48 overflow-hidden relative">
+                                <img src="https://placehold.co/600x400/1e293b/9ca3af?text=AI+Chat" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                            </div>
+                            <div class="p-6">
+                                <h3 class="text-xl font-bold text-white mb-2 group-hover:text-blue-400 transition-colors">Dardcor AI</h3>
+                                <p class="text-gray-400 text-sm mb-4">Chatbot pintar terintegrasi dengan Gemini API.</p>
+                                <div class="flex gap-2">
+                                    <span class="px-3 py-1 text-xs rounded-full bg-green-500/10 text-green-400 border border-green-500/20">Node.js</span>
+                                    <span class="px-3 py-1 text-xs rounded-full bg-yellow-500/10 text-yellow-400 border border-yellow-500/20">Gemini API</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="skills" class="py-20 bg-[#111827]">
+                <div class="container mx-auto px-4">
+                    <h2 class="text-3xl font-bold text-white text-center mb-12">Tech Stack</h2>
+                    <div class="flex flex-wrap justify-center gap-6">
+                        <div class="tech-card p-6 rounded-xl flex flex-col items-center justify-center w-32 h-32 hover:bg-[#1e293b]">
+                            <i class="devicon-laravel-plain text-4xl text-red-500 mb-2"></i>
+                            <span class="text-sm font-medium">Laravel</span>
+                        </div>
+                        <div class="tech-card p-6 rounded-xl flex flex-col items-center justify-center w-32 h-32 hover:bg-[#1e293b]">
+                            <i class="devicon-react-original text-4xl text-cyan-400 mb-2"></i>
+                            <span class="text-sm font-medium">React</span>
+                        </div>
+                        <div class="tech-card p-6 rounded-xl flex flex-col items-center justify-center w-32 h-32 hover:bg-[#1e293b]">
+                            <i class="devicon-nodejs-plain text-4xl text-green-500 mb-2"></i>
+                            <span class="text-sm font-medium">Node.js</span>
+                        </div>
+                        <div class="tech-card p-6 rounded-xl flex flex-col items-center justify-center w-32 h-32 hover:bg-[#1e293b]">
+                            <i class="devicon-java-plain text-4xl text-orange-400 mb-2"></i>
+                            <span class="text-sm font-medium">Java</span>
+                        </div>
+                        <div class="tech-card p-6 rounded-xl flex flex-col items-center justify-center w-32 h-32 hover:bg-[#1e293b]">
+                            <i class="devicon-tailwindcss-plain text-4xl text-cyan-300 mb-2"></i>
+                            <span class="text-sm font-medium">Tailwind</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <footer class="bg-[#0f172a] border-t border-gray-800 py-8">
+                <div class="container mx-auto px-4 text-center">
+                    <p class="text-gray-500 text-sm">&copy; 2025 Dardcor. Built with passion & code.</p>
+                </div>
+            </footer>
+
+        </main>
+    </div>
+
     <script>
+        // PWA Install Logic
+        let deferredPrompt;
+        const heroInstallBtn = document.getElementById('heroInstallBtn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+        });
+
+        async function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log(`Install prompt outcome: ${outcome}`);
+                deferredPrompt = null;
+            } else {
+                console.log('PWA prompt not available, browser might be incompatible or app installed.');
+            }
+        }
+
+        if(heroInstallBtn) heroInstallBtn.addEventListener('click', installPWA);
+
+        // Sidebar Logic
         document.addEventListener('DOMContentLoaded', () => {
             const toggleButton = document.getElementById('sidebarToggle');
             const sidebar = document.getElementById('sidebar');
             const backdrop = document.getElementById('sidebarBackdrop');
             const closeButton = document.getElementById('sidebarCloseButton');
-            const navbar = document.getElementById('navbar');
             
-            const mobileDropdownToggle = document.getElementById('mobileDropdownToggle');
-            const mobileDropdownMenu = document.getElementById('mobileDropdownMenu');
+            // Mobile Menu Logic
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const mobileNavbarMenu = document.getElementById('mobileNavbarMenu');
+            const mobileMenuIcon = document.getElementById('mobileMenuIcon');
+            const mobileLinks = document.querySelectorAll('.mobile-link');
 
-            let sidebarOpen = false;
-
-            function openSidebar() {
-                sidebar.classList.remove('-translate-x-full');
-                if (window.innerWidth < 1024) {
+            function toggleSidebar() {
+                const isClosed = sidebar.classList.contains('-translate-x-full');
+                if (isClosed) {
+                    sidebar.classList.remove('-translate-x-full');
                     backdrop.classList.remove('hidden');
                     setTimeout(() => backdrop.classList.remove('opacity-0'), 10);
                     document.body.style.overflow = 'hidden';
-                }
-                sidebarOpen = true;
-            }
-
-            function closeSidebar() {
-                sidebar.classList.add('-translate-x-full');
-                if (window.innerWidth < 1024) {
+                } else {
+                    sidebar.classList.add('-translate-x-full');
                     backdrop.classList.add('opacity-0');
                     setTimeout(() => backdrop.classList.add('hidden'), 300);
                     document.body.style.overflow = '';
                 }
-                sidebarOpen = false;
             }
 
-            function toggleSidebar() {
-                if (sidebarOpen) {
-                    closeSidebar();
-                } else {
-                    openSidebar();
-                }
-            }
+            // Mobile Dropdown Menu Logic
+            if(mobileMenuBtn) {
+                mobileMenuBtn.addEventListener('click', () => {
+                    const isOpen = mobileNavbarMenu.classList.contains('open');
+                    if(isOpen) {
+                        mobileNavbarMenu.classList.remove('open');
+                        mobileMenuIcon.classList.remove('rotate-icon');
+                    } else {
+                        mobileNavbarMenu.classList.add('open');
+                        mobileMenuIcon.classList.add('rotate-icon');
+                    }
+                });
 
-            function toggleMobileDropdown() {
-                mobileDropdownMenu.classList.toggle('hidden');
+                mobileLinks.forEach(link => {
+                    link.addEventListener('click', () => {
+                        mobileNavbarMenu.classList.remove('open');
+                        mobileMenuIcon.classList.remove('rotate-icon');
+                    });
+                });
             }
 
             if (toggleButton) toggleButton.addEventListener('click', toggleSidebar);
-            
-            if (closeButton) {
-                closeButton.addEventListener('click', closeSidebar);
-            }
-            
-            if (backdrop) {
-                backdrop.addEventListener('click', closeSidebar);
-            }
-
-            if (mobileDropdownToggle && mobileDropdownMenu) {
-                mobileDropdownToggle.addEventListener('click', toggleMobileDropdown);
-            }
-
-            document.addEventListener('click', (event) => {
-                if (mobileDropdownMenu && !mobileDropdownMenu.contains(event.target) && 
-                    mobileDropdownToggle && !mobileDropdownToggle.contains(event.target)) {
-                    mobileDropdownMenu.classList.add('hidden');
-                }
-            });
-
-            window.addEventListener('scroll', () => {
-                if (window.scrollY > 10) {
-                    navbar.classList.add('navbar-scrolled');
-                } else {
-                    navbar.classList.remove('navbar-scrolled');
-                }
-            });
-
-            window.addEventListener('resize', () => {
-                if (window.innerWidth >= 1024) {
-                    backdrop.classList.add('hidden');
-                    backdrop.classList.add('opacity-0');
-                    document.body.style.overflow = '';
-                    
-                    if (sidebarOpen) {
-                        closeSidebar();
-                    }
-                } else {
-                    if (sidebarOpen) {
-                        sidebar.classList.add('-translate-x-full');
-                        backdrop.classList.add('hidden');
-                        backdrop.classList.add('opacity-0');
-                        document.body.style.overflow = '';
-                        sidebarOpen = false;
-                    }
-                }
-            });
-
-            document.querySelectorAll('nav a').forEach(link => {
-                link.addEventListener('click', () => {
-                    if (window.innerWidth < 1024) {
-                        closeSidebar();
-                    }
-                });
-            });
-
-            if (window.innerWidth >= 1024) {
-                closeSidebar();
-            }
-
-            window.addEventListener('load', function() {
-                const headerImg = new Image();
-                headerImg.src = '/header.jpg';
-                const logoImg = new Image();
-                logoImg.src = '/logo.png';
-            });
+            if (closeButton) closeButton.addEventListener('click', toggleSidebar);
+            if (backdrop) backdrop.addEventListener('click', toggleSidebar);
         });
 
+        // Scroll Projects Logic
         function scrollProjects(direction) {
             const container = document.getElementById('projectsContainer');
-            const scrollAmount = 400;
+            const scrollAmount = 320;
             if (direction === 'left') {
                 container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
             } else {
