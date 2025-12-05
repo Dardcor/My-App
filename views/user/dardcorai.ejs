@@ -3,6 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#1a1a2e">
+    <link rel="manifest" href="/manifest.json">
+
     <title>Dardcor AI</title>
     <link rel="icon" href="/logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -80,7 +87,7 @@
         </div>
         
         <div class="flex-1 overflow-y-auto p-2 space-y-1.5 scrollbar-hide">
-            <button onclick="createNewChat()" class="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-700/50 hover:bg-gray-800 text-left transition text-sm text-gray-300 mb-4">
+            <button onclick="createNewChat()" class="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-700/50 hover:bg-gray-800 text-left transition text-sm text-gray-300 mb-4 h-[44px]">
                 <div class="w-6 h-6 bg-blue-500/20 rounded flex items-center justify-center text-blue-400"><i class="fas fa-plus text-xs"></i></div>
                 <span>New Chat</span>
             </button>
@@ -89,20 +96,20 @@
 
             <% const currentChatExists = fullHistory.some(chat => chat.conversation_id === activeConversationId); %>
             <% if (!currentChatExists) { %>
-                <div id="active-new-chat" class="group relative flex items-center p-2.5 rounded-lg bg-gray-800 border-l-4 border-blue-500 cursor-pointer transition">
+                <div id="active-new-chat" class="group relative flex items-center px-3 h-[44px] rounded-lg bg-gray-800 border-l-4 border-blue-500 cursor-pointer transition">
                     <i class="fas fa-message text-gray-500 mr-3 text-xs"></i>
                     <span class="text-sm truncate flex-1 text-gray-300 font-medium">Percakapan Baru</span>
                 </div>
             <% } %>
 
             <% fullHistory.forEach(chat => { %>
-                <div class="group relative flex items-center p-2 rounded-lg hover:bg-[#202336] transition-colors duration-200 cursor-pointer <%= chat.conversation_id === activeConversationId ? 'bg-[#202336] border-l-4 border-blue-500' : 'border-l-4 border-transparent' %>">
-                    <div class="flex-1 min-w-0 pr-2 py-1 flex items-center" onclick="window.location.href='/user/dardcor-ai/<%= chat.conversation_id %>'">
+                <div class="group relative flex items-center px-3 h-[44px] rounded-lg hover:bg-[#202336] transition-colors duration-200 cursor-pointer <%= chat.conversation_id === activeConversationId ? 'bg-[#202336] border-l-4 border-blue-500' : 'border-l-4 border-transparent' %>">
+                    <div class="flex-1 min-w-0 pr-2 flex items-center h-full" onclick="window.location.href='/user/dardcor-ai/<%= chat.conversation_id %>'">
                         <i class="fas fa-message text-gray-500 mr-3 text-xs flex-shrink-0"></i>
                         <span class="text-sm text-gray-300 truncate"><%= chat.message ? chat.message.substring(0, 22) : 'Percakapan' %>...</span>
                     </div>
                     
-                    <div class="relative">
+                    <div class="relative flex items-center h-full">
                         <button onclick="toggleMenu(event, 'menu-<%= chat.conversation_id %>')" class="p-1.5 text-gray-500 hover:text-white rounded focus:outline-none transition opacity-0 group-hover:opacity-100 focus:opacity-100">
                             <i class="fas fa-ellipsis-v text-xs"></i>
                         </button>
