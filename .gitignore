@@ -5,5 +5,5 @@
 .env
 
 # Log atau file build/dist
-/logs
-/dist
+#/logs
+#/dist

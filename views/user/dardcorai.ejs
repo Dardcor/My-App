@@ -1,522 +1,412 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#1a1a2e">
-    <link rel="manifest" href="/manifest.json">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dardcor AI</title>
     <link rel="icon" href="/logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Poppins', sans-serif; background-color: #1a1a2e; color: #cbd5e1; overflow: hidden; height: 100vh; height: 100dvh; }
-        #sidebar { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 50; flex-shrink: 0; }
-        @media (min-width: 1024px) {
-            #sidebar { position: relative; transform: translateX(0); width: 280px; }
-            #sidebar.collapsed { width: 0; overflow: hidden; padding: 0; border: none; }
-            #overlay { display: none !important; }
-        }
-        @media (max-width: 1023px) {
-            #sidebar { position: fixed; top: 0; bottom: 0; left: 0; width: 280px; transform: translateX(-100%); }
-            #sidebar.mobile-open { transform: translateX(0); }
-            #overlay { transition: opacity 0.3s ease; z-index: 45; }
-        }
-        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #475569; }
-        .message-user { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; border-radius: 18px 18px 4px 18px; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2); }
-        .message-bot { background: #1e293b; color: #e2e8f0; border-radius: 18px 18px 18px 4px; border: 1px solid #334155; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); }
-        .message-error { background: #450a0a; color: #fca5a5; border-radius: 18px 18px 18px 4px; border: 1px solid #7f1d1d; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); }
-        .code-block-wrapper { margin: 16px 0; border-radius: 8px; overflow: hidden; background: #0d1117; border: 1px solid #30363d; position: relative; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
-        .code-header { display: flex; justify-content: space-between; align-items: center; background: #161b22; padding: 8px 12px; border-bottom: 1px solid #30363d; font-size: 0.75rem; color: #c9d1d9; font-family: 'Fira Code', monospace; font-weight: 500; }
-        .copy-btn { background: #21262d; border: 1px solid #30363d; border-radius: 4px; color: #c9d1d9; cursor: pointer; font-size: 0.7rem; padding: 4px 10px; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
-        .copy-btn:hover { background: #30363d; border-color: #8b949e; color: white; }
-        code.hljs { padding: 1.2rem !important; font-family: 'Fira Code', monospace; font-size: 0.85rem; line-height: 1.6; background: #0d1117 !important; display: block; overflow-x: auto; }
-        .typing-indicator span { display: inline-block; width: 6px; height: 6px; background-color: #94a3b8; border-radius: 50%; animation: typing 1.4s infinite ease-in-out both; margin: 0 1px; }
-        .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
-        .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
-        @keyframes typing { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
-        .markdown-body p { margin-bottom: 0.75rem; }
-        .markdown-body ul, .markdown-body ol { padding-left: 1.5rem; margin-bottom: 0.75rem; list-style: disc; }
-        .markdown-body li { margin-bottom: 0.25rem; }
-        .markdown-body h1, .markdown-body h2, .markdown-body h3 { margin-top: 1rem; margin-bottom: 0.5rem; font-weight: 600; color: #fff; }
-        .markdown-body a { color: #3b82f6; text-decoration: underline; }
-        .markdown-body strong { color: #fff; font-weight: 600; }
-        .chat-options-menu { display: none; position: absolute; right: 10px; top: 30px; background: #1e293b; border: 1px solid #334155; border-radius: 0.5rem; z-index: 60; width: 120px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
-        .chat-options-menu.show { display: block; }
-        .chat-input-container { background: #1e293b; border-radius: 1.5rem; transition: all 0.2s; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); border: none; width: 100%; display: flex; align-items: flex-end; padding: 0.5rem; gap: 0.5rem; }
-        .chat-input-container:focus-within { background: #253045; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1); }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
-        @media(max-width:640px){ .message-user,.message-bot,.message-error{max-width:90%;font-size:14px;padding:12px;} }
-        @media(min-width:641px) and (max-width:1024px){ .message-user,.message-bot,.message-error{max-width:80%;} }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        pre { margin: 0; padding: 0; background: transparent; }
+        .code-block-wrapper { position: relative; margin: 0.5em 0; border-radius: 0.375rem; overflow: hidden; border: 1px solid #374151; }
+        .code-header { display: flex; justify-content: space-between; align-items: center; background-color: #1f2937; padding: 0.25rem 0.75rem; color: #9ca3af; font-size: 0.75rem; border-bottom: 1px solid #374151; }
+        .code-content { padding: 0.75rem; background-color: #111827; overflow-x: auto; color: #e5e7eb; font-family: 'Courier New', Courier, monospace; font-size: 0.875rem; }
+        .btn-action { display: flex; gap: 0.5rem; }
+        .btn-code { cursor: pointer; padding: 0.125rem 0.375rem; border-radius: 0.25rem; transition: background-color 0.2s; }
+        .btn-code:hover { background-color: #374151; color: #ffffff; }
+        .markdown-body ul { list-style-type: disc; margin-left: 1.25em; }
+        .markdown-body ol { list-style-type: decimal; margin-left: 1.25em; }
+        .markdown-body p { margin-bottom: 0.5em; }
+        .markdown-body h1, .markdown-body h2, .markdown-body h3 { font-weight: bold; margin-top: 0.75em; margin-bottom: 0.25em; }
+        #sidebar { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
     </style>
 </head>
-<body class="flex bg-[#1a1a2e]">
-    <div id="overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden" onclick="toggleSidebar()"></div>
-    <aside id="sidebar" class="flex flex-col h-full bg-[#131b2e] border-r border-gray-800">
-        <div class="p-4 flex items-center justify-between border-b border-gray-800 h-16 flex-shrink-0">
-            <a href="/user/home" class="flex items-center gap-3 group">
-                <div class="w-9 h-9 rounded-xl overflow-hidden shadow-lg group-hover:scale-105 transition-transform bg-[#1e293b]">
-                    <img src="/logo.png" class="w-full h-full object-cover">
-                </div>
-                <div>
-                    <h1 class="text-base font-bold text-white leading-tight">Dardcor AI</h1>
-                    <p class="text-[10px] text-gray-400">Virtual Assistant</p>
-                </div>
-            </a>
-            <button onclick="toggleSidebar()" class="lg:hidden text-gray-400 hover:text-white p-2">
-                <i class="fas fa-times text-xl"></i>
-            </button>
-        </div>
-        <div class="p-4 flex-shrink-0">
-            <button id="newChatBtn" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-3 px-4 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-blue-900/30 font-medium transition-all active:scale-95 border border-blue-500/30">
-                <i class="fas fa-plus"></i>
-                <span>Chat Baru</span>
-            </button>
-        </div>
-        <div class="flex-1 overflow-y-auto px-3 custom-scrollbar">
-            <div class="text-center px-2 py-2 text-xs font-bold text-gray-500 uppercase tracking-wider mb-1 sticky top-0 bg-[#131b2e] z-10">Riwayat</div>
-            <div id="historyList" class="space-y-1 pb-4">
-                <% if (typeof fullHistory !== 'undefined' && fullHistory.length > 0) { 
-                    const reversedHistory = fullHistory.slice().reverse();
-                    for(let i = 0; i < reversedHistory.length; i++) {
-                        const conv = reversedHistory[i];
-                        const isActive = conv.conversation_id === activeConversationId;
-                        const safeMessage = conv.message || 'Percakapan Baru';
-                        const title = safeMessage.substring(0, 35) + (safeMessage.length > 35 ? '...' : '');
-                %>
-                    <div class="relative group/item">
-                        <a href="/user/dardcor-ai/<%= conv.conversation_id %>" onclick="handleChatClick(event, '<%= conv.conversation_id %>')" class="flex items-center gap-3 px-3 py-3 rounded-lg text-sm transition-all duration-200 <%= isActive ? 'bg-slate-800/80 text-white border-l-2 border-blue-500' : 'text-gray-400 hover:bg-slate-800/50 hover:text-gray-200' %> pr-8">
-                            <div class="flex-1 min-w-0">
-                                <p class="truncate text-sm" id="title-<%= conv.conversation_id %>"><%= title %></p>
-                            </div>
-                        </a>
-                        <button onclick="toggleChatMenu(event, '<%= conv.conversation_id %>')" class="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-500 hover:text-white rounded transition-colors opacity-0 group-hover/item:opacity-100 <%= isActive ? 'opacity-100' : '' %>">
-                            <i class="fas fa-ellipsis-v text-xs"></i>
-                        </button>
-                        <div id="menu-<%= conv.conversation_id %>" class="chat-options-menu">
-                            <button onclick="renameChat('<%= conv.conversation_id %>', '<%= title %>')" class="w-full text-left px-3 py-2 text-xs text-gray-300 hover:bg-slate-700 hover:text-white flex items-center gap-2 rounded-t-md">
-                                <i class="fas fa-pen"></i> Rename
-                            </button>
-                            <button onclick="deleteChat('<%= conv.conversation_id %>')" class="w-full text-left px-3 py-2 text-xs text-red-400 hover:bg-slate-700 hover:text-red-300 flex items-center gap-2 rounded-b-md">
-                                <i class="fas fa-trash"></i> Hapus
-                            </button>
-                        </div>
-                    </div>
-                <% }} else { %>
-                    <div class="text-center py-12 px-4 opacity-60">
-                        <i class="fas fa-comments text-4xl text-gray-700 mb-3"></i>
-                        <p class="text-gray-500 text-xs">Belum ada riwayat percakapan.</p>
-                    </div>
-                <% } %>
+<body class="bg-[#0f111a] text-white font-sans h-screen flex overflow-hidden">
+
+    <div id="mobile-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/60 z-40 hidden md:hidden backdrop-blur-sm"></div>
+
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-[#1a1c29] border-r border-gray-800 flex flex-col transform -translate-x-full md:translate-x-0 md:relative md:w-72 whitespace-nowrap overflow-hidden">
+        <div class="p-4 flex items-center justify-between border-b border-gray-800 h-14 shrink-0">
+            <span class="font-bold text-lg tracking-wider text-blue-500">Dardcor<span class="text-white">AI</span></span>
+            <div class="flex items-center gap-2">
+                <button onclick="createNewChat()" class="text-gray-400 hover:text-white p-1.5 rounded-full hover:bg-gray-800 transition"><i class="fas fa-plus"></i></button>
+                <button onclick="toggleSidebar()" class="md:hidden text-gray-400 hover:text-white p-1.5"><i class="fas fa-times"></i></button>
             </div>
         </div>
-        <div class="p-4 border-t border-gray-800 bg-[#131b2e] flex-shrink-0">
-            <a href="/user/home" class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-800/50 transition-colors group">
-                <div class="relative">
-                    <img src="<%= user.profile_image || 'https://ui-avatars.com/api/?name=' + (user.username || 'User') + '&background=random&color=fff' %>" class="w-9 h-9 rounded-full object-cover border border-gray-600 group-hover:border-gray-400 transition-colors">
-                    <div class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-[#131b2e]"></div>
+        
+        <div class="flex-1 overflow-y-auto p-2 space-y-1.5 scrollbar-hide">
+            <% fullHistory.forEach(chat => { %>
+                <div class="group relative flex items-center p-2.5 rounded-lg hover:bg-gray-800 cursor-pointer transition <%= chat.conversation_id === activeConversationId ? 'bg-gray-800 border-l-2 border-blue-500' : '' %>" onclick="window.location.href='/user/dardcor-ai/<%= chat.conversation_id %>'">
+                    <i class="fas fa-message text-gray-500 mr-3 text-xs"></i>
+                    <span class="text-sm truncate flex-1 text-gray-300"><%= chat.message ? chat.message.substring(0, 25) : 'New Chat' %>...</span>
+                    <button onclick="deleteChat(event, '<%= chat.conversation_id %>')" class="absolute right-2 opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-500 transition p-1"><i class="fas fa-trash text-xs"></i></button>
                 </div>
-                <div class="flex-1 min-w-0">
-                    <p class="text-sm font-medium text-white truncate"><%= user.full_name || user.username %></p>
-                    <p class="text-[10px] text-gray-500 truncate">Back To Home</p>
+            <% }) %>
+        </div>
+
+        <div class="p-3 border-t border-gray-800 bg-[#151722] shrink-0">
+            <a href="/user/home" class="flex items-center text-gray-400 hover:text-white transition">
+                <img src="https://ui-avatars.com/api/?name=<%= user.username %>&background=random" class="w-8 h-8 rounded-full mr-3 border border-gray-700">
+                <div class="flex flex-col overflow-hidden">
+                    <span class="text-sm font-medium text-gray-200 truncate"><%= user.username %></span>
+                    <span class="text-[10px] text-gray-500">Back to Dashboard</span>
                 </div>
             </a>
         </div>
     </aside>
-    <main id="mainContent" class="flex-1 flex flex-col h-full w-full bg-[#1a1a2e] transition-all duration-300 relative">
-        <header class="h-16 flex items-center justify-between px-4 md:px-6 border-b border-gray-800 bg-[#1a1a2e]/95 backdrop-blur-sm sticky top-0 z-40 shrink-0">
+
+    <main class="flex-1 flex flex-col relative w-full h-full min-w-0">
+        <header class="h-14 flex items-center justify-between px-4 border-b border-gray-800 bg-[#0f111a] z-10 shrink-0">
             <div class="flex items-center gap-3">
-                <button onclick="toggleSidebar()" class="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-all">
-                    <i class="fas fa-bars text-lg"></i>
-                </button>
+                <button onclick="toggleSidebar()" class="text-gray-400 p-2 rounded hover:bg-gray-800 transition"><i class="fas fa-bars"></i></button>
+                <h2 class="text-base font-semibold text-gray-200 flex items-center gap-2">
+                    <span class="text-blue-500"><i class="fas fa-bolt"></i></span>
+                    <span class="hidden sm:inline">Dardcor Model 2.0 Flash</span>
+                    <span class="sm:hidden">Dardcor 2.0</span>
+                </h2>
             </div>
         </header>
-        <div id="chatContainer" class="flex-1 overflow-y-auto p-4 md:p-6 custom-scrollbar scroll-smooth relative z-0">
-            <% if (!chatHistory || chatHistory.length === 0) { %>
-                <div id="welcomeScreen" class="h-full flex flex-col items-center justify-center text-center pb-10 animate-fade-in">
-                    <div class="w-24 h-24 rounded-full flex items-center justify-center mb-6 border border-white/5 shadow-2xl overflow-hidden bg-[#1e293b]">
-                        <img src="/logo.png" class="w-full h-full object-cover">
+
+        <div id="chat-container" class="flex-1 overflow-y-auto p-3 md:p-5 space-y-4 scrollbar-hide w-full max-w-4xl mx-auto pb-48">
+            <% if (chatHistory.length === 0) { %>
+                <div class="h-full flex flex-col items-center justify-center text-gray-500 opacity-60">
+                    <div class="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mb-4 animate-pulse">
+                        <i class="fas fa-robot text-3xl text-blue-500"></i>
                     </div>
-                    <h2 class="text-2xl md:text-3xl font-bold text-white mb-3">Halo, <%= user.username %>!</h2>
-                    <p class="text-gray-400 max-w-md text-sm mb-8">Apa yang bisa saya bantu hari ini?</p>
+                    <p class="text-base font-medium text-gray-400">Apa yang bisa saya bantu?</p>
                 </div>
             <% } else { %>
-                <% chatHistory.forEach((msg) => { 
-                    const role = msg.role === 'user' ? 'user' : 'bot';
-                    const content = msg.message || '';
-                    const file = msg.file_metadata;
-                %>
-                    <div class="flex w-full <%= role === 'user' ? 'justify-end' : 'justify-start' %> mb-6 group">
-                        <div class="flex flex-col max-w-[85%] md:max-w-[75%] lg:max-w-[70%] gap-1.5">
-                            <div class="flex items-end gap-3 <%= role === 'user' ? 'flex-row-reverse' : 'flex-row' %>">
-                                <div class="w-8 h-8 rounded-full flex-shrink-0 overflow-hidden border border-white/10 shadow-sm flex items-center justify-center <%= role === 'user' ? 'bg-blue-600' : 'bg-[#1e293b]' %>">
-                                    <% if(role === 'user') { %>
-                                        <img src="<%= user.profile_image || 'https://ui-avatars.com/api/?name=' + user.username %>" class="w-full h-full object-cover">
-                                    <% } else { %>
-                                        <img src="/logo.png" class="w-full h-full object-cover">
-                                    <% } %>
-                                </div>
-                                <div class="p-3.5 md:p-5 <%= role === 'user' ? 'message-user' : 'message-bot' %> text-sm md:text-[15px] leading-relaxed shadow-md min-w-[60px]">
-                                    <% if (role === 'bot') { %>
-                                        <div class="markdown-body"></div>
-                                        <script type="application/json" class="raw-content" style="display: none;"><%= JSON.stringify(content) %></script>
-                                    <% } else { %>
-                                        <div class="whitespace-pre-wrap"><%= content %></div>
-                                    <% } %>
-                                    <% if(file) { %>
-                                        <div class="mt-3 flex items-center gap-3 p-2.5 bg-black/20 rounded-lg border border-white/10">
-                                            <div class="w-8 h-8 bg-white/10 rounded flex items-center justify-center text-white">
-                                                <i class="fas fa-file"></i>
-                                            </div>
-                                            <div class="flex-1 min-w-0">
-                                                <p class="text-xs font-medium text-white truncate"><%= file.filename %></p>
-                                                <p class="text-[10px] text-gray-300"><%= (file.size/1024).toFixed(1) %> KB</p>
-                                            </div>
+                <% chatHistory.forEach(msg => { %>
+                    <div class="flex w-full <%= msg.role === 'user' ? 'justify-end' : 'justify-start' %>">
+                        <div class="flex flex-col <%= msg.role === 'user' ? 'items-end' : 'items-start' %> max-w-[90%] md:max-w-[85%] lg:max-w-[80%]">
+                            <div class="flex items-center gap-2 mb-1 px-1">
+                                <span class="text-[10px] uppercase tracking-wide text-gray-500 font-bold"><%= msg.role === 'user' ? 'You' : 'AI' %></span>
+                            </div>
+                            <div class="rounded-xl p-3 shadow-md text-sm leading-relaxed overflow-hidden w-full <%= msg.role === 'user' ? 'bg-blue-600 text-white rounded-br-none' : 'bg-[#1a1c29] text-gray-200 rounded-bl-none border border-gray-800' %>">
+                                <div class="markdown-body" data-role="<%= msg.role %>"><%= msg.message %></div>
+                                <% if (msg.file_metadata) { %>
+                                    <div class="mt-2 text-xs flex items-center gap-2 bg-black/20 p-1.5 rounded border border-white/10">
+                                        <div class="w-6 h-6 bg-white/10 rounded flex items-center justify-center">
+                                            <i class="fas fa-file text-xs"></i>
                                         </div>
-                                    <% } %>
-                                </div>
+                                        <div class="flex flex-col overflow-hidden min-w-0">
+                                            <span class="truncate font-medium"><%= msg.file_metadata.filename %></span>
+                                            <span class="opacity-70 text-[10px]"><%= Math.round(msg.file_metadata.size / 1024) %> KB</span>
+                                        </div>
+                                    </div>
+                                <% } %>
                             </div>
                         </div>
                     </div>
-                <% }); %>
+                <% }) %>
             <% } %>
-            <div id="loadingIndicator" class="hidden w-full mb-6">
-                <div class="flex gap-3 items-end">
-                    <div class="w-8 h-8 rounded-full bg-[#1e293b] flex items-center justify-center flex-shrink-0 border border-white/10 overflow-hidden p-0.5">
-                        <img src="/logo.png" class="w-full h-full object-cover animate-spin">
+
+            <div id="loading-indicator" class="hidden flex w-full justify-start">
+                <div class="flex flex-col items-start max-w-[90%]">
+                    <div class="flex items-center gap-2 mb-1 px-1">
+                        <span class="text-[10px] uppercase tracking-wide text-gray-500 font-bold">AI</span>
                     </div>
-                    <div class="bg-[#1e293b] px-4 py-3 rounded-2xl rounded-bl-none border border-gray-700/50 shadow-md">
-                        <div class="typing-indicator flex gap-1.5"><span></span><span></span><span></span></div>
+                    <div class="bg-[#1a1c29] px-4 py-3 rounded-xl rounded-bl-none border border-gray-800 flex items-center gap-2 shadow-md">
+                        <div class="flex space-x-1">
+                            <div class="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce"></div>
+                            <div class="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0.15s"></div>
+                            <div class="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0.3s"></div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="p-4 md:p-6 bg-[#1a1a2e]/95 backdrop-blur-sm shrink-0 relative z-50">
-            <div class="max-w-4xl mx-auto relative">
-                <div id="filePreview" class="hidden absolute bottom-full left-0 mb-3 p-3 bg-[#1e293b] border border-gray-700 rounded-xl flex items-center gap-3 shadow-2xl animate-fade-in z-20 w-full md:w-auto">
-                    <div class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center overflow-hidden border border-gray-600">
-                        <img id="previewImg" class="w-full h-full object-cover hidden">
-                        <i id="previewIcon" class="fas fa-file text-blue-400"></i>
+
+        <div class="absolute bottom-0 w-full bg-[#0f111a] border-t border-gray-800 px-3 py-3 md:px-5 md:py-4 z-20">
+            <form id="chat-form" class="max-w-4xl mx-auto relative bg-[#1a1c29] border border-gray-700 rounded-xl flex items-end shadow-2xl p-1.5 transition focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500/50">
+                <label for="file-upload" class="p-2.5 text-gray-400 hover:text-white cursor-pointer transition rounded-lg hover:bg-gray-800 mb-0.5 shrink-0">
+                    <i class="fas fa-paperclip text-base"></i>
+                    <input type="file" id="file-upload" name="file_attachment" class="hidden">
+                </label>
+                
+                <div class="flex-1 flex flex-col justify-center min-h-[40px] px-2 py-1">
+                    <div id="file-preview" class="hidden flex items-center gap-2 text-xs text-blue-300 bg-blue-500/10 rounded px-2 py-1 mb-1 border border-blue-500/20 w-fit max-w-full">
+                        <i class="fas fa-file-alt"></i> 
+                        <span id="file-name-text" class="truncate max-w-[150px]"></span>
+                        <button type="button" onclick="clearFile()" class="hover:text-red-400 ml-1 shrink-0"><i class="fas fa-times"></i></button>
                     </div>
-                    <div class="flex-1 min-w-0">
-                        <p class="text-[10px] text-blue-400 uppercase font-bold tracking-wide">Terlampir</p>
-                        <p id="previewName" class="text-sm text-white truncate"></p>
-                    </div>
-                    <button onclick="clearFile()" class="p-1.5 bg-red-500/20 text-red-400 rounded-full hover:bg-red-500 hover:text-white transition-all"><i class="fas fa-times text-xs"></i></button>
+                    <textarea id="message-input" name="message" rows="1" class="w-full bg-transparent border-none outline-none text-white resize-none max-h-32 placeholder-gray-500 text-sm scrollbar-hide" placeholder="Kirim pesan..."></textarea>
                 </div>
-                <div class="chat-input-container">
-                    <button onclick="document.getElementById('fileInput').click()" class="p-3 text-gray-400 hover:text-blue-400 hover:bg-gray-800 rounded-xl transition-all flex-shrink-0" title="Upload File">
-                        <i class="fas fa-paperclip text-lg"></i>
-                    </button>
-                    <textarea id="chatInput" rows="1" class="flex-1 bg-transparent text-white border-none focus:ring-0 py-3 px-2 max-h-32 resize-none text-sm md:text-base placeholder-gray-500 focus:outline-none leading-relaxed w-full min-h-[44px]" placeholder="Ketik pesan Anda..." onkeydown="handleKeydown(event)"></textarea>
-                    <button id="sendBtn" type="button" onclick="sendMessage()" class="p-3 bg-blue-600 text-white rounded-xl hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-blue-600/20 flex-shrink-0 transform active:scale-95">
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
-                </div>
-                <p class="text-center text-[10px] text-gray-600 mt-3">AI dapat membuat kesalahan. Selalu verifikasi informasi penting.</p>
-            </div>
+
+                <button type="submit" id="send-btn" class="p-2.5 text-blue-500 hover:text-white hover:bg-blue-600 transition rounded-lg mb-0.5 disabled:opacity-50 disabled:cursor-not-allowed shrink-0">
+                    <i class="fas fa-paper-plane text-base"></i>
+                </button>
+            </form>
+            <p class="text-center text-[10px] text-gray-600 mt-2">AI dapat membuat kesalahan. Cek info penting.</p>
         </div>
     </main>
-    <input type="file" id="fileInput" class="hidden" onchange="handleFileSelect(event)">
+
     <script>
+        const chatContainer = document.getElementById('chat-container');
+        const form = document.getElementById('chat-form');
+        const messageInput = document.getElementById('message-input');
+        const fileInput = document.getElementById('file-upload');
+        const filePreview = document.getElementById('file-preview');
+        const fileNameText = document.getElementById('file-name-text');
+        const loadingIndicator = document.getElementById('loading-indicator');
+        const currentConversationId = "<%= activeConversationId %>";
         const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('overlay');
-        const chatInput = document.getElementById('chatInput');
-        const sendBtn = document.getElementById('sendBtn');
-        const chatContainer = document.getElementById('chatContainer');
-        const fileInput = document.getElementById('fileInput');
-        let attachedFile = null;
-        let isProcessing = false;
+        const overlay = document.getElementById('mobile-overlay');
 
         function toggleSidebar() {
-            if (window.innerWidth >= 1024) {
-                sidebar.classList.toggle('collapsed');
+            if (window.innerWidth < 768) {
+                sidebar.classList.toggle('-translate-x-full');
+                overlay.classList.toggle('hidden');
             } else {
-                sidebar.classList.toggle('mobile-open');
-                if (sidebar.classList.contains('mobile-open')) overlay.classList.remove('hidden');
-                else overlay.classList.add('hidden');
+                sidebar.classList.toggle('md:w-0');
+                sidebar.classList.toggle('md:w-72');
+                sidebar.classList.toggle('md:border-none');
+                sidebar.classList.toggle('md:p-0');
             }
-        }
-
-        window.addEventListener('resize', () => {
-            if (window.innerWidth >= 1024) {
-                overlay.classList.add('hidden');
-                sidebar.classList.remove('mobile-open');
-            }
-        });
-
-        const renderer = new marked.Renderer();
-        renderer.code = function(code, language) {
-            const validLang = (language && hljs.getLanguage(language)) ? language : 'plaintext';
-            const highlighted = hljs.highlight(code, { language: validLang }).value;
-            const safeCode = code.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-            
-            return `
-            <div class="code-block-wrapper my-4 rounded-lg overflow-hidden border border-gray-700 bg-[#0d1117]">
-                <div class="code-header flex justify-between items-center bg-[#161b22] px-3 py-2 border-b border-gray-700">
-                    <span class="text-xs text-gray-400 font-mono font-bold">${validLang.toUpperCase()}</span>
-                    <button class="copy-btn flex items-center gap-1.5 text-xs text-gray-400 hover:text-white transition-colors" onclick="copyCode(this)">
-                        <i class="fas fa-copy"></i> Copy
-                    </button>
-                </div>
-                <div class="relative group">
-                    <pre class="m-0 p-0"><code class="hljs language-${validLang} block p-4 overflow-x-auto text-sm font-mono leading-relaxed">${highlighted}</code></pre>
-                    <textarea class="raw-code hidden">${safeCode}</textarea>
-                </div>
-            </div>`;
-        };
-
-        renderer.html = function(html) {
-            return html.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-        };
-
-        marked.use({ renderer });
-
-        function renderMarkdown(text) {
-            try {
-                if (!text) return '';
-                const fixedText = text.replace(/([^\n])```/gm, '$1\n```');
-                return marked.parse(fixedText);
-            } catch (e) {
-                return text;
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const messages = document.querySelectorAll('.message-bot .markdown-body');
-            messages.forEach(targetDiv => {
-                const rawScript = targetDiv.parentElement.querySelector('.raw-content');
-                if (rawScript) {
-                    try {
-                        const rawText = JSON.parse(rawScript.textContent);
-                        targetDiv.innerHTML = renderMarkdown(rawText);
-                    } catch(e) {
-                        targetDiv.innerHTML = renderMarkdown(targetDiv.textContent);
-                    }
-                }
-            });
-            scrollToBottom();
-        });
-
-        function handleChatClick(e, id) {
-            if (e.button === 0 && !e.ctrlKey && !e.metaKey) { 
-                e.preventDefault();
-                const url = `/user/dardcor-ai/${id}`;
-                window.location.href = url;
-            }
-        }
-
-        function copyCode(btn) {
-            const wrapper = btn.closest('.code-block-wrapper');
-            const textArea = wrapper.querySelector('.raw-code');
-            let codeText = "";
-            
-            if(textArea) {
-                const parser = new DOMParser();
-                codeText = parser.parseFromString(`<!doctype html><body>${textArea.value}`, 'text/html').body.textContent;
-            } else {
-                codeText = wrapper.querySelector('code').innerText;
-            }
-
-            navigator.clipboard.writeText(codeText).then(() => {
-                const originalContent = btn.innerHTML;
-                btn.innerHTML = '<i class="fas fa-check text-green-400"></i> <span class="text-green-400">Copied!</span>';
-                setTimeout(() => { btn.innerHTML = originalContent; }, 2000);
-            }).catch(err => { alert("Gagal menyalin kode."); });
         }
 
         function scrollToBottom() {
-            chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
-        }
-
-        chatInput.addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = (this.scrollHeight) + 'px';
-            if(this.value === '') this.style.height = 'auto';
-        });
-
-        function handleKeydown(e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                if (!isProcessing) sendMessage();
-            }
-        }
-
-        function escapeHtml(text) {
-            if (!text) return '';
-            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-        }
-
-        function handleFileSelect(e) {
-            const file = e.target.files[0];
-            if (file) {
-                if(file.size > 5 * 1024 * 1024) {
-                    alert("Ukuran file terlalu besar (Maks 5MB)");
-                    this.value = '';
-                    return;
-                }
-                attachedFile = file;
-                document.getElementById('filePreview').classList.remove('hidden');
-                document.getElementById('previewName').textContent = file.name;
-                const img = document.getElementById('previewImg');
-                const icon = document.getElementById('previewIcon');
-                
-                if (file.type.startsWith('image/')) {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        img.src = e.target.result;
-                        img.classList.remove('hidden');
-                        icon.classList.add('hidden');
-                    };
-                    reader.readAsDataURL(file);
-                } else {
-                    img.classList.add('hidden');
-                    icon.classList.remove('hidden');
-                }
-            }
+            chatContainer.scrollTop = chatContainer.scrollHeight;
         }
 
         function clearFile() {
-            attachedFile = null;
             fileInput.value = '';
-            document.getElementById('filePreview').classList.add('hidden');
+            filePreview.classList.add('hidden');
         }
 
-        function appendErrorMessage(message) {
-            const errorHtml = `<div class="flex w-full justify-start mb-6 group animate-fade-in"><div class="flex flex-col max-w-[85%] md:max-w-[75%] gap-1.5"><div class="flex items-end gap-3"><div class="w-8 h-8 rounded-full bg-[#450a0a] flex items-center justify-center flex-shrink-0 border border-red-900 shadow-sm overflow-hidden p-1.5"><i class="fas fa-exclamation-triangle text-red-400 text-xs"></i></div><div class="p-3.5 md:p-5 message-error text-sm md:text-[15px] leading-relaxed shadow-md w-full"><div class="markdown-body text-red-200">${message}</div></div></div></div></div>`;
-            chatContainer.insertAdjacentHTML('beforeend', errorHtml);
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length > 0) {
+                fileNameText.textContent = fileInput.files[0].name;
+                filePreview.classList.remove('hidden');
+            } else {
+                filePreview.classList.add('hidden');
+            }
+        });
+
+        messageInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 128) + 'px';
+            if(this.value === '') this.style.height = 'auto';
+        });
+
+        messageInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                form.dispatchEvent(new Event('submit'));
+            }
+        });
+
+        document.addEventListener("DOMContentLoaded", () => {
+            document.querySelectorAll('.markdown-body').forEach(el => {
+                if(el.dataset.role === 'bot') {
+                    el.innerHTML = parseMarkdown(el.textContent);
+                }
+            });
+            enhanceCodeBlocks();
             scrollToBottom();
-        }
+        });
 
-        async function sendMessage() {
-            const text = chatInput.value.trim();
-            if ((!text && !attachedFile) || isProcessing) return;
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const message = messageInput.value.trim();
+            const file = fileInput.files[0];
 
-            isProcessing = true;
+            if (!message && !file) return;
+
+            const sendBtn = document.getElementById('send-btn');
             sendBtn.disabled = true;
-            sendBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            messageInput.disabled = true;
+
+            appendUserMessage(message, file ? file.name : null, file ? file.size : 0);
             
-            const welcome = document.getElementById('welcomeScreen');
-            if (welcome) welcome.remove();
-
-            const userHtml = `<div class="flex w-full justify-end mb-6 group animate-fade-in"><div class="flex flex-col max-w-[85%] md:max-w-[75%] lg:max-w-[70%] gap-1.5"><div class="flex items-end gap-3 flex-row-reverse"><div class="w-8 h-8 rounded-full bg-blue-600 flex-shrink-0 overflow-hidden border border-white/10 shadow-sm"><img src="<%= user.profile_image || 'https://ui-avatars.com/api/?name=' + user.username %>" class="w-full h-full object-cover"></div><div class="p-3.5 md:p-5 message-user text-sm md:text-[15px] leading-relaxed shadow-md w-full"><div class="whitespace-pre-wrap">${escapeHtml(text)}</div>${attachedFile ? `<div class="mt-3 flex items-center gap-2 p-2.5 bg-black/20 rounded-lg border border-white/10 text-xs"><i class="fas fa-file"></i> ${escapeHtml(attachedFile.name)}</div>` : ''}</div></div></div></div>`;
-            chatContainer.insertAdjacentHTML('beforeend', userHtml);
-            scrollToBottom();
-
-            const loadingEl = document.getElementById('loadingIndicator');
-            loadingEl.classList.remove('hidden');
-            chatContainer.appendChild(loadingEl);
+            messageInput.value = '';
+            messageInput.style.height = 'auto';
+            clearFile();
+            
+            loadingIndicator.classList.remove('hidden');
             scrollToBottom();
 
             const formData = new FormData();
-            formData.append('message', text);
-            if (attachedFile) formData.append('file_attachment', attachedFile);
-            
-            const currentUrl = window.location.pathname;
-            const urlParts = currentUrl.split('/');
-            const currentConvId = (urlParts.length > 3 && urlParts[2] === 'dardcor-ai') ? urlParts[3] : '';
-            if(currentConvId) formData.append('conversationId', currentConvId);
-
-            chatInput.value = '';
-            chatInput.style.height = 'auto';
-            const tempFile = attachedFile; 
-            clearFile();
+            formData.append('message', message);
+            formData.append('conversationId', currentConversationId);
+            if (file) formData.append('file_attachment', file);
 
             try {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 600000);
-
-                const res = await fetch('/user/ai/chat', {
-                    method: 'POST',
-                    body: formData,
-                    signal: controller.signal
-                });
-                clearTimeout(timeoutId);
-
+                const res = await fetch('/user/ai/chat', { method: 'POST', body: formData });
                 const data = await res.json();
-                loadingEl.classList.add('hidden');
+                
+                loadingIndicator.classList.add('hidden');
+                sendBtn.disabled = false;
+                messageInput.disabled = false;
+                messageInput.focus();
 
                 if (data.success) {
-                    if (!currentConvId && data.conversationId) history.pushState({}, '', `/user/dardcor-ai/${data.conversationId}`);
-                    const botHtml = `<div class="flex w-full justify-start mb-6 group animate-fade-in"><div class="flex flex-col max-w-[85%] md:max-w-[75%] gap-1.5"><div class="flex items-end gap-3"><div class="w-8 h-8 rounded-full bg-[#1e293b] flex items-center justify-center flex-shrink-0 border border-white/10 shadow-sm overflow-hidden p-1.5"><img src="/logo.png" class="w-full h-full object-cover"></div><div class="p-3.5 md:p-5 message-bot text-sm md:text-[15px] leading-relaxed shadow-md w-full"><div class="markdown-body">${renderMarkdown(data.response)}</div></div></div></div></div>`;
-                    chatContainer.insertAdjacentHTML('beforeend', botHtml);
+                    appendBotMessage(data.response);
                 } else {
-                    appendErrorMessage(data.response || "Terjadi kesalahan yang tidak diketahui.");
-                    chatInput.value = text;
-                    if(tempFile) alert("Silakan upload ulang file Anda.");
+                    appendErrorMessage(data.response || "Terjadi kesalahan.");
                 }
-            } catch (e) {
-                loadingEl.classList.add('hidden');
-                if (e.name === 'AbortError') appendErrorMessage('Waktu permintaan habis.');
-                else appendErrorMessage('Gagal terhubung ke server.');
-                chatInput.value = text;
+            } catch (err) {
+                loadingIndicator.classList.add('hidden');
+                sendBtn.disabled = false;
+                messageInput.disabled = false;
+                appendErrorMessage("Gagal terhubung ke server.");
+            }
+        });
+
+        function appendUserMessage(text, fileName, fileSize) {
+            const div = document.createElement('div');
+            div.className = "flex w-full justify-end";
+            
+            let fileHTML = '';
+            if(fileName) {
+                const sizeKB = Math.round(fileSize / 1024);
+                fileHTML = `
+                <div class="mt-2 text-xs flex items-center gap-2 bg-black/20 p-1.5 rounded border border-white/10">
+                    <div class="w-6 h-6 bg-white/10 rounded flex items-center justify-center"><i class="fas fa-file text-xs"></i></div>
+                    <div class="flex flex-col overflow-hidden min-w-0">
+                        <span class="truncate font-medium">${fileName}</span>
+                        <span class="opacity-70 text-[10px]">${sizeKB} KB</span>
+                    </div>
+                </div>`;
             }
 
-            isProcessing = false;
-            sendBtn.disabled = false;
-            sendBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            const content = `
+            <div class="flex flex-col items-end max-w-[90%] md:max-w-[85%] lg:max-w-[80%]">
+                <div class="flex items-center gap-2 mb-1 px-1"><span class="text-[10px] uppercase tracking-wide text-gray-500 font-bold">You</span></div>
+                <div class="rounded-xl p-3 shadow-md text-sm leading-relaxed bg-blue-600 text-white rounded-br-none w-full">
+                    <div class="whitespace-pre-wrap">${text.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
+                    ${fileHTML}
+                </div>
+            </div>`;
+            
+            div.innerHTML = content;
+            chatContainer.insertBefore(div, loadingIndicator);
             scrollToBottom();
         }
 
-        function toggleChatMenu(event, id) {
-            event.preventDefault();
-            event.stopPropagation();
-            document.querySelectorAll('.chat-options-menu').forEach(m => { 
-                if(m.id !== 'menu-'+id) m.classList.remove('show'); 
+        function appendBotMessage(rawText) {
+            const div = document.createElement('div');
+            div.className = "flex w-full justify-start";
+            div.innerHTML = `
+                <div class="flex flex-col items-start max-w-[90%] md:max-w-[85%] lg:max-w-[80%]">
+                    <div class="flex items-center gap-2 mb-1 px-1"><span class="text-[10px] uppercase tracking-wide text-gray-500 font-bold">AI</span></div>
+                    <div class="rounded-xl p-3 shadow-md text-sm leading-relaxed bg-[#1a1c29] text-gray-200 rounded-bl-none border border-gray-800 w-full">
+                        <div class="markdown-body">${parseMarkdown(rawText)}</div>
+                    </div>
+                </div>`;
+            chatContainer.insertBefore(div, loadingIndicator);
+            enhanceCodeBlocks();
+            scrollToBottom();
+        }
+
+        function appendErrorMessage(text) {
+            const div = document.createElement('div');
+            div.className = "flex w-full justify-center my-4";
+            div.innerHTML = `<div class="bg-red-500/10 text-red-400 px-3 py-1.5 rounded-lg text-xs border border-red-500/20"><i class="fas fa-exclamation-circle mr-2"></i>${text}</div>`;
+            chatContainer.insertBefore(div, loadingIndicator);
+            scrollToBottom();
+        }
+
+        function parseMarkdown(text) {
+            return marked.parse(text);
+        }
+
+        function enhanceCodeBlocks() {
+            document.querySelectorAll('pre code').forEach((block) => {
+                if (block.closest('.code-block-wrapper')) return;
+
+                hljs.highlightElement(block);
+
+                const pre = block.parentElement;
+                const wrapper = document.createElement('div');
+                wrapper.className = 'code-block-wrapper';
+                
+                const header = document.createElement('div');
+                header.className = 'code-header';
+                
+                const lang = block.className.replace('language-', '') || 'code';
+                const langSpan = document.createElement('span');
+                langSpan.textContent = lang.toUpperCase();
+                langSpan.className = "font-bold text-[10px] tracking-wider";
+
+                const actions = document.createElement('div');
+                actions.className = 'btn-action';
+
+                const previewBtn = document.createElement('div');
+                previewBtn.className = 'btn-code text-[10px] flex items-center gap-1';
+                previewBtn.innerHTML = '<i class="fas fa-eye"></i> Preview';
+                previewBtn.onclick = () => previewCode(block.innerText);
+
+                const copyBtn = document.createElement('div');
+                copyBtn.className = 'btn-code text-[10px] flex items-center gap-1';
+                copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy';
+                copyBtn.onclick = () => copyToClipboard(block.innerText, copyBtn);
+
+                actions.appendChild(previewBtn);
+                actions.appendChild(copyBtn);
+                header.appendChild(langSpan);
+                header.appendChild(actions);
+
+                pre.parentNode.insertBefore(wrapper, pre);
+                wrapper.appendChild(header);
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'code-content';
+                contentDiv.appendChild(pre); 
+                wrapper.appendChild(contentDiv);
             });
-            const menu = document.getElementById('menu-'+id);
-            if(menu) menu.classList.toggle('show');
         }
 
-        function renameChat(id, currentTitle){
-            const newTitle = prompt("Masukkan nama baru untuk chat ini:", currentTitle);
-            if(newTitle && newTitle !== currentTitle){
-                fetch('/user/ai/rename-chat', {
+        async function previewCode(code) {
+            try {
+                const res = await fetch('/user/ai/store-preview', {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({conversationId: id, newTitle: newTitle})
-                }).then(() => {
-                    const titleEl = document.getElementById('title-' + id);
-                    if(titleEl) titleEl.innerText = newTitle;
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code })
                 });
-            }
-        }
-
-        function deleteChat(id){
-            if(confirm('Hapus chat ini dari riwayat?')){
-                fetch('/user/ai/delete-chat-history', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({conversationId: id})
-                }).then(res => {
-                    if(res.ok) window.location.href = '/user/dardcor-ai';
-                });
-            }
-        }
-
-        window.addEventListener('click', () => {
-            document.querySelectorAll('.chat-options-menu').forEach(m => m.classList.remove('show'));
-        });
-
-        document.getElementById('newChatBtn').addEventListener('click', async () => {
-             try {
-                const res = await fetch('/user/ai/new-chat', { method: 'POST' });
                 const data = await res.json();
-                if (data.success) window.location.href = data.redirectUrl;
-            } catch (e) { console.error(e); }
-        });
+                if(data.success) {
+                    window.open(`/user/dardcor-ai/preview/${data.previewId}`, '_blank');
+                } else {
+                    alert('Gagal membuat preview.');
+                }
+            } catch (e) { alert('Error preview.'); }
+        }
+
+        function copyToClipboard(text, btn) {
+            navigator.clipboard.writeText(text).then(() => {
+                const original = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i> Copied';
+                btn.classList.add('text-green-400');
+                setTimeout(() => {
+                    btn.innerHTML = original;
+                    btn.classList.remove('text-green-400');
+                }, 2000);
+            });
+        }
+
+        async function createNewChat() {
+            const res = await fetch('/user/ai/new-chat', { method: 'POST' });
+            const data = await res.json();
+            if(data.success) window.location.href = data.redirectUrl;
+        }
+
+        async function deleteChat(e, id) {
+            e.stopPropagation();
+            if(!confirm('Hapus chat ini?')) return;
+            const res = await fetch('/user/ai/delete-chat-history', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ conversationId: id })
+            });
+            const data = await res.json();
+            if(data.success) window.location.reload();
+        }
     </script>
 </body>
 </html>
