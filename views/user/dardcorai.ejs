@@ -24,35 +24,102 @@
         .markdown-body ol { list-style-type: decimal; margin-left: 1.25em; }
         .markdown-body p { margin-bottom: 0.5em; }
         .markdown-body h1, .markdown-body h2, .markdown-body h3 { font-weight: bold; margin-top: 0.75em; margin-bottom: 0.25em; }
+        
         #sidebar { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .desktop-collapsed { width: 0 !important; padding: 0 !important; opacity: 0; overflow: hidden; }
+        .h-dvh { height: 100dvh; }
+        #drag-overlay { transition: opacity 0.2s, visibility 0.2s; }
+        .message-bubble { max-width: 85%; }
+        @media (max-width: 768px) { .message-bubble { max-width: 92%; } }
+        
+        .dropdown-menu { transform-origin: top right; transition: transform 0.1s ease-out, opacity 0.1s ease-out; }
     </style>
 </head>
-<body class="bg-[#0f111a] text-white font-sans h-screen flex overflow-hidden">
+<body class="bg-[#0f111a] text-white font-sans h-dvh flex overflow-hidden relative" id="body-drop-zone">
+
+    <div id="drag-overlay" class="fixed inset-0 bg-blue-500/20 backdrop-blur-sm z-[70] opacity-0 invisible flex flex-col items-center justify-center border-4 border-blue-500 border-dashed m-4 rounded-xl pointer-events-none">
+        <i class="fas fa-cloud-upload-alt text-6xl text-blue-400 mb-4 animate-bounce"></i>
+        <h2 class="text-2xl font-bold text-white">Lepaskan file disini</h2>
+    </div>
+
+    <div id="rename-modal" class="fixed inset-0 z-[80] hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div class="bg-[#1e2130] border border-gray-700 rounded-2xl w-full max-w-md p-6 shadow-2xl transform scale-100">
+            <h3 class="text-lg font-bold text-white mb-1">Ganti Nama Percakapan</h3>
+            <p class="text-gray-400 text-sm mb-5">Berikan judul baru agar mudah diingat.</p>
+            <input type="text" id="rename-input" class="w-full bg-[#0f111a] border border-gray-600 rounded-lg px-4 py-3 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none mb-6" placeholder="Nama baru..." autocomplete="off">
+            <div class="flex justify-end gap-3">
+                <button onclick="closeModal('rename-modal')" class="px-5 py-2.5 text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition">Batal</button>
+                <button onclick="submitRename()" class="px-5 py-2.5 text-sm font-medium bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition shadow-lg shadow-blue-600/20">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="delete-modal" class="fixed inset-0 z-[80] hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div class="bg-[#1e2130] border border-gray-700 rounded-2xl w-full max-w-sm p-6 shadow-2xl text-center transform scale-100">
+            <div class="w-14 h-14 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-500/20">
+                <i class="fas fa-trash-alt text-red-500 text-xl"></i>
+            </div>
+            <h3 class="text-lg font-bold text-white mb-2">Hapus Percakapan?</h3>
+            <p class="text-gray-400 text-sm mb-6 leading-relaxed">Riwayat chat ini akan dihapus secara permanen dan tidak dapat dikembalikan.</p>
+            <div class="flex justify-center gap-3">
+                <button onclick="closeModal('delete-modal')" class="px-5 py-2.5 text-sm font-medium bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg transition border border-gray-700 w-full">Batal</button>
+                <button onclick="submitDelete()" class="px-5 py-2.5 text-sm font-medium bg-red-600 hover:bg-red-500 text-white rounded-lg transition shadow-lg shadow-red-600/20 w-full">Hapus</button>
+            </div>
+        </div>
+    </div>
 
     <div id="mobile-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/60 z-40 hidden md:hidden backdrop-blur-sm"></div>
 
-    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-[#1a1c29] border-r border-gray-800 flex flex-col transform -translate-x-full md:translate-x-0 md:relative md:w-72 whitespace-nowrap overflow-hidden">
-        <div class="p-4 flex items-center justify-between border-b border-gray-800 h-14 shrink-0">
-            <span class="font-bold text-lg tracking-wider text-blue-500">Dardcor<span class="text-white">AI</span></span>
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 bg-[#1a1c29] border-r border-gray-800 flex flex-col w-72 h-full transform -translate-x-full md:translate-x-0 md:static shrink-0 whitespace-nowrap overflow-hidden">
+        <div class="p-4 flex items-center justify-between border-b border-gray-800 h-16 min-h-[4rem]">
+            <span class="font-bold text-lg tracking-wider text-blue-500">Dardcor <span class="text-white">AI</span></span>
             <div class="flex items-center gap-2">
-                <button onclick="createNewChat()" class="text-gray-400 hover:text-white p-1.5 rounded-full hover:bg-gray-800 transition"><i class="fas fa-plus"></i></button>
-                <button onclick="toggleSidebar()" class="md:hidden text-gray-400 hover:text-white p-1.5"><i class="fas fa-times"></i></button>
+                <button onclick="toggleSidebar()" class="md:hidden text-gray-400 hover:text-white p-2"><i class="fas fa-times"></i></button>
             </div>
         </div>
         
         <div class="flex-1 overflow-y-auto p-2 space-y-1.5 scrollbar-hide">
+            <button onclick="createNewChat()" class="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-700/50 hover:bg-gray-800 text-left transition text-sm text-gray-300 mb-4">
+                <div class="w-6 h-6 bg-blue-500/20 rounded flex items-center justify-center text-blue-400"><i class="fas fa-plus text-xs"></i></div>
+                <span>New Chat</span>
+            </button>
+
+            <div class="text-center text-gray-500 text-xs font-semibold uppercase tracking-wider mb-2">Riwayat</div>
+
+            <% const currentChatExists = fullHistory.some(chat => chat.conversation_id === activeConversationId); %>
+            <% if (!currentChatExists) { %>
+                <div id="active-new-chat" class="group relative flex items-center p-2.5 rounded-lg bg-gray-800 border-l-4 border-blue-500 cursor-pointer transition">
+                    <span class="text-sm truncate flex-1 text-gray-300 font-medium">Percakapan Baru</span>
+                </div>
+            <% } %>
+
             <% fullHistory.forEach(chat => { %>
-                <div class="group relative flex items-center p-2.5 rounded-lg hover:bg-gray-800 cursor-pointer transition <%= chat.conversation_id === activeConversationId ? 'bg-gray-800 border-l-2 border-blue-500' : '' %>" onclick="window.location.href='/user/dardcor-ai/<%= chat.conversation_id %>'">
-                    <i class="fas fa-message text-gray-500 mr-3 text-xs"></i>
-                    <span class="text-sm truncate flex-1 text-gray-300"><%= chat.message ? chat.message.substring(0, 25) : 'New Chat' %>...</span>
-                    <button onclick="deleteChat(event, '<%= chat.conversation_id %>')" class="absolute right-2 opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-500 transition p-1"><i class="fas fa-trash text-xs"></i></button>
+                <div class="group relative flex items-center p-2 rounded-lg hover:bg-[#202336] transition-colors duration-200 cursor-pointer <%= chat.conversation_id === activeConversationId ? 'bg-[#202336] border-l-4 border-blue-500' : 'border-l-4 border-transparent' %>">
+                    <div class="flex-1 min-w-0 pr-2 py-1 flex items-center" onclick="window.location.href='/user/dardcor-ai/<%= chat.conversation_id %>'">
+                        <span class="text-sm text-gray-300 truncate"><%= chat.message ? chat.message.substring(0, 22) : 'Percakapan' %>...</span>
+                    </div>
+                    
+                    <div class="relative">
+                        <button onclick="toggleMenu(event, 'menu-<%= chat.conversation_id %>')" class="p-1.5 text-gray-500 hover:text-white rounded focus:outline-none transition opacity-0 group-hover:opacity-100 focus:opacity-100">
+                            <i class="fas fa-ellipsis-v text-xs"></i>
+                        </button>
+
+                        <div id="menu-<%= chat.conversation_id %>" class="dropdown-menu hidden absolute right-0 top-8 w-32 bg-[#2a2d3d] border border-gray-700 rounded-lg shadow-xl z-50 py-1 overflow-hidden">
+                            <button onclick="openRenameModal('<%= chat.conversation_id %>', `<%= chat.message ? chat.message.replace(/`/g, '\\`').replace(/'/g, "\\'") : '' %>`)" class="w-full text-left px-3 py-2 text-xs text-gray-300 hover:bg-blue-600 hover:text-white flex items-center gap-2 transition">
+                                <i class="fas fa-pen fa-fw"></i> Rename
+                            </button>
+                            <button onclick="openDeleteModal('<%= chat.conversation_id %>')" class="w-full text-left px-3 py-2 text-xs text-red-400 hover:bg-red-600 hover:text-white flex items-center gap-2 transition">
+                                <i class="fas fa-trash fa-fw"></i> Delete
+                            </button>
+                        </div>
+                    </div>
                 </div>
             <% }) %>
         </div>
 
-        <div class="p-3 border-t border-gray-800 bg-[#151722] shrink-0">
-            <a href="/user/home" class="flex items-center text-gray-400 hover:text-white transition">
-                <img src="https://ui-avatars.com/api/?name=<%= user.username %>&background=random" class="w-8 h-8 rounded-full mr-3 border border-gray-700">
+        <div class="p-3 border-t border-gray-800 bg-[#151722] min-h-[4rem] flex items-center">
+            <a href="/user/home" class="flex items-center text-gray-400 hover:text-white transition w-full">
+                <img src="https://ui-avatars.com/api/?name=<%= user.username %>&background=random" class="w-8 h-8 rounded-full mr-3 border border-gray-700 shrink-0">
                 <div class="flex flex-col overflow-hidden">
                     <span class="text-sm font-medium text-gray-200 truncate"><%= user.username %></span>
                     <span class="text-[10px] text-gray-500">Back to Dashboard</span>
@@ -61,118 +128,197 @@
         </div>
     </aside>
 
-    <main class="flex-1 flex flex-col relative w-full h-full min-w-0">
-        <header class="h-14 flex items-center justify-between px-4 border-b border-gray-800 bg-[#0f111a] z-10 shrink-0">
+    <main class="flex-1 flex flex-col h-full relative w-full min-w-0 bg-[#0f111a]">
+        <header class="h-16 flex items-center justify-between px-4 border-b border-gray-800 bg-[#0f111a] z-30 shrink-0">
             <div class="flex items-center gap-3">
                 <button onclick="toggleSidebar()" class="text-gray-400 p-2 rounded hover:bg-gray-800 transition"><i class="fas fa-bars"></i></button>
-                <h2 class="text-base font-semibold text-gray-200 flex items-center gap-2">
-                    <span class="text-blue-500"><i class="fas fa-bolt"></i></span>
-                    <span class="hidden sm:inline">Dardcor Model 2.0 Flash</span>
-                    <span class="sm:hidden">Dardcor 2.0</span>
-                </h2>
             </div>
         </header>
 
-        <div id="chat-container" class="flex-1 overflow-y-auto p-3 md:p-5 space-y-4 scrollbar-hide w-full max-w-4xl mx-auto pb-48">
-            <% if (chatHistory.length === 0) { %>
-                <div class="h-full flex flex-col items-center justify-center text-gray-500 opacity-60">
-                    <div class="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mb-4 animate-pulse">
-                        <i class="fas fa-robot text-3xl text-blue-500"></i>
+        <div id="chat-container" class="flex-1 overflow-y-auto w-full scrollbar-hide pt-4 md:pt-6">
+            <div id="message-list" class="max-w-4xl mx-auto px-4 space-y-6 pb-4">
+                <% if (chatHistory.length === 0) { %>
+                    <div id="empty-state" class="flex flex-col items-center justify-center text-gray-500 opacity-60 min-h-[50vh]">
+                        <div class="w-24 h-24 bg-gray-800/50 rounded-full flex items-center justify-center mb-6 overflow-hidden border border-gray-700 shadow-xl bg-black">
+                            <img src="/logo.png" alt="Dardcor Logo" class="w-full h-full object-cover">
+                        </div>
+                        <p class="text-lg font-medium text-gray-400">Apa yang bisa saya bantu?</p>
                     </div>
-                    <p class="text-base font-medium text-gray-400">Apa yang bisa saya bantu?</p>
-                </div>
-            <% } else { %>
-                <% chatHistory.forEach(msg => { %>
-                    <div class="flex w-full <%= msg.role === 'user' ? 'justify-end' : 'justify-start' %>">
-                        <div class="flex flex-col <%= msg.role === 'user' ? 'items-end' : 'items-start' %> max-w-[90%] md:max-w-[85%] lg:max-w-[80%]">
-                            <div class="flex items-center gap-2 mb-1 px-1">
-                                <span class="text-[10px] uppercase tracking-wide text-gray-500 font-bold"><%= msg.role === 'user' ? 'You' : 'AI' %></span>
-                            </div>
-                            <div class="rounded-xl p-3 shadow-md text-sm leading-relaxed overflow-hidden w-full <%= msg.role === 'user' ? 'bg-blue-600 text-white rounded-br-none' : 'bg-[#1a1c29] text-gray-200 rounded-bl-none border border-gray-800' %>">
-                                <div class="markdown-body" data-role="<%= msg.role %>"><%= msg.message %></div>
-                                <% if (msg.file_metadata) { %>
-                                    <div class="mt-2 text-xs flex items-center gap-2 bg-black/20 p-1.5 rounded border border-white/10">
-                                        <div class="w-6 h-6 bg-white/10 rounded flex items-center justify-center">
-                                            <i class="fas fa-file text-xs"></i>
+                <% } else { %>
+                    <% chatHistory.forEach(msg => { %>
+                        <div class="flex w-full <%= msg.role === 'user' ? 'justify-end' : 'justify-start' %>">
+                            <div class="flex flex-col <%= msg.role === 'user' ? 'items-end' : 'items-start' %> message-bubble">
+                                <div class="flex items-center gap-2 mb-1 px-1">
+                                    <span class="text-[10px] uppercase tracking-wide text-gray-500 font-bold"><%= msg.role === 'user' ? 'You' : 'AI' %></span>
+                                </div>
+                                <div class="rounded-2xl p-4 shadow-lg text-sm leading-relaxed overflow-hidden w-full <%= msg.role === 'user' ? 'bg-blue-600 text-white rounded-br-none' : 'bg-[#1a1c29] text-gray-200 rounded-bl-none border border-gray-800' %>">
+                                    <% if (msg.file_metadata) { %>
+                                        <div class="mb-3 text-xs flex items-center gap-3 bg-black/20 p-2 rounded-lg border border-white/10">
+                                            <div class="w-8 h-8 bg-white/10 rounded flex items-center justify-center">
+                                                <i class="fas fa-file text-base"></i>
+                                            </div>
+                                            <div class="flex flex-col overflow-hidden min-w-0">
+                                                <span class="truncate font-medium text-white"><%= msg.file_metadata.filename %></span>
+                                                <span class="opacity-70 text-[10px]"><%= Math.round(msg.file_metadata.size / 1024) %> KB</span>
+                                            </div>
                                         </div>
-                                        <div class="flex flex-col overflow-hidden min-w-0">
-                                            <span class="truncate font-medium"><%= msg.file_metadata.filename %></span>
-                                            <span class="opacity-70 text-[10px]"><%= Math.round(msg.file_metadata.size / 1024) %> KB</span>
-                                        </div>
-                                    </div>
-                                <% } %>
+                                    <% } %>
+                                    <div class="markdown-body" data-role="<%= msg.role %>"><%= msg.message %></div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                <% }) %>
-            <% } %>
+                    <% }) %>
+                <% } %>
 
-            <div id="loading-indicator" class="hidden flex w-full justify-start">
-                <div class="flex flex-col items-start max-w-[90%]">
-                    <div class="flex items-center gap-2 mb-1 px-1">
-                        <span class="text-[10px] uppercase tracking-wide text-gray-500 font-bold">AI</span>
-                    </div>
-                    <div class="bg-[#1a1c29] px-4 py-3 rounded-xl rounded-bl-none border border-gray-800 flex items-center gap-2 shadow-md">
-                        <div class="flex space-x-1">
-                            <div class="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce"></div>
-                            <div class="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0.15s"></div>
-                            <div class="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0.3s"></div>
+                <div id="loading-indicator" class="hidden flex w-full justify-start">
+                    <div class="flex flex-col items-start message-bubble">
+                        <div class="flex items-center gap-2 mb-1 px-1">
+                            <span class="text-[10px] uppercase tracking-wide text-gray-500 font-bold">AI</span>
+                        </div>
+                        <div class="bg-[#1a1c29] px-4 py-3 rounded-2xl rounded-bl-none border border-gray-800 flex items-center gap-2 shadow-md">
+                            <div class="flex space-x-1.5">
+                                <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+                                <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0.15s"></div>
+                                <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0.3s"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+            
+            <div class="h-36 md:h-48 w-full shrink-0"></div>
         </div>
 
-        <div class="absolute bottom-0 w-full bg-[#0f111a] border-t border-gray-800 px-3 py-3 md:px-5 md:py-4 z-20">
-            <form id="chat-form" class="max-w-4xl mx-auto relative bg-[#1a1c29] border border-gray-700 rounded-xl flex items-end shadow-2xl p-1.5 transition focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500/50">
-                <label for="file-upload" class="p-2.5 text-gray-400 hover:text-white cursor-pointer transition rounded-lg hover:bg-gray-800 mb-0.5 shrink-0">
-                    <i class="fas fa-paperclip text-base"></i>
-                    <input type="file" id="file-upload" name="file_attachment" class="hidden">
-                </label>
-                
-                <div class="flex-1 flex flex-col justify-center min-h-[40px] px-2 py-1">
-                    <div id="file-preview" class="hidden flex items-center gap-2 text-xs text-blue-300 bg-blue-500/10 rounded px-2 py-1 mb-1 border border-blue-500/20 w-fit max-w-full">
-                        <i class="fas fa-file-alt"></i> 
-                        <span id="file-name-text" class="truncate max-w-[150px]"></span>
-                        <button type="button" onclick="clearFile()" class="hover:text-red-400 ml-1 shrink-0"><i class="fas fa-times"></i></button>
-                    </div>
-                    <textarea id="message-input" name="message" rows="1" class="w-full bg-transparent border-none outline-none text-white resize-none max-h-32 placeholder-gray-500 text-sm scrollbar-hide" placeholder="Kirim pesan..."></textarea>
-                </div>
+        <div class="absolute bottom-0 left-0 right-0 z-50 px-2 pb-2 md:px-4 md:pb-6 bg-gradient-to-t from-[#0f111a] via-[#0f111a]/90 to-transparent pt-10">
+            <div class="max-w-3xl mx-auto w-full">
+                <div class="relative group">
+                    <form id="chat-form" onsubmit="return false;" class="bg-[#1a1c29] border border-gray-700 rounded-2xl flex items-end shadow-2xl p-2 transition focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500/50 w-full relative z-10">
+                        <label for="file-upload" class="p-2.5 md:p-3 text-gray-400 hover:text-white cursor-pointer transition rounded-xl hover:bg-gray-800 mb-0.5 shrink-0">
+                            <i class="fas fa-paperclip text-lg"></i>
+                            <input type="file" id="file-upload" name="file_attachment" class="hidden">
+                        </label>
+                        
+                        <div class="flex-1 flex flex-col justify-center min-h-[44px] px-2 py-1 min-w-0">
+                            <div id="file-preview" class="hidden flex items-center gap-2 text-xs text-blue-300 bg-blue-500/10 rounded px-2 py-1 mb-2 border border-blue-500/20 w-fit max-w-full">
+                                <i class="fas fa-file-alt"></i> 
+                                <span id="file-name-text" class="truncate max-w-[120px] md:max-w-[200px]"></span>
+                                <button type="button" onclick="clearFile()" class="hover:text-red-400 ml-1 shrink-0"><i class="fas fa-times"></i></button>
+                            </div>
+                            <textarea id="message-input" name="message" rows="1" class="w-full bg-transparent border-none outline-none text-white resize-none max-h-32 placeholder-gray-500 text-sm md:text-base scrollbar-hide py-3" placeholder="Kirim pesan..."></textarea>
+                        </div>
 
-                <button type="submit" id="send-btn" class="p-2.5 text-blue-500 hover:text-white hover:bg-blue-600 transition rounded-lg mb-0.5 disabled:opacity-50 disabled:cursor-not-allowed shrink-0">
-                    <i class="fas fa-paper-plane text-base"></i>
-                </button>
-            </form>
-            <p class="text-center text-[10px] text-gray-600 mt-2">AI dapat membuat kesalahan. Cek info penting.</p>
+                        <button type="button" onclick="sendMessage()" id="send-btn" class="p-2.5 md:p-3 text-blue-500 hover:text-white hover:bg-blue-600 transition rounded-xl mb-0.5 disabled:opacity-50 disabled:cursor-not-allowed shrink-0">
+                            <i class="fas fa-paper-plane text-lg"></i>
+                        </button>
+                    </form>
+                </div>
+                <p class="text-center text-[10px] text-gray-600 mt-2 font-medium">AI dapat membuat kesalahan. Cek info penting.</p>
+            </div>
         </div>
     </main>
 
     <script>
         const chatContainer = document.getElementById('chat-container');
-        const form = document.getElementById('chat-form');
+        const messageList = document.getElementById('message-list');
         const messageInput = document.getElementById('message-input');
         const fileInput = document.getElementById('file-upload');
         const filePreview = document.getElementById('file-preview');
         const fileNameText = document.getElementById('file-name-text');
         const loadingIndicator = document.getElementById('loading-indicator');
+        const emptyState = document.getElementById('empty-state');
         const currentConversationId = "<%= activeConversationId %>";
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('mobile-overlay');
+        const dragOverlay = document.getElementById('drag-overlay');
+        const bodyDropZone = document.getElementById('body-drop-zone');
+
+        let targetChatId = null;
+        let dragCounter = 0;
+        let isSending = false;
 
         function toggleSidebar() {
             if (window.innerWidth < 768) {
                 sidebar.classList.toggle('-translate-x-full');
                 overlay.classList.toggle('hidden');
             } else {
-                sidebar.classList.toggle('md:w-0');
-                sidebar.classList.toggle('md:w-72');
-                sidebar.classList.toggle('md:border-none');
-                sidebar.classList.toggle('md:p-0');
+                sidebar.classList.toggle('desktop-collapsed');
             }
         }
 
+        // Dropdown Logic Improved
+        function toggleMenu(e, menuId) {
+            e.stopPropagation(); 
+            e.preventDefault();
+            
+            // Tutup menu lain
+            document.querySelectorAll('.dropdown-menu').forEach(el => {
+                if (el.id !== menuId) el.classList.add('hidden');
+            });
+            
+            const menu = document.getElementById(menuId);
+            menu.classList.toggle('hidden');
+        }
+
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.dropdown-menu').forEach(el => el.classList.add('hidden'));
+        });
+
+        // Modal Logic
+        function openRenameModal(id, currentName) {
+            targetChatId = id;
+            document.getElementById('rename-input').value = currentName;
+            document.getElementById('rename-modal').classList.remove('hidden');
+            document.getElementById('rename-modal').classList.add('flex');
+            setTimeout(() => document.getElementById('rename-input').focus(), 100);
+        }
+
+        function openDeleteModal(id) {
+            targetChatId = id;
+            document.getElementById('delete-modal').classList.remove('hidden');
+            document.getElementById('delete-modal').classList.add('flex');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+            document.getElementById(modalId).classList.remove('flex');
+            targetChatId = null;
+        }
+
+        async function submitRename() {
+            const newName = document.getElementById('rename-input').value.trim();
+            if (!newName || !targetChatId) return;
+
+            try {
+                const res = await fetch('/user/ai/rename-chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ conversationId: targetChatId, newTitle: newName })
+                });
+                const data = await res.json();
+                if (data.success) window.location.reload();
+                else alert('Gagal mengubah nama.');
+            } catch (e) { alert('Error.'); }
+        }
+
+        async function submitDelete() {
+            if (!targetChatId) return;
+            try {
+                const res = await fetch('/user/ai/delete-chat-history', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ conversationId: targetChatId })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    if (targetChatId === currentConversationId) window.location.href = '/user/dardcor-ai';
+                    else window.location.reload();
+                } else alert('Gagal menghapus.');
+            } catch (e) { alert('Error.'); }
+        }
+
+        // Chat Logic
         function scrollToBottom() {
-            chatContainer.scrollTop = chatContainer.scrollHeight;
+            setTimeout(() => { chatContainer.scrollTop = chatContainer.scrollHeight; }, 50);
         }
 
         function clearFile() {
@@ -180,67 +326,87 @@
             filePreview.classList.add('hidden');
         }
 
+        function handleFileSelect(file) {
+            if (file) {
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                fileInput.files = dataTransfer.files;
+                fileNameText.textContent = file.name;
+                filePreview.classList.remove('hidden');
+            }
+        }
+
+        bodyDropZone.addEventListener('dragenter', (e) => {
+            e.preventDefault();
+            dragCounter++;
+            dragOverlay.classList.remove('opacity-0', 'invisible');
+        });
+
+        bodyDropZone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            dragCounter--;
+            if (dragCounter === 0) dragOverlay.classList.add('opacity-0', 'invisible');
+        });
+
+        bodyDropZone.addEventListener('dragover', (e) => e.preventDefault());
+
+        bodyDropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dragCounter = 0;
+            dragOverlay.classList.add('opacity-0', 'invisible');
+            if (e.dataTransfer.files && e.dataTransfer.files.length > 0) handleFileSelect(e.dataTransfer.files[0]);
+        });
+
         fileInput.addEventListener('change', () => {
             if (fileInput.files.length > 0) {
                 fileNameText.textContent = fileInput.files[0].name;
                 filePreview.classList.remove('hidden');
-            } else {
-                filePreview.classList.add('hidden');
-            }
+            } else filePreview.classList.add('hidden');
         });
 
         messageInput.addEventListener('input', function() {
             this.style.height = 'auto';
             this.style.height = Math.min(this.scrollHeight, 128) + 'px';
-            if(this.value === '') this.style.height = 'auto';
         });
 
         messageInput.addEventListener('keydown', function(e) {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
-                form.dispatchEvent(new Event('submit'));
+                sendMessage();
             }
         });
 
-        document.addEventListener("DOMContentLoaded", () => {
-            document.querySelectorAll('.markdown-body').forEach(el => {
-                if(el.dataset.role === 'bot') {
-                    el.innerHTML = parseMarkdown(el.textContent);
-                }
-            });
-            enhanceCodeBlocks();
-            scrollToBottom();
-        });
-
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
+        async function sendMessage() {
+            if (isSending) return;
             const message = messageInput.value.trim();
             const file = fileInput.files[0];
-
             if (!message && !file) return;
+
+            isSending = true;
+            const currentMessage = message;
+            const currentFile = file;
+            
+            messageInput.value = '';
+            messageInput.style.height = 'auto';
+            clearFile();
+            if(emptyState) emptyState.style.display = 'none';
 
             const sendBtn = document.getElementById('send-btn');
             sendBtn.disabled = true;
             messageInput.disabled = true;
 
-            appendUserMessage(message, file ? file.name : null, file ? file.size : 0);
-            
-            messageInput.value = '';
-            messageInput.style.height = 'auto';
-            clearFile();
-            
+            appendUserMessage(currentMessage, currentFile ? currentFile.name : null, currentFile ? currentFile.size : 0);
             loadingIndicator.classList.remove('hidden');
             scrollToBottom();
 
             const formData = new FormData();
-            formData.append('message', message);
+            formData.append('message', currentMessage);
             formData.append('conversationId', currentConversationId);
-            if (file) formData.append('file_attachment', file);
+            if (currentFile) formData.append('file_attachment', currentFile);
 
             try {
                 const res = await fetch('/user/ai/chat', { method: 'POST', body: formData });
                 const data = await res.json();
-                
                 loadingIndicator.classList.add('hidden');
                 sendBtn.disabled = false;
                 messageInput.disabled = false;
@@ -248,45 +414,59 @@
 
                 if (data.success) {
                     appendBotMessage(data.response);
-                } else {
-                    appendErrorMessage(data.response || "Terjadi kesalahan.");
-                }
+                    const newChatLabel = document.getElementById('active-new-chat');
+                    if(newChatLabel) {
+                        newChatLabel.querySelector('span').innerText = currentMessage.substring(0, 22) + '...';
+                        newChatLabel.id = '';
+                        newChatLabel.classList.remove('bg-gray-800', 'border-l-4', 'border-blue-500'); // Remove active style temporarily
+                        window.location.reload(); // Refresh to update sidebar sort
+                    }
+                } else appendErrorMessage(data.response || "Terjadi kesalahan.");
             } catch (err) {
                 loadingIndicator.classList.add('hidden');
                 sendBtn.disabled = false;
                 messageInput.disabled = false;
                 appendErrorMessage("Gagal terhubung ke server.");
+            } finally {
+                isSending = false;
+                sendBtn.disabled = false;
+                messageInput.disabled = false;
             }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            document.querySelectorAll('.markdown-body').forEach(el => {
+                if(el.dataset.role === 'bot') el.innerHTML = parseMarkdown(el.textContent);
+            });
+            enhanceCodeBlocks();
+            scrollToBottom();
+            messageInput.focus();
         });
 
         function appendUserMessage(text, fileName, fileSize) {
             const div = document.createElement('div');
             div.className = "flex w-full justify-end";
-            
             let fileHTML = '';
             if(fileName) {
                 const sizeKB = Math.round(fileSize / 1024);
                 fileHTML = `
-                <div class="mt-2 text-xs flex items-center gap-2 bg-black/20 p-1.5 rounded border border-white/10">
-                    <div class="w-6 h-6 bg-white/10 rounded flex items-center justify-center"><i class="fas fa-file text-xs"></i></div>
+                <div class="mb-3 text-xs flex items-center gap-3 bg-black/20 p-2 rounded-lg border border-white/10">
+                    <div class="w-8 h-8 bg-white/10 rounded flex items-center justify-center"><i class="fas fa-file text-base"></i></div>
                     <div class="flex flex-col overflow-hidden min-w-0">
-                        <span class="truncate font-medium">${fileName}</span>
+                        <span class="truncate font-medium text-white">${fileName}</span>
                         <span class="opacity-70 text-[10px]">${sizeKB} KB</span>
                     </div>
                 </div>`;
             }
-
-            const content = `
-            <div class="flex flex-col items-end max-w-[90%] md:max-w-[85%] lg:max-w-[80%]">
+            div.innerHTML = `
+            <div class="flex flex-col items-end message-bubble">
                 <div class="flex items-center gap-2 mb-1 px-1"><span class="text-[10px] uppercase tracking-wide text-gray-500 font-bold">You</span></div>
-                <div class="rounded-xl p-3 shadow-md text-sm leading-relaxed bg-blue-600 text-white rounded-br-none w-full">
-                    <div class="whitespace-pre-wrap">${text.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
+                <div class="rounded-2xl p-4 shadow-lg text-sm leading-relaxed bg-blue-600 text-white rounded-br-none w-full">
                     ${fileHTML}
+                    <div class="whitespace-pre-wrap">${text.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
                 </div>
             </div>`;
-            
-            div.innerHTML = content;
-            chatContainer.insertBefore(div, loadingIndicator);
+            messageList.insertBefore(div, loadingIndicator);
             scrollToBottom();
         }
 
@@ -294,13 +474,13 @@
             const div = document.createElement('div');
             div.className = "flex w-full justify-start";
             div.innerHTML = `
-                <div class="flex flex-col items-start max-w-[90%] md:max-w-[85%] lg:max-w-[80%]">
+                <div class="flex flex-col items-start message-bubble">
                     <div class="flex items-center gap-2 mb-1 px-1"><span class="text-[10px] uppercase tracking-wide text-gray-500 font-bold">AI</span></div>
-                    <div class="rounded-xl p-3 shadow-md text-sm leading-relaxed bg-[#1a1c29] text-gray-200 rounded-bl-none border border-gray-800 w-full">
+                    <div class="rounded-2xl p-4 shadow-lg text-sm leading-relaxed bg-[#1a1c29] text-gray-200 rounded-bl-none border border-gray-800 w-full">
                         <div class="markdown-body">${parseMarkdown(rawText)}</div>
                     </div>
                 </div>`;
-            chatContainer.insertBefore(div, loadingIndicator);
+            messageList.insertBefore(div, loadingIndicator);
             enhanceCodeBlocks();
             scrollToBottom();
         }
@@ -309,56 +489,45 @@
             const div = document.createElement('div');
             div.className = "flex w-full justify-center my-4";
             div.innerHTML = `<div class="bg-red-500/10 text-red-400 px-3 py-1.5 rounded-lg text-xs border border-red-500/20"><i class="fas fa-exclamation-circle mr-2"></i>${text}</div>`;
-            chatContainer.insertBefore(div, loadingIndicator);
+            messageList.insertBefore(div, loadingIndicator);
             scrollToBottom();
         }
 
-        function parseMarkdown(text) {
-            return marked.parse(text);
-        }
+        function parseMarkdown(text) { return marked.parse(text); }
 
         function enhanceCodeBlocks() {
             document.querySelectorAll('pre code').forEach((block) => {
                 if (block.closest('.code-block-wrapper')) return;
-
                 hljs.highlightElement(block);
-
                 const pre = block.parentElement;
                 const wrapper = document.createElement('div');
                 wrapper.className = 'code-block-wrapper';
-                
                 const header = document.createElement('div');
                 header.className = 'code-header';
-                
                 const lang = block.className.replace('language-', '') || 'code';
-                const langSpan = document.createElement('span');
-                langSpan.textContent = lang.toUpperCase();
-                langSpan.className = "font-bold text-[10px] tracking-wider";
-
+                header.innerHTML = `<span class="font-bold text-[10px] tracking-wider">${lang.toUpperCase()}</span>`;
+                
                 const actions = document.createElement('div');
                 actions.className = 'btn-action';
-
                 const previewBtn = document.createElement('div');
                 previewBtn.className = 'btn-code text-[10px] flex items-center gap-1';
                 previewBtn.innerHTML = '<i class="fas fa-eye"></i> Preview';
                 previewBtn.onclick = () => previewCode(block.innerText);
-
                 const copyBtn = document.createElement('div');
                 copyBtn.className = 'btn-code text-[10px] flex items-center gap-1';
                 copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy';
                 copyBtn.onclick = () => copyToClipboard(block.innerText, copyBtn);
-
+                
                 actions.appendChild(previewBtn);
                 actions.appendChild(copyBtn);
-                header.appendChild(langSpan);
                 header.appendChild(actions);
-
+                
                 pre.parentNode.insertBefore(wrapper, pre);
                 wrapper.appendChild(header);
-                const contentDiv = document.createElement('div');
-                contentDiv.className = 'code-content';
-                contentDiv.appendChild(pre); 
-                wrapper.appendChild(contentDiv);
+                const content = document.createElement('div');
+                content.className = 'code-content';
+                content.appendChild(pre);
+                wrapper.appendChild(content);
             });
         }
 
@@ -370,11 +539,8 @@
                     body: JSON.stringify({ code })
                 });
                 const data = await res.json();
-                if(data.success) {
-                    window.open(`/user/dardcor-ai/preview/${data.previewId}`, '_blank');
-                } else {
-                    alert('Gagal membuat preview.');
-                }
+                if(data.success) window.open(`/user/dardcor-ai/preview/${data.previewId}`, '_blank');
+                else alert('Gagal membuat preview.');
             } catch (e) { alert('Error preview.'); }
         }
 
@@ -398,14 +564,7 @@
 
         async function deleteChat(e, id) {
             e.stopPropagation();
-            if(!confirm('Hapus chat ini?')) return;
-            const res = await fetch('/user/ai/delete-chat-history', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ conversationId: id })
-            });
-            const data = await res.json();
-            if(data.success) window.location.reload();
+            openDeleteModal(id);
         }
     </script>
 </body>

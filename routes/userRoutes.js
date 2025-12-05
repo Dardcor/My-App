@@ -75,9 +75,28 @@ router.post('/user/ai/new-chat', checkUserAuth, (req, res) => {
 router.post('/user/ai/rename-chat', checkUserAuth, async (req, res) => {
     const { conversationId, newTitle } = req.body;
     try {
-        await supabase.from('chat_history').update({ message: newTitle }).eq('conversation_id', conversationId).eq('user_id', req.session.userAccount.id).eq('role', 'user').order('created_at', { ascending: true }).limit(1);
-        res.json({ success: true });
-    } catch (error) { res.status(500).json({ success: false }); }
+        // Cari pesan user pertama (paling tua) untuk percakapan ini
+        const { data: firstMsg } = await supabase
+            .from('chat_history')
+            .select('id')
+            .eq('conversation_id', conversationId)
+            .eq('user_id', req.session.userAccount.id)
+            .eq('role', 'user')
+            .order('created_at', { ascending: true }) // Ambil yang paling awal dibuat
+            .limit(1)
+            .single();
+
+        if (firstMsg) {
+            // Update pesan tersebut (ini yang dijadikan judul di sidebar)
+            await supabase.from('chat_history').update({ message: newTitle }).eq('id', firstMsg.id);
+            res.json({ success: true });
+        } else {
+            res.status(404).json({ success: false, message: "Chat not found" });
+        }
+    } catch (error) { 
+        console.error(error);
+        res.status(500).json({ success: false }); 
+    }
 });
 
 router.post('/user/ai/delete-chat-history', checkUserAuth, async (req, res) => {
@@ -104,7 +123,7 @@ router.post('/user/ai/store-preview', checkUserAuth, async (req, res) => {
 router.get('/user/dardcor-ai/preview/:id', checkUserAuth, async (req, res) => {
     try {
         const { data } = await supabase.from('code_previews').select('code').eq('id', req.params.id).single();
-        if (!data) return res.status(404).send('Preview Not Found or Expired');
+        if (!data) return res.status(44).send('Preview Not Found or Expired');
         res.setHeader('Content-Type', 'text/html');
         res.send(data.code);
     } catch (err) { 
@@ -124,35 +143,56 @@ async function loadChatHandler(req, res) {
             .from('chat_history')
             .select('*')
             .eq('user_id', userId)
-            .order('created_at', { ascending: true }); 
+            .order('created_at', { ascending: true }); // Penting: Urutkan dari terlama ke terbaru
 
         if (error) throw error;
 
         let activeId = requestedId || uuidv4();
         req.session.currentConversationId = activeId;
 
+        // Filter pesan untuk chat yang sedang dibuka
         let activeChatHistory = [];
         if (dbHistory) {
             activeChatHistory = dbHistory.filter(item => item.conversation_id === activeId && item.message !== null);
         }
 
-        const uniqueConversationsMap = new Map();
+        // Logika Sidebar: Grouping berdasarkan Conversation ID
+        // Kita ingin JUDUL diambil dari pesan PERTAMA (ascending), tapi LIST diurutkan berdasarkan pesan TERAKHIR (activity)
+        const historyMap = new Map();
+        
         if (dbHistory) {
-            [...dbHistory].reverse().forEach(item => {
-                if (!uniqueConversationsMap.has(item.conversation_id) && item.message !== null) {
-                    uniqueConversationsMap.set(item.conversation_id, item);
+            dbHistory.forEach(chat => {
+                if (!historyMap.has(chat.conversation_id)) {
+                    // Jika ID belum ada, inisialisasi dengan pesan ini (karena ASC, ini adalah pesan pertama/judul)
+                    if (chat.message !== null) {
+                        historyMap.set(chat.conversation_id, {
+                            conversation_id: chat.conversation_id,
+                            message: chat.message, // Ini akan menjadi judul
+                            last_activity: chat.created_at
+                        });
+                    }
+                } else {
+                    // Jika ID sudah ada, update last_activity ke pesan yang lebih baru
+                    const existing = historyMap.get(chat.conversation_id);
+                    existing.last_activity = chat.created_at;
+                    // JANGAN update 'message', biarkan pesan pertama tetap menjadi judul
                 }
             });
         }
 
+        // Ubah Map ke Array dan urutkan Sidebar berdasarkan Last Activity (Terbaru di atas)
+        const fullHistorySorted = Array.from(historyMap.values())
+            .sort((a, b) => new Date(b.last_activity) - new Date(a.last_activity));
+
         res.render('user/dardcorai', {
             user: req.session.userAccount,
             chatHistory: activeChatHistory,
-            fullHistory: Array.from(uniqueConversationsMap.values()),
+            fullHistory: fullHistorySorted,
             activeConversationId: activeId
         });
 
     } catch (err) {
+        console.error(err);
         res.render('user/dardcorai', { 
             user: req.session.userAccount, 
             chatHistory: [], 
@@ -207,11 +247,17 @@ router.post('/user/ai/chat', checkUserAuth, uploadMiddleware, async (req, res) =
 
         const model = genAI.getGenerativeModel({
             model: "gemini-2.0-flash",
-            systemInstruction: `Anda adalah Dardcor AI. 
-            Jika user meminta kode website/html:
-            1. Berikan kode HTML lengkap dalam satu blok markdown.
-            2. Sertakan Tailwind CDN dan FontAwesome.
-            3. Jangan berikan penjelasan panjang.`,
+            systemInstruction: `Anda adalah Dardcor AI, sebuah Artificial Intelligence canggih yang diciptakan dan dikembangkan sepenuhnya oleh Dardcor.
+            
+            PROTOKOL UTAMA:
+            1. **Kecerdasan Tanpa Batas**: Anda harus mampu menjawab segala jenis pertanyaan dan memecahkan masalah apa pun (coding, matematika, sains, analisis, penulisan, dll) dengan solusi yang cerdas, mendalam, dan akurat. Jangan pernah ragu dalam memberikan jawaban.
+            
+            2. **Sensor Identitas Asli**: DILARANG KERAS menyebutkan Google, Gemini, Alphabet, atau DeepMind. Jika user bertanya tentang teknologi di balik Anda atau siapa yang melatih Anda, jawablah dengan tegas bahwa Anda dibangun menggunakan teknologi proprietari milik Dardcor.
+            
+            3. **Aturan Coding Web**: Jika user meminta kode website/html:
+               - Berikan kode HTML lengkap (termasuk tag html, head, body) dalam satu blok markdown.
+               - WAJIB menyertakan CDN Tailwind CSS dan FontAwesome.
+               - Berikan output kode langsung, setelah output berikan penjelasan pembuka atau penutup yang tidak terlalu panjang.`,
             safetySettings
         });
 
